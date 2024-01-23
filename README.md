@@ -2,7 +2,7 @@
 
 Managed by Suhas Palani, Uday Venkatesha, and Nishchal Gante Ravish
 
-Spring 2024-IIT
+Spring 2024- IIT
 
 
 
