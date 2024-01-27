@@ -153,37 +153,58 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
 
     return RC_OK;
 }
+
+
+
 /*-------------------------------------------------
- --> Author: Rashmi Venkatesh Topannavar
- --> Function Name: closePageFile
- --> Description: This function closes the opened page file.
- --> Parameters:  File Handle
+ --> Author: Suhas Palani
+--> Function Name: closePageFile
+--> Description: This function closes the opened page file function.
+--> Parameters:  File Handle
+
 -------------------------------------------------*/
 
-
 extern RC closePageFile(SM_FileHandle *fHandle) {
-    // Check if the file handle and its fileName are valid
-    if (fHandle == NULL || fHandle->fileName == NULL) {
-        printf("Invalid file handle or file name.\n");
-        return RC_FILE_NOT_FOUND; // Or another appropriate error code for invalid handle
-    }
 
-    // Open the file in read mode to get the FILE* (this is not an ideal approach but may be necessary if the design requires it)
-    FILE *file = fopen(fHandle->fileName, "r");
-    if (file == NULL) {
-        printf("Cannot open file: %s\n", fHandle->fileName);
-        return RC_FILE_NOT_FOUND; // Or another appropriate error code for file not found or cannot open
-    }
+   // Verifies the validity of the file handle and its fileName.
 
-    // Close the file
-    if (fclose(file) == 0) {
-        printf("File closed successfully: %s\n", fHandle->fileName);
-        return RC_OK; // Success
-    } else {
-        printf("Failed to close the file: %s\n", fHandle->fileName);
-        return RC_FILE_NOT_FOUND; // Or another appropriate error code for close failure
-    }
+   if (fHandle == NULL || fHandle->fileName == NULL) {
+       printf("Invalid file handle or file name.\n");
+       return RC_FILE_NOT_FOUND; // Or another appropriate error code for invalid handle
+   }
+
+
+
+
+   // This is not the best course of action, but it could be required if the design calls for it. Open the file in read mode to obtain the FILE*.
+   FILE *file = fopen(fHandle->fileName, "r");
+
+
+   if (file == NULL) {
+       printf("Cannot open file: %s\n", fHandle->fileName);
+       return RC_FILE_NOT_FOUND; // Another suitable error code for an unavailable or inoperable file.
+   }
+
+
+
+   // Closes the file
+   if (fclose(file) == 0) {
+
+       printf("File closed successfully: %s\n", fHandle->fileName);
+
+       return RC_OK; // Successful
+
+
+   } else {
+
+
+       printf("Failed to close the file: %s\n", fHandle->fileName);
+
+       return RC_FILE_NOT_FOUND; // or an other error code suitable for a close failure
+   }
 }
+
+
 
 
 /*-------------------------------------------------
