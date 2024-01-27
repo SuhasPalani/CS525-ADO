@@ -52,34 +52,49 @@ void initStorageManager (void)
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC createPageFile ( char * fileName )
+extern RC createPageFile(char *fileName)
 {
-    filePointer = fopen(fileName,"w+"); 
-	
-    //opening the file with write w+ mode, hence creating a empty file with both reading and writing mode.
-	//checking the existence of file through file pointer
-	
-	if(filePointer!= nullptr)
+    FILE *filePtr = fopen(fileName, "w+");
+
+    // Check if the file was successfully opened for read and write
+    if (filePtr == NULL)
+    
+        return RC_FILE_NOT_FOUND;
+
+    // Allocate memory for an empty page
+    SM_PageHandle emptyPage = (SM_PageHandle)malloc(PAGE_SIZE);
+    
+    // Ensure memory allocation was successful
+    if (emptyPage == NULL)
     {
-    	SM_PageHandle new_page= (SM_PageHandle)malloc(PAGE_SIZE * sizeof(char)); 
-        setEmptyMemory(new_page);
-	    // creating empty page using malloc
-	    //checking if write operation is possible on the empty page.
-	    (PAGE_SIZE >= (fwrite(new_page, sizeof(char), PAGE_SIZE, filePointer)))?printf("\nzero page has been appended to file pointed by filePointer"):printf("\nzero page cannot be appended to file");
-	    
-        free(new_page);// freeing the memory allocated for zero page
-	    fclose(filePointer);// closing the file to make sure buffers are flushed
-	    printf("The new_page file was successfully closed");
-        ret_value = RC_OK;
-	}
-	else
-	{
-		ret_value=RC_FILE_NOT_FOUND;
-	}
-	return ret_value;
+        fclose(filePtr);
+        return RC_WRITE_FAILED;  // Use a generic write failure code
+    }
+
+    // Initialize the empty page with null bytes
+    memset(emptyPage, 0, PAGE_SIZE);
+
+    // Write the empty page to the file
+    size_t writeResult = fwrite(emptyPage, sizeof(char), PAGE_SIZE, filePtr);
+
+    if (writeResult == PAGE_SIZE)
+    {
+        printf("Empty page successfully written to file.\n");
+    }
+    else
+    {
+        printf("Failed to write empty page to file.\n");
+    }
+
+    // Clean up: free allocated memory and close the file
+    free(emptyPage);
+    fclose(filePtr);
+
+    return RC_OK;
 }
 
 
+  
 
 
 /*-----------------------------------------------
