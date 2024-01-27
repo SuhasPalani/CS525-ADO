@@ -164,6 +164,7 @@ RC destroyPageFile(char *fileName)
         // File successfully deleted
         return RC_OK;
     } else {
+        
         // Error occurred during file deletion, return generic file not found error
         return RC_FILE_NOT_FOUND;
     }
