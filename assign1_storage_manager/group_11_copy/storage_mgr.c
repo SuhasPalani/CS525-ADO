@@ -121,7 +121,7 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
     // Now let us return the val
 
     return RC_OK;
-
+}
 /*-------------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
  --> Function Name: closePageFile
@@ -157,49 +157,89 @@ extern RC destroyPageFile(char *fileName)
 }
 
 
+
+
+
+
+
+
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Nishchal Gante Ravish
 --> Function: readBlock()
---> Description: This function is used to read the pageNum block from the file defined by fHandle into address mrPg
---> parameters used: int pgeNum, SM_FileHandle *fileHandle, SM_PageHandle mrPg
---> return type: Return Code
+--> Description: This func is used to read a specific page from teh given file
+--> parameters used: int pgeNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
+--> return type: Return the success or failure operation using status code
 -------------------------------------------------*/
 
-RC readBlock (int pgNum, SM_FileHandle *fileHandle, SM_PageHandle mrPg)
-		{
-			if ((pgNum < fileHandle->totalNumPages)&& pgNum >= 0) 
-			{
-			//FILE *f; : used as a global variable
-			//filePointer = fopen(fileHandle->fileName, "r"); //to open file
-			 FILE *filePointer = fopen(fileHandle->fileName, "r");
-			if(filePointer == nullptr){
-					//If file doesn't exists it returns RC_FILE_NOT_FOUND
-					return RC_FILE_NOT_FOUND; 
-				}
-			if (ferror(filePointer)){ //ferror() will detect error in file pointer stream	  
-					printf("Error in reading from file...");
-					clearerr(filePointer);      //clearerr() will clear error-indicators from the file stream
-					ferror(filePointer);        //No error will be detected now
-                    printf("Error detected in file pointer");
-					return EXIT_FAILURE;
-				}
-			if(fseek(filePointer, pgNum * PAGE_SIZE, SEEK_SET) != 0) {
-					fprintf(stderr, "fseek() failed in file storage_mgr \n");
-						fclose(filePointer);
-						return EXIT_FAILURE;
-				}	
-			if (fread(mrPg, sizeof(char), PAGE_SIZE, filePointer) != PAGE_SIZE) {
-            fclose(filePointer);
-            return EXIT_FAILURE;
-        	}
+// The function starts in the below code
 
-        fclose(filePointer);
-        fileHandle->curPagePos = pgNum;
-        return RC_OK;
-    } else {
-    	//If the total number of pages is more than the page number it will throw error of Non Exisitng Page.
+extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+    // Init file handle so we can interact with the given file
+
+    if(fHandle == NULL) {
+        // If handle isn't initialized, return error
+        return RC_FILE_HANDLE_NOT_INIT;
+    }
+
+
+
+
+    if(pageNum < 0 || fHandle->totalNumPages <= pageNum) {
+        // If no page encountered, return no page error
         return RC_READ_NON_EXISTING_PAGE;
     }
+
+    // Use to track 
+    fHandle->curPagePos = pageNum;
+
+    // Open the file
+    FILE *filePointer = fopen(fHandle->fileName, "r");
+    
+
+    // Return error if failed opening
+
+
+    if(filePointer == NULL) {
+        return RC_FILE_NOT_FOUND;
+    }
+
+
+
+
+    // Calucalte offset 
+    long val_off = (long)pageNum * PAGE_SIZE;
+
+
+    // Used to go to the start of the page 
+
+    int pos_set = fseek(filePointer, val_off, SEEK_SET);
+
+    
+    if (pos_set != 0) {
+
+
+        // Close the file iff the eroro comes
+        fclose(filePointer);
+        return RC_READ_NON_EXISTING_PAGE;
+    }
+
+
+
+    // Read content of page
+    fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
+
+
+
+    // Close given file so we can utilize memory resources
+    fclose(filePointer);
+
+   
+   
+   // Return the gievn status code
+    return RC_OK;
 }
 
 /*-----------------------------------------------
