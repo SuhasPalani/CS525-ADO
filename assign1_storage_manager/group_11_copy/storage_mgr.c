@@ -99,23 +99,44 @@ extern RC createPageFile ( char * fileName )
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: openPageFile()
 --> Description: This function opens the file in read mode using file handle
---> parameters used: Filename and File Handle are the 2 parameters that are used
+--> parameters used: The params we used here are fileName of char type and file handle
 -------------------------------------------------*/
 
 
 extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
-    // Opening the file in read mode
-    FILE *filePointer = fopen(fileName, "r+");
+    // This is used to open the given file in read and update mode
+    FILE *fpf = fopen(fileName, "r+");
 
-    return (filePointer != nullptr) ? (
-        (fHandle->curPagePos = 0, fHandle->fileName = fileName, fseek(filePointer, 0, SEEK_END), fHandle->totalNumPages = (ftell(filePointer) + 1) / PAGE_SIZE, fclose(filePointer), RC_OK)
-    ) : RC_FILE_NOT_FOUND;
+    // This is written so if the file isn't opened it'll return a file not found
+    if (!fpf) {
+        return RC_FILE_NOT_FOUND; // File couldn't be opened
+    }
 
-}
+    // Now let us initialize the file handle details
 
+    //This is used to start at the initial page
+    fHandle -> curPagePos=0;
+
+    // The coed to trace fp
+    fHandle->fileName = fileName;
+
+    // Now go to eof to check len
+    fseek(fpf, 0, SEEK_END);
+
+    // Total the no of pages
+    int fzb = ftell(fpf);
+    fHandle->totalNumPages = (fzb + PAGE_SIZE - 1) / PAGE_SIZE;
+
+
+    // Now we'll close the files
+    fclose(fpf);
+
+    // Now let us return the val
+
+    return RC_OK;
 
 /*-------------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
