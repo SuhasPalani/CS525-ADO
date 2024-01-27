@@ -466,20 +466,59 @@ switch (1) {
 }
 
 
+
+
+
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: readLastBlock()
---> Description: This function reads the last block of the page using memory address mrPg
---> parameters used:SM_FileHandle *fileHandle, SM_PageHandle mrPg
---> return type: Return Code
+--> Description: The given below funciton is used to read the values from the last page
+--> parameters used: Makes use of File and Page Handle
+--> return type: Status Code
 -------------------------------------------------*/
 
-RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle mrPg) {
 
-    return (fHandle != nullptr)
-        ? readBlock((fHandle->totalNumPages > 0) ? (fHandle->totalNumPages - 1) : 0, fHandle, mrPg)
-        : RC_FILE_NOT_FOUND;
+// The below func is used to read last values 
+
+RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+    // Check if file handle is valid 
+
+    if (fHandle == NULL) {
+
+        // If null return err
+        // With specific err code
+
+        return RC_FILE_HANDLE_NOT_INIT;
+
+    }
+
+    // Cal pos of final block
+
+    int fbi = fHandle->totalNumPages - 1;
+
+
+    // Code to validate aboev code
+
+    if (fbi < 0) {
+
+        // If no blocks return out error
+
+        return RC_FILE_NOT_FOUND;
+
+    }
+
+    // Check to seee if code returns success or failure
+    RC status_checker = readBlock(fbi, fHandle, memPage);
+
+
+
+    // Return the status code and check for err
+    return status_checker;
 }
+
+
+
 
 /*-----------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
