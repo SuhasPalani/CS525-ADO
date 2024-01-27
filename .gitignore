@@ -48,3 +48,6 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 CS525*
+assign1_storage_manager/group_11_copy/storage_mgr.c
+.*
+*.o
