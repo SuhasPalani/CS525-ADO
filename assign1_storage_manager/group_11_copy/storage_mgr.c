@@ -145,30 +145,17 @@ extern RC closePageFile(SM_FileHandle *fHandle)
  --> Return type: Return Code
 -------------------------------------------------*/
 
-RC destroyPageFile(char *fileName)
-{
-    // Attempt to open the file in read mode to check its existence
-    FILE *filePointer = fopen(fileName, "r");
-
-    // Check if the file could not be opened
-    if (filePointer == NULL) {
-        // File does not exist or is not accessible
-        return RC_FILE_NOT_FOUND;
-    }
-
-    // Close the file, as it was only opened to check existence
-    fclose(filePointer);
-
-    // Attempt to delete the file
+RC destroyPageFile(char *fileName) {
+    // Attempt to delete the file directly
     if (remove(fileName) == 0) {
         // File successfully deleted
         return RC_OK;
     } else {
-        
-        // Error occurred during file deletion, return generic file not found error
+        // Error occurred during file deletion, return appropriate error code
         return RC_FILE_NOT_FOUND;
     }
 }
+
 
 
 
