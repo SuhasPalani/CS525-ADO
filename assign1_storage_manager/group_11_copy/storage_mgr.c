@@ -58,7 +58,7 @@ extern RC createPageFile(char *fileName)
 
     // Check if the file was successfully opened for read and write
     if (filePtr == NULL)
-    
+
         return RC_FILE_NOT_FOUND;
 
     // Allocate memory for an empty page
@@ -88,7 +88,11 @@ extern RC createPageFile(char *fileName)
 
     // Clean up: free allocated memory and close the file
     free(emptyPage);
+
+     // Close the file to ensure data is flushed and file is properly closed
+
     fclose(filePtr);
+    // Return success code
 
     return RC_OK;
 }
@@ -143,12 +147,28 @@ extern RC closePageFile(SM_FileHandle *fHandle)
 
 extern RC destroyPageFile(char *fileName)
 {
-	
-    filePointer = fopen(fileName, "r");
+    // Attempt to open the file in read mode to check its existence
+    FILE *filePtr = fopen(fileName, "r");
 
-    ret_value = (filePointer != 0 && remove(fileName) == 0) ? RC_OK : RC_FILE_NOT_FOUND;
-    return ret_value;
+    // Check if the file could not be opened
+    if (filePtr == NULL) {
+        // File does not exist or is not accessible
+        return RC_FILE_NOT_FOUND;
+    }
+
+    // Close the file, as it was only opened to check existence
+    fclose(filePtr);
+
+    // Attempt to delete the file
+    if (remove(fileName) == 0) {
+        // File successfully deleted
+        return RC_OK;
+    } else {
+        // Error occurred during file deletion, return generic file not found error
+        return RC_FILE_NOT_FOUND;
+    }
 }
+
 
 
 /*-----------------------------------------------
