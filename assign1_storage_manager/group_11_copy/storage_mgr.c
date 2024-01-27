@@ -152,7 +152,7 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
     // Now let us return the val
 
     return RC_OK;
-
+}
 /*-------------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
  --> Function Name: closePageFile
@@ -164,8 +164,7 @@ extern RC closePageFile(SM_FileHandle *fHandle)
 {
 	printf ("inside close\n"); 
 
-    ret_value = (fHandle != 0) ? 
-    ((filePointer = fopen(fHandle->fileName, "r")) != 0 && fclose(filePointer) == 0) ? RC_OK : RC_FILE_NOT_FOUND: RC_FILE_NOT_FOUND;
+    ret_value = (fHandle != 0) ? ((filePointer = fopen(fHandle->fileName, "r")) != 0 && fclose(filePointer) == 0) ? RC_OK : RC_FILE_NOT_FOUND: RC_FILE_NOT_FOUND;
 
     return ret_value;
 }
