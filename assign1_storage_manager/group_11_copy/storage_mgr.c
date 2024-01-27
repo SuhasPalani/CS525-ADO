@@ -187,7 +187,7 @@ extern RC closePageFile(SM_FileHandle *fHandle) {
 
 
 /*-------------------------------------------------
- --> Author: Rashmi Venkatesh Topannavar
+ --> Author: Uday Venkatesha
  --> Function Name: destroyPageFile
  --> Description: This function deletes the page file
  --> Parameters : File name
@@ -196,12 +196,21 @@ extern RC closePageFile(SM_FileHandle *fHandle) {
 
 extern RC destroyPageFile(char *fileName)
 {
-	
+    // Open the file in read mode to check its existence
     filePointer = fopen(fileName, "r");
 
-    ret_value = (filePointer != 0 && remove(fileName) == 0) ? RC_OK : RC_FILE_NOT_FOUND;
-    return ret_value;
+    // If the file pointer is NULL, the file doesn't exist
+    if (filePointer == NULL) {
+        return RC_FILE_NOT_FOUND;
+    }
 
+    // Close the file before attempting to delete it
+    fclose(filePointer);
+
+    // Remove the file and check the result
+    ret_value = (remove(fileName) == 0) ? RC_OK : RC_FILE_NOT_FOUND;
+
+    return ret_value;
 }
 
 
