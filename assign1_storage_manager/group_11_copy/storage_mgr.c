@@ -145,7 +145,7 @@ extern RC closePageFile(SM_FileHandle *fHandle)
  --> Return type: Return Code
 -------------------------------------------------*/
 
-extern RC destroyPageFile(char *fileName)
+RC destroyPageFile(char *fileName)
 {
     // Attempt to open the file in read mode to check its existence
     FILE *filePtr = fopen(fileName, "r");
