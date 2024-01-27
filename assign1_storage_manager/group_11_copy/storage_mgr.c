@@ -298,29 +298,46 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
     return RC_OK;
 }
 
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: getBlockPos()
 --> Description: This function is used to return the current block position in file
 --> parameters used: SM_FileHandle *fHandle
 --> return type: Return Code
+
 -------------------------------------------------*/
 
-RC getBlockPos (SM_FileHandle *fHandle)
-{
-    /*Current Position of the pointer has to be returned */
 
-    int curPosPtr = 0;
-	
-    switch (1) {
-        case 1:
-            ret_value = (fHandle == NULL) ? RC_FILE_NOT_FOUND : (curPosPtr = fHandle->curPagePos);
-            break;
-    }
+RC getBlockPos(SM_FileHandle *fHandle) {
+   // Set the return value to its initial value.
+   RC ret_value;
 
-    return ret_value;
+
+
+   // Verify whether the file handle is NULL.
+
+
+   if (fHandle == NULL) {
+       ret_value = RC_FILE_NOT_FOUND;
+   } else {
+       // File handle is not NULL; please verify the location of the page.
+
+
+
+       if (fHandle->curPagePos >= 0) {
+           ret_value = RC_OK;
+       } else {
+           // The page position is incorrect right now.
+
+
+           ret_value = RC_FILE_HANDLE_NOT_INIT;
+       }
+   }
+
+   return ret_value; // Return the value
 }
-
 
 
 /*-----------------------------------------------
