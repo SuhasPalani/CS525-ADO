@@ -425,21 +425,42 @@ RC readPreviousBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 }
 
 
+
+
 /*----------------------------------------------------------------------------
---> Author: Rashmi Venkatesh Topannavar
+----
+--> Author: Suhas Palani
 --> Function Name: readCurrentBlock
---> Description: This function reads the current block into the memory address mrPg
---> Parameters: SM_FileHandle *fHandle, SM_PageHandle mrPg
+--> Description: This function reads the current block into the memory address memPage
+--> Parameters: SM_FileHandle *fHandle, SM_PageHandle memPage
 --> Return type: Return Code
+
 -----------------------------------------------------------------------------*/
 
 
-RC readCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle mrPg)
-{
-    /*Using the present blocks poosition, we read it's contents*/
-    
-    return (fHandle != nullptr) ? readBlock(fHandle->curPagePos, fHandle, mrPg) : RC_FILE_NOT_FOUND;
+
+RC readCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
+   // Verify that the current page position is correct and that the file handle is not NULL.
+
+
+   if (fHandle != NULL && fHandle->curPagePos >= 0) {
+       // Gives the readBlock function control over the read operation.
+
+
+       return readBlock(fHandle->curPagePos, fHandle, memPage);
+
+
+   }
+   else {
+       // If the location is invalid or the file handle is NULL, return the relevant error code.
+
+
+       return (fHandle == NULL) ? RC_FILE_NOT_FOUND : RC_READ_NON_EXISTING_PAGE;
+   }
 }
+
+
+
 
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
