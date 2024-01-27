@@ -54,10 +54,10 @@ void initStorageManager (void)
 
 extern RC createPageFile(char *fileName)
 {
-    FILE *filePtr = fopen(fileName, "w+");
+    FILE *filePointer = fopen(fileName, "w+");
 
     // Check if the file was successfully opened for read and write
-    if (filePtr == NULL)
+    if (filePointer == NULL)
 
         return RC_FILE_NOT_FOUND;
 
@@ -67,7 +67,7 @@ extern RC createPageFile(char *fileName)
     // Ensure memory allocation was successful
     if (emptyPage == NULL)
     {
-        fclose(filePtr);
+        fclose(filePointer);
         return RC_WRITE_FAILED;  // Use a generic write failure code
     }
 
@@ -75,7 +75,7 @@ extern RC createPageFile(char *fileName)
     memset(emptyPage, 0, PAGE_SIZE);
 
     // Write the empty page to the file
-    size_t writeResult = fwrite(emptyPage, sizeof(char), PAGE_SIZE, filePtr);
+    size_t writeResult = fwrite(emptyPage, sizeof(char), PAGE_SIZE, filePointer);
 
     if (writeResult == PAGE_SIZE)
     {
@@ -91,7 +91,7 @@ extern RC createPageFile(char *fileName)
 
      // Close the file to ensure data is flushed and file is properly closed
 
-    fclose(filePtr);
+    fclose(filePointer);
     // Return success code
 
     return RC_OK;
