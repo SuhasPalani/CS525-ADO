@@ -160,14 +160,31 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
  --> Parameters:  File Handle
 -------------------------------------------------*/
 
-extern RC closePageFile(SM_FileHandle *fHandle)
-{
-	printf ("inside close\n"); 
 
-    ret_value = (fHandle != 0) ? ((filePointer = fopen(fHandle->fileName, "r")) != 0 && fclose(filePointer) == 0) ? RC_OK : RC_FILE_NOT_FOUND: RC_FILE_NOT_FOUND;
+extern RC closePageFile(SM_FileHandle *fHandle) {
+    // Check if the file handle and its fileName are valid
+    if (fHandle == NULL || fHandle->fileName == NULL) {
+        printf("Invalid file handle or file name.\n");
+        return RC_FILE_NOT_FOUND; // Or another appropriate error code for invalid handle
+    }
 
-    return ret_value;
+    // Open the file in read mode to get the FILE* (this is not an ideal approach but may be necessary if the design requires it)
+    FILE *file = fopen(fHandle->fileName, "r");
+    if (file == NULL) {
+        printf("Cannot open file: %s\n", fHandle->fileName);
+        return RC_FILE_NOT_FOUND; // Or another appropriate error code for file not found or cannot open
+    }
+
+    // Close the file
+    if (fclose(file) == 0) {
+        printf("File closed successfully: %s\n", fHandle->fileName);
+        return RC_OK; // Success
+    } else {
+        printf("Failed to close the file: %s\n", fHandle->fileName);
+        return RC_FILE_NOT_FOUND; // Or another appropriate error code for close failure
+    }
 }
+
 
 /*-------------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
@@ -184,8 +201,8 @@ extern RC destroyPageFile(char *fileName)
 
     ret_value = (filePointer != 0 && remove(fileName) == 0) ? RC_OK : RC_FILE_NOT_FOUND;
     return ret_value;
-}
 
+}
 
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
