@@ -351,23 +351,40 @@ RC readFirstBlock(SM_FileHandle *fileHandle, SM_PageHandle mrPg) {
     return status;
 }
 
+
+
+
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: readPreviousBlock()
---> Description: This function reads the previous block of the page using memory address mrPg
---> parameters used:char* fileName, SM_FileHandle *fHandle
---> return type: Return Code
+--> Description: The below func is used to read the mem block using memPage
+--> parameters used: File handle and page handle
+--> return type: Return the status code
 -------------------------------------------------*/
 
-RC readPreviousBlock(SM_FileHandle *fHandle, SM_PageHandle mrPg) {
 
-    return (fHandle != nullptr && fHandle->curPagePos > 0)
-        ? readBlock(fHandle->curPagePos - 1, fHandle, mrPg)
-        : RC_FILE_NOT_FOUND;
+
+RC readPreviousBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+
+    // Now letus check if handle is work fine
+
+    if (fHandle != NULL && fHandle->curPagePos > 0) {
+
+        // if valid then 
+        // read each block and dec the pos
+    return readBlock(fHandle->curPagePos - 1, fHandle, memPage);
+    }
+
+
+    else{
+        // Put file not found if pos is in the begining or null
+
+        return RC_FILE_NOT_FOUND;
+    }
+
 
 }
-
-
 
 
 /*----------------------------------------------------------------------------
