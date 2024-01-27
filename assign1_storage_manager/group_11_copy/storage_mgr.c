@@ -148,16 +148,16 @@ extern RC closePageFile(SM_FileHandle *fHandle)
 RC destroyPageFile(char *fileName)
 {
     // Attempt to open the file in read mode to check its existence
-    FILE *filePtr = fopen(fileName, "r");
+    FILE *filePointer = fopen(fileName, "r");
 
     // Check if the file could not be opened
-    if (filePtr == NULL) {
+    if (filePointer == NULL) {
         // File does not exist or is not accessible
         return RC_FILE_NOT_FOUND;
     }
 
     // Close the file, as it was only opened to check existence
-    fclose(filePtr);
+    fclose(filePointer);
 
     // Attempt to delete the file
     if (remove(fileName) == 0) {
