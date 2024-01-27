@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/sugip/OneDrive/Desktop/IIT/second sem/ADO/last sem/saikrishna02-cs525-f22-group16-f494641c3272/assign1",
+      "program": "c:/Users/sugip/OneDrive/Desktop/IIT/second sem/ADO/last sem/saikrishna02-cs525-f22-group16-f494641c3272/assign1/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
