@@ -1,0 +1,105 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CS 525 Assignment 1 - Storage Manager
+
+--------------------------------       
+        Group 16 Members:
+--------------------------------
+
+Name - Diksha Sharma 
+CWID - A20523396 
+Email- dsharma19@hawk.iit.edu 
+
+
+Name - Bhoomika Panduranga 
+CWID - A20503493 
+Email- bpanduranga@hawk.iit.edu
+
+
+Name - Yashas Shashidhar    
+CWID - A20516827 
+Email- yshashidhar@hawk.iit.edu
+
+
+--------------------------------
+   Steps to run the code :
+--------------------------------
+
+$ make
+
+This creates an executable file "test_assign1". Use the below command to run the executable.
+
+$ ./test_assign1 
+
+After this, we can check the memory leakage by using the below command
+
+$ valgrind --leak-check=full --track-origins=yes ./test_assign1
+
+If the code needs to be run again, we can clean the files and then Redo from Step 1. To clean use below command.
+
+$ make clean
+
+--------------------------------
+    READ FUNCTIONS:
+    Author: Diksha Sharma
+--------------------------------
+
+readBlock() 		: This is used to read the pageNum block from the file defined by fHandle into address memPage,Parameters Used are int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage.
+
+getBlockPos() 		:  This function is used to return the current block position in file, Parameters used are SM_FileHandle *fHandle.
+
+readFirstBlock() 	: This function is used to read the first block of file,Parameters used are M_FileHandle *fHandle, SM_PageHandle memPage.
+
+readPreviousBlock() : This is used to read the previous block in this file into the address which memPage has pointed to, Parameters used are SM_FileHandle *fHandle, SM_PageHandle memPage.
+
+readCurrentBlock() 	: This reads the current block into memo address memPage, Parameters used are SM_FileHandle *fHandle, SM_PageHandle memPage.
+
+readNextBlock() 	: This is used to read the next block into memo address memPage, Parameters used are SM_FileHandle *fHandle, SM_PageHandle memPage.
+
+readLastBlock() 	: This is used to read the last block in this file into memo address memPage, Parameters used are SM_FileHandle *fHandle, SM_PageHandle memPage.
+
+
+
+--------------------------------
+    WRITE FUNCTIONS:
+    Author: Yashas Shashidhar
+--------------------------------
+
+writeBlock()		: This function will write the data into the specified page number of the file. The parameter which are passed to the functions are pageNum, File Handle and the Page Handle. The function returns RC_OK on success, RC_FILE_NOT_FOUND if the file is missing and RC_WRITE_FAILED if there is any error in writing the data.
+
+writeCurrentBlock()	: This function will write the data into the current block the file handle is accessing. The parameter which are passed are the File Handle and Page Handle. The function returns RC_OK on success, RC_FILE_NOT_FOUND if the file is missing and RC_WRITE_FAILED if there is any error in writing the data.
+
+appendEmptyBlock()	: This function will append an empty page to the file. The function will take File handle as the input parameter and returns RC_OK on suceess and returns RC_WRITE_FAILED if there's any error in appending the empty block or RC_FILE_NOT_FOUND if the file does not exist.
+
+ensureCapacity()   	: This function make sure that the number of pages are available in the file. If the number of pages is more than the total number of pages in the file then the additional empty pages are appended to the file.   
+
+--------------------------------
+    OTHER FUNCTIONS:
+    Author: Bhoomika Panduranga
+--------------------------------
+
+createPageFile()	: This function will create a fill and appends an single empty file. This function will take filename  as a parameter. The function will return RC_OK on success. 
+
+openPageFile()		: This function will create a file handel to the open file. This function takes File Handle as a parameter and will initialize  all the meta data of the File Handle. RC_OK is retuned upon success and RC_FILE_NOT_FOUND is retuned upon failure 
+
+closePageFile()		: This function closes the opened page file. Function takes File Handle as the input parameter and returns RC_OK upon sucess and RC_FILE_NOT_FOUND if the file is missing.  
+
+destroyPageFile()	: This function delets the page file. It checks if the file exist and deletes it late, it returns RC_OK if the file is deleted successfully and RC_FILE_NOT_FOUND if the file does not exist.  
+
+
+--------------------------------
+    OTHER FUNCTIONS:
+    Author: Yashas Shashidhar
+--------------------------------
+
+setNull()           : This function is used to create an empty page.
+
+-------------------------------
+    TEST CASES:
+--------------------------------
+
+testCreateOpenClose()	: It verifies if the code written, is able to create, open and close and delete a page file.
+
+testSinglePageContent()	: It verified all the cases mentioned above along with which , it checks if the data can be read or written into the mentioned pageFiles.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
