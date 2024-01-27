@@ -61,7 +61,7 @@ void initStorageManager(void) {
 // End of initStorageManager Function
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Uday Venkatesha
 --> Function: createPageFile()
 --> Description: This function creates a new empty file and appending that empty file into the file pointed by filePointer
 --> parameters used: fileName
