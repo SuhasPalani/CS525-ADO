@@ -17,8 +17,8 @@ RC ret_value;
  --> Description: This function will set the memory to NULL.
  --> Parameters used is Memory
 -----------------------------------------------*/
-
-void setEmptyMemory(char *memory) {
+// to be done
+void setEmptyMemory(char *memory){ 
     size_t i = 0;
     do {
         memory[i] = '\0';
@@ -33,19 +33,35 @@ void setEmptyMemory(char *memory) {
 --> parameters used: void (no return value and no parameters)
 -------------------------------------------------*/
 
-void initStorageManager (void)
-{
-    /*First call made to initStorageManager*/
-    //setting the filepointer to null
-    filePointer = nullptr;
-    //setting the return_code value to null
-    ret_value = -1;
-    printf("\nDefining the Storage Manager function");
-	printf("\nStorage Manager Defined and successfully initiallized");
+
+// Function declaration to set the storage manager's initial state
+void initStorageManager(void) {
+    // The file pointer should be initialized to make sure it doesn't point to an already-existing file.
+    filePointer = NULL; // Using NULL for pointer initialization for clarity
+
+    // Set the default error value for the return code at initialization.
+    int returnValue = -1; // For the return value, using a variable name that is more descriptive
+    // Print messages to show when the initialization of the storage manager has begun and finished.
+    printf("\nInitializing the Storage Manager....\n");
+    // If more initialization code is required, it can be placed here.
+   
+    // In the case of configuring memory, launching a log file, etc.
+
+    // Update the return value to reflect success after a successful initialization.
+    returnValue = 0; // In this case, assuming 0 denotes success
+
+
+    // Check if initialization was successful and print the appropriate message
+    if (returnValue == 0) {
+        printf("\nStorage Manager successfully initialized...\n");
+    } else {
+        printf("\nError initializing Storage Manager. Return code: %d", returnValue);
+    }
 }
+// End of initStorageManager Function
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Uday Venkatesha
 --> Function: createPageFile()
 --> Description: This function creates a new empty file and appending that empty file into the file pointed by filePointer
 --> parameters used: fileName
@@ -54,11 +70,11 @@ void initStorageManager (void)
 
 extern RC createPageFile(char *fileName)
 {
-    FILE *filePointer = fopen(fileName, "w+");
+    FILE *filePtr = fopen(fileName, "w+");
 
     // Check if the file was successfully opened for read and write
-    if (filePointer == NULL)
-
+    if (filePtr == NULL)
+    
         return RC_FILE_NOT_FOUND;
 
     // Allocate memory for an empty page
@@ -67,7 +83,7 @@ extern RC createPageFile(char *fileName)
     // Ensure memory allocation was successful
     if (emptyPage == NULL)
     {
-        fclose(filePointer);
+        fclose(filePtr);
         return RC_WRITE_FAILED;  // Use a generic write failure code
     }
 
@@ -75,7 +91,7 @@ extern RC createPageFile(char *fileName)
     memset(emptyPage, 0, PAGE_SIZE);
 
     // Write the empty page to the file
-    size_t writeResult = fwrite(emptyPage, sizeof(char), PAGE_SIZE, filePointer);
+    size_t writeResult = fwrite(emptyPage, sizeof(char), PAGE_SIZE, filePtr);
 
     if (writeResult == PAGE_SIZE)
     {
@@ -88,11 +104,7 @@ extern RC createPageFile(char *fileName)
 
     // Clean up: free allocated memory and close the file
     free(emptyPage);
-
-     // Close the file to ensure data is flushed and file is properly closed
-
-    fclose(filePointer);
-    // Return success code
+    fclose(filePtr);
 
     return RC_OK;
 }
@@ -102,24 +114,45 @@ extern RC createPageFile(char *fileName)
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: openPageFile()
 --> Description: This function opens the file in read mode using file handle
---> parameters used: Filename and File Handle are the 2 parameters that are used
+--> parameters used: The params we used here are fileName of char type and file handle
 -------------------------------------------------*/
 
 
 extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
-    // Opening the file in read mode
-    FILE *filePointer = fopen(fileName, "r+");
+    // This is used to open the given file in read and update mode
+    FILE *fpf = fopen(fileName, "r+");
 
-    return (filePointer != nullptr) ? (
-        (fHandle->curPagePos = 0, fHandle->fileName = fileName, fseek(filePointer, 0, SEEK_END), fHandle->totalNumPages = (ftell(filePointer) + 1) / PAGE_SIZE, fclose(filePointer), RC_OK)
-    ) : RC_FILE_NOT_FOUND;
+    // This is written so if the file isn't opened it'll return a file not found
+    if (!fpf) {
+        return RC_FILE_NOT_FOUND; // File couldn't be opened
+    }
 
+    // Now let us initialize the file handle details
+
+    //This is used to start at the initial page
+    fHandle -> curPagePos=0;
+
+    // The coed to trace fp
+    fHandle->fileName = fileName;
+
+    // Now go to eof to check len
+    fseek(fpf, 0, SEEK_END);
+
+    // Total the no of pages
+    int fzb = ftell(fpf);
+    fHandle->totalNumPages = (fzb + PAGE_SIZE - 1) / PAGE_SIZE;
+
+
+    // Now we'll close the files
+    fclose(fpf);
+
+    // Now let us return the val
+
+    return RC_OK;
 }
-
-
 /*-------------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
  --> Function Name: closePageFile
@@ -127,15 +160,31 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
  --> Parameters:  File Handle
 -------------------------------------------------*/
 
-extern RC closePageFile(SM_FileHandle *fHandle)
-{
-	printf ("inside close\n"); 
 
-    ret_value = (fHandle != 0) ? 
-    ((filePointer = fopen(fHandle->fileName, "r")) != 0 && fclose(filePointer) == 0) ? RC_OK : RC_FILE_NOT_FOUND: RC_FILE_NOT_FOUND;
+extern RC closePageFile(SM_FileHandle *fHandle) {
+    // Check if the file handle and its fileName are valid
+    if (fHandle == NULL || fHandle->fileName == NULL) {
+        printf("Invalid file handle or file name.\n");
+        return RC_FILE_NOT_FOUND; // Or another appropriate error code for invalid handle
+    }
 
-    return ret_value;
+    // Open the file in read mode to get the FILE* (this is not an ideal approach but may be necessary if the design requires it)
+    FILE *file = fopen(fHandle->fileName, "r");
+    if (file == NULL) {
+        printf("Cannot open file: %s\n", fHandle->fileName);
+        return RC_FILE_NOT_FOUND; // Or another appropriate error code for file not found or cannot open
+    }
+
+    // Close the file
+    if (fclose(file) == 0) {
+        printf("File closed successfully: %s\n", fHandle->fileName);
+        return RC_OK; // Success
+    } else {
+        printf("Failed to close the file: %s\n", fHandle->fileName);
+        return RC_FILE_NOT_FOUND; // Or another appropriate error code for close failure
+    }
 }
+
 
 /*-------------------------------------------------
  --> Author: Rashmi Venkatesh Topannavar
@@ -145,63 +194,99 @@ extern RC closePageFile(SM_FileHandle *fHandle)
  --> Return type: Return Code
 -------------------------------------------------*/
 
-RC destroyPageFile(char *fileName) {
-    // Attempt to delete the file directly
-    if (remove(fileName) == 0) {
-        // File successfully deleted
-        return RC_OK;
-    } else {
-        // Error occurred during file deletion, return appropriate error code
-        return RC_FILE_NOT_FOUND;
-    }
+extern RC destroyPageFile(char *fileName)
+{
+	
+    filePointer = fopen(fileName, "r");
+
+    ret_value = (filePointer != 0 && remove(fileName) == 0) ? RC_OK : RC_FILE_NOT_FOUND;
+    return ret_value;
+
 }
 
 
 
 
+
+
+
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Nishchal Gante Ravish
 --> Function: readBlock()
---> Description: This function is used to read the pageNum block from the file defined by fHandle into address mrPg
---> parameters used: int pgeNum, SM_FileHandle *fileHandle, SM_PageHandle mrPg
---> return type: Return Code
+--> Description: This func is used to read a specific page from teh given file
+--> parameters used: int pgeNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
+--> return type: Return the success or failure operation using status code
 -------------------------------------------------*/
 
-RC readBlock (int pgNum, SM_FileHandle *fileHandle, SM_PageHandle mrPg)
-		{
-			if ((pgNum < fileHandle->totalNumPages)&& pgNum >= 0) 
-			{
-			//FILE *f; : used as a global variable
-			//filePointer = fopen(fileHandle->fileName, "r"); //to open file
-			 FILE *filePointer = fopen(fileHandle->fileName, "r");
-			if(filePointer == nullptr){
-					//If file doesn't exists it returns RC_FILE_NOT_FOUND
-					return RC_FILE_NOT_FOUND; 
-				}
-			if (ferror(filePointer)){ //ferror() will detect error in file pointer stream	  
-					printf("Error in reading from file...");
-					clearerr(filePointer);      //clearerr() will clear error-indicators from the file stream
-					ferror(filePointer);        //No error will be detected now
-                    printf("Error detected in file pointer");
-					return EXIT_FAILURE;
-				}
-			if(fseek(filePointer, pgNum * PAGE_SIZE, SEEK_SET) != 0) {
-					fprintf(stderr, "fseek() failed in file storage_mgr \n");
-						fclose(filePointer);
-						return EXIT_FAILURE;
-				}	
-			if (fread(mrPg, sizeof(char), PAGE_SIZE, filePointer) != PAGE_SIZE) {
-            fclose(filePointer);
-            return EXIT_FAILURE;
-        	}
+// The function starts in the below code
 
-        fclose(filePointer);
-        fileHandle->curPagePos = pgNum;
-        return RC_OK;
-    } else {
-    	//If the total number of pages is more than the page number it will throw error of Non Exisitng Page.
+extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+    // Init file handle so we can interact with the given file
+
+    if(fHandle == NULL) {
+        // If handle isn't initialized, return error
+        return RC_FILE_HANDLE_NOT_INIT;
+    }
+
+
+
+
+    if(pageNum < 0 || fHandle->totalNumPages <= pageNum) {
+        // If no page encountered, return no page error
         return RC_READ_NON_EXISTING_PAGE;
     }
+
+    // Use to track 
+    fHandle->curPagePos = pageNum;
+
+    // Open the file
+    FILE *filePointer = fopen(fHandle->fileName, "r");
+    
+
+    // Return error if failed opening
+
+
+    if(filePointer == NULL) {
+        return RC_FILE_NOT_FOUND;
+    }
+
+
+
+
+    // Calucalte offset 
+    long val_off = (long)pageNum * PAGE_SIZE;
+
+
+    // Used to go to the start of the page 
+
+    int pos_set = fseek(filePointer, val_off, SEEK_SET);
+
+    
+    if (pos_set != 0) {
+
+
+        // Close the file iff the eroro comes
+        fclose(filePointer);
+        return RC_READ_NON_EXISTING_PAGE;
+    }
+
+
+
+    // Read content of page
+    fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
+
+
+
+    // Close given file so we can utilize memory resources
+    fclose(filePointer);
+
+   
+   
+   // Return the gievn status code
+    return RC_OK;
 }
 
 /*-----------------------------------------------
