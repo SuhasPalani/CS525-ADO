@@ -462,31 +462,54 @@ RC readCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
 
 
+
+
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Uday Venkatesha
 --> Function: readNextBlock()
 --> Description:  This is used to read the next block in to memory address mrPg
 --> parameters used: SM_FileHandle *fHandle, SM_PageHandle mrPg
 --> return type: Return Code
 -------------------------------------------------*/
 
-RC readNextBlock (SM_FileHandle *fHandle, SM_PageHandle mrPg)
-{
-    
-switch (1) {
-    case 1:
-        switch (fHandle != nullptr) {
-            case 1:
-                return readBlock(fHandle->curPagePos + 1, fHandle, mrPg);
-            case 0:
-                return RC_FILE_NOT_FOUND;
-        }
-        break;
+
+
+RC readNextBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+
+    // Check if the file handle is not null (i.e., the file handle exists).
+
+
+    if (fHandle != NULL) {
+
+
+        // Increment the current page position before reading.
+
+
+        // This moves the position to the next block to read.
+
+
+        int nextPage = fHandle->curPagePos + 1;
+
+        // Call readBlock to read the block at the new page position.
+
+
+        // readBlock should be a function that reads the specified block of a file.
+
+        return readBlock(nextPage, fHandle, memPage);
+
+
+    } else {
+
+
+        // If the file handle is null, return an error code indicating the file was not found.
+
+        
+        return RC_FILE_NOT_FOUND;
+    }
 }
-
-}
-
-
 
 
 
@@ -561,7 +584,7 @@ RC writeBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
    int offset_write = 0;
 
-   
+
    int pageOffsetAdjustment = 0; // Relevant in context, but not properly applied
 
 
