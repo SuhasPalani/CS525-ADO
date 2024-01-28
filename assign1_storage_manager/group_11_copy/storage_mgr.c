@@ -12,27 +12,34 @@ RC ret_value;
 
 
 
-/*-----------------------------------------------
- --> Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
- --> Function Name: setEmptyMemory
- --> Description: This function will set the memory to NULL.
- --> Parameters used is Memory
------------------------------------------------*/
-// to be done
-void setEmptyMemory(char *memory){ 
-    size_t i = 0;
-    do {
-        memory[i] = '\0';
-        i++;
-    } while (i < PAGE_SIZE);
-}
+
+
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
+ --> Author: Nishchal Gante Ravish
+ --> Function Name: setEmptyMemory
+ --> Description: This func is used to set the mem to null
+ --> Parameters used is Memory
+-----------------------------------------------*/
+
+
+
+
+void setEmptyMemory(char *memory) {
+    for (size_t i = 0; i < PAGE_SIZE; i++) {
+        memory[i] = '\0';
+    }
+}
+
+
+
+/*-----------------------------------------------
+-->Author: Suhas Palani
 --> Function: initStorageManager()
---> Description: This function initialises file pointer to null, return_code to -1. 
+--> Description: This function sets return_code to -1 and the file reference to null. 
 --> parameters used: void (no return value and no parameters)
 -------------------------------------------------*/
+
 
 
 // Function declaration to set the storage manager's initial state
