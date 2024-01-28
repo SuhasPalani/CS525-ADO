@@ -728,39 +728,114 @@ RC writeCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
 
 
+
+
 /*-------------------------------------------------
- --> Author: Ramyashree Raghunandan
+ --> Author: Nishchal Gante Ravish
  --> Function Name: appendEmptyBlock
- --> Description: This function will append an empty page to the file.
- --> Parameters used are SM_FileHandle *fHandle
+ --> Description: The below func is used to append an empty page to file
+ --> The parameters used are file handle
 ---------------------------------------------------*/
 
-RC appendEmptyBlock(SM_FileHandle *fHandle) 
-{
-    // To append an empty block, the file poniter has to seek to eof and 
-    // new page has to added to the file. Later the total number of pages is increased by 1.
 
-    int page_total = 0;
-    if(fHandle != nullptr)                                                     
-    {
-        // Creating an empty page
 
-        char *empty_Block = malloc(PAGE_SIZE * sizeof(char));
-        setEmptyMemory(empty_Block); 
 
-        filePointer = fopen(fHandle->fileName, "w+");
+void initializeEmptyBlock(char *block, size_t size);
 
-        return (filePointer != nullptr) ? ((fseek(filePointer, 0, SEEK_END) == 0 && fwrite(empty_Block, 1, PAGE_SIZE, filePointer) != 0) ?
-                (fHandle->totalNumPages++, fHandle->curPagePos = fHandle->totalNumPages - 1, free(empty_Block), fclose(filePointer), RC_OK) :
-                (fclose(filePointer), RC_WRITE_FAILED)) : RC_FILE_NOT_FOUND;
 
-        fclose(filePointer);
-                               
-    }
+// Write the func below
+
+RC appendEmptyBlock(SM_FileHandle *fHandle) {
     
-    return RC_FILE_NOT_FOUND; 
-    	
+    // Here we check if fhandle is fine
+
+    if (!fHandle) {
+
+
+        return RC_FILE_NOT_FOUND; 
+    }
+
+
+    // Initialize empty block
+
+
+    char *ebl = calloc(PAGE_SIZE, sizeof(char));
+
+
+    if (!ebl) {
+
+
+        return RC_FILE_NOT_FOUND; 
+    }
+
+    // Let us open the file in append mode
+
+
+    FILE *file = fopen(fHandle->fileName, "a");
+
+
+    if (!file) {
+
+        // Let's free the allocated block 
+
+        free(ebl); 
+
+
+        return RC_FILE_NOT_FOUND; 
+    }
+
+
+
+    // Write the empty block to the fiel
+
+
+    if (fwrite(ebl, sizeof(char), PAGE_SIZE, file) < PAGE_SIZE) {
+
+        fclose(file);
+
+        free(ebl);
+
+        return RC_FILE_NOT_FOUND;
+    }
+
+
+
+    // Now let's write the meta data
+
+
+    fHandle->totalNumPages++;
+
+
+
+    fHandle->curPagePos = fHandle->totalNumPages - 1;
+
+    // Clean everything and return success val
+
+
+    fclose(file);
+
+
+    free(ebl);
+
+
+    return RC_OK; 
 }
+
+
+// Func for zero init
+
+void initializeEmptyBlock(char *block, size_t size) {
+
+
+    if (block) {
+
+        
+        memset(block, 0, size);
+    }
+}
+
+
+
 
 
 
