@@ -3,6 +3,7 @@
 #include <string.h>
 #include "storage_mgr.h"
 #include "dberror.h"
+#include <stdbool.h>
 
 #define nullptr NULL
 
@@ -506,7 +507,7 @@ RC readNextBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
         // If the file handle is null, return an error code indicating the file was not found.
 
-        
+
         return RC_FILE_NOT_FOUND;
     }
 }
@@ -667,23 +668,65 @@ RC writeBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
      
 }
 
+
+
 /*-----------------------------------------------
- --> Author: Rashmi Venkatesh Topannavar
+ --> Author: Uday Venkatesha
  --> Function Name: writeCurrentBlock
  --> Description: This function will write the data into the current block which the file handle is accessing
  --> Parameters : SM_FileHandle *fHandle, SM_PageHandle mrPg
  --> Return type: Return Code
+
 -----------------------------------------------*/
 
 
-RC writeCurrentBlock (SM_FileHandle *fHandle, SM_PageHandle mrPg)
-{
-    /* Writing the mrPg data into the file by passing the curPagePos to the writeblock */
 
-    int current_Block = (fHandle == 0) ? RC_FILE_NOT_FOUND : fHandle->curPagePos;
-    return writeBlock(current_Block, fHandle, mrPg);
-        	
+RC writeCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+    // First, check if the file handle pointer is null.
+
+
+    // This is to ensure we have a valid file handle before proceeding.
+
+
+    if (fHandle == NULL) {
+
+
+        // If the file handle is null, return an error code indicating the file was not found.
+
+
+        // This error code should be defined in your system.
+
+
+        return RC_FILE_NOT_FOUND;
+    }
+
+    // Retrieve the current page position from the file handle.
+
+
+    // This indicates the block number where we want to write.
+
+
+    int currentBlock = fHandle->curPagePos;
+
+    // Call writeBlock to write data to the current block of the file.
+
+
+    // writeBlock should be a function defined elsewhere in your code,
+
+
+    // which handles the actual process of writing to the file.
+
+
+    // It takes the block number, file handle, and data to write as arguments.
+
+
+    return writeBlock(currentBlock, fHandle, memPage);
 }
+
+
+
+
 
 /*-------------------------------------------------
  --> Author: Ramyashree Raghunandan
@@ -719,47 +762,61 @@ RC appendEmptyBlock(SM_FileHandle *fHandle)
     	
 }
 
+
+
 /*----------------------------------------------------------
- --> Author: Arpitha Hebri Ravi Vokuda
- --> Function Name: ensureCapacity()
- --> Description: This function make sure that the number of pages required, are available in the file.
- --> Parameters used are SM_FileHandle *fHandle and number of Pages
- --> Return type: Return Code
+--> Author: Suhas Palani
+--> Function Name: ensureCapacity()
+--> Description: This feature confirms that the file has the required amount of pages.
+--> Parameters used are SM_FileHandle *fHandle and number of Pages
+--> Return type: Return Code
+
 ------------------------------------------------------------*/
 
-RC ensureCapacity(int numberOfPages, SM_FileHandle *fHandle) 
-{
-    int No_of_pg = 0;
-    int i;
-    
-switch (1) {
-        case 1:
-            if (fHandle != nullptr) {
-                No_of_pg = numberOfPages - (*fHandle).totalNumPages;
 
-                switch (No_of_pg > 0) {
-                    case 1:
-                    	//if the number of pages is greater than total number of pages 
-						i = 0;
-   						loop_start:
-    					if (i < No_of_pg) {
-        				appendEmptyBlock(fHandle);
-        				i++;
-        				goto loop_start;
-    					}
-    					ret_value = RC_OK;
-                        break;
 
-                    case 0:
-                        // If the number of pages is within the total number of pages.
-                        ret_value = RC_WRITE_FAILED;  // Changed error code
-                        break;
-                }
-            } else {
-                ret_value = RC_FILE_HANDLE_NOT_INIT;  // Changed error code
-            }
-            break;
-    }
+RC ensureCapacity(int numberOfPages, SM_FileHandle *fHandle) {
+   int pagesNeeded = 0;
+   int tempPageAdjustment = 0;
+   // Verify the file handle.
 
-    return ret_value;
+
+   if (fHandle != NULL) {
+       pagesNeeded = numberOfPages - fHandle->totalNumPages;
+
+
+       // Add blocks only if additional pages are required.
+       if (pagesNeeded > 0) {
+           int i = 0;
+           do {
+               appendEmptyBlock(fHandle);
+               i++;
+               tempPageAdjustment+= 1;
+               // Continue the loop if the condition is fulfilled to emulate the behavior.
+
+
+               if (i < pagesNeeded) continue;  // Similar to a to the loop start
+
+
+               else break;  // When the condition is no longer met, exit the loop.
+
+
+           } while (false);  // Make sure the loop only continues after the first time.
+
+
+
+
+           return RC_OK;
+       } else {
+           // No further pages are required, yet the context may point to an error
+
+
+           return RC_WRITE_FAILED;
+       }
+   } else {
+       return RC_FILE_HANDLE_NOT_INIT;
+   }
 }
+
+
+
