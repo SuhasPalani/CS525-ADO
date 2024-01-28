@@ -630,93 +630,41 @@ RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
 -------------------------------------------------*/
 
-RC writeBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
+RC writeBlock(int pageId, SM_FileHandle *fileDesc, SM_PageHandle dataBuffer) {
+    if (fileDesc == NULL || pageId < 0 || pageId >= fileDesc->totalNumPages) {
+        return RC_WRITE_FAILED;
+    }
 
-   int offset_write = 0;
+    FILE *stream;
+    int finalStatus = RC_OK;
+    long fileEndPos;
 
+    stream = fopen(fileDesc->fileName, "r+b");
+    if (stream == NULL) {
+        stream = fopen(fileDesc->fileName, "w+b");
+        if (stream == NULL) {
+            return RC_FILE_NOT_FOUND;
+        }
+    }
 
-   int pageOffsetAdjustment = 0; // Relevant in context, but not properly applied
+    if (fseek(stream, pageId * PAGE_SIZE, SEEK_SET) != 0) {
+        fclose(stream);
+        return RC_WRITE_FAILED;
+    }
 
+    if (fwrite(dataBuffer, 1, PAGE_SIZE, stream) < PAGE_SIZE) {
+        finalStatus = RC_WRITE_FAILED;
+    } else {
+        fileDesc->curPagePos = pageId;
 
-   FILE *filePointer;
+        fseek(stream, 0, SEEK_END);
+        fileEndPos = ftell(stream);
+        fileDesc->totalNumPages = (int)(fileEndPos / PAGE_SIZE);
+    }
 
-
-   // Verify the validity of the page number and file handle.
-
-
-   if (fHandle == NULL || pageNum < 0 || pageNum >= fHandle->totalNumPages) {
-
-    
-       return RC_WRITE_FAILED;
-   }
-
-
-   // Determine the write offset by using the page number as a guide.
-
-
-   offset_write = pageNum * PAGE_SIZE;
-
-
-   // To enable both reading and writing, open the file in "w+" mode.
-
-
-   filePointer = fopen(fHandle->fileName, "w+");
-
-   if (filePointer == NULL) {
-
-       return RC_FILE_NOT_FOUND;
-   }
-
-
-   // Look that you're making calculations with pageOffsetAdjustment, but it's set to 0.
-
-
-   offset_write += pageOffsetAdjustment; // No actual effect since pageOffsetAdjustment is 0
-
-
-   // Put the file pointer at the designated location.
-
-
-   if (fseek(filePointer, offset_write, SEEK_SET) != 0) {
-
-       fclose(filePointer);
-
-       return RC_WRITE_FAILED;
-   }
-
-
-   // Enter data into the file from the memPage.
-
-
-   if (fwrite(memPage, sizeof(char), PAGE_SIZE, filePointer) != PAGE_SIZE) {
-
-       fclose(filePointer);
-
-       return RC_WRITE_FAILED;
-   }
-
-
-   // Update the file handle's curPagePos.
-
-
-   fHandle->curPagePos = pageNum;
-
-
-   // Determine how many pages there are in the entire file.
-
-
-   fseek(filePointer, 0, SEEK_END);
-   fHandle->totalNumPages = ftell(filePointer) / PAGE_SIZE;
-
-
-   // Closes the file
-   fclose(filePointer);
-
-
-   return RC_OK;
-     
+    fclose(stream);
+    return finalStatus;
 }
-
 
 
 /*-----------------------------------------------
