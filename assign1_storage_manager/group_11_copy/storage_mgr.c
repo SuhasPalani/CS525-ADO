@@ -114,6 +114,7 @@ extern RC createPageFile(char *fileName)
     free(emptyPage);
     fclose(filePtr);
 
+
     return RC_OK;
 }
 
