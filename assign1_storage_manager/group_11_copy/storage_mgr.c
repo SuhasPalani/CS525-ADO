@@ -260,7 +260,7 @@ extern RC destroyPageFile(char *fileName)
 -------------------------------------------------*/
 
 // The function starts in the below code
-
+/*
 extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
     // Init file handle so we can interact with the given file
@@ -328,6 +328,56 @@ extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage)
     return RC_OK;
 }
 
+*/
+
+// The function starts in the below code
+
+extern RC readBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
+
+    // Init file handle so we can interact with the given file
+    if (!fHandle) {
+        // If handle isn't initialized, return error
+        return RC_FILE_HANDLE_NOT_INIT;
+    }
+
+    if (pageNum < 0 || pageNum >= fHandle->totalNumPages) {
+        // If no page encountered, return no page error
+        return RC_READ_NON_EXISTING_PAGE;
+    }
+
+    // Use to track
+    fHandle->curPagePos = pageNum;
+
+    // Open the file
+    FILE *filePointer = fopen(fHandle->fileName, "r");
+
+    // Return error if failed opening
+    if (!filePointer) {
+        return RC_FILE_NOT_FOUND;
+    }
+
+    // Calculate offset
+    fseek(filePointer, pageNum * PAGE_SIZE, SEEK_SET);
+
+    // Check if fseek was successful
+    if (ftell(filePointer) != pageNum * PAGE_SIZE) {
+        fclose(filePointer); // Close the file if the seek failed
+        return RC_READ_NON_EXISTING_PAGE;
+    }
+
+    // Read content of page
+    size_t readBytes = fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
+    if (readBytes < PAGE_SIZE) {
+        fclose(filePointer); // Close the file if read was incomplete
+        return RC_READ_NON_EXISTING_PAGE;
+    }
+
+    // Close given file so we can utilize memory resources
+    fclose(filePointer);
+
+    // Return the given status code
+    return RC_OK;
+}
 
 
 /*-----------------------------------------------
