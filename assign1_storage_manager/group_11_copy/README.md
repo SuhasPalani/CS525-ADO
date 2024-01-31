@@ -54,31 +54,32 @@ Description: To clear the data use the above command.
 
 Function Name: readBlock()
 Author: Arpitha Hebri Ravi Vokuda 		
-Description: This function is used to read the pageNum block from the file defined by fHandle into address mrPg, parameters used: int pgeNum, SM_FileHandle *fileHandle, SM_PageHandle mrPg
+Description: This function is used to read the pageNum block from the file defined by fHandle into address memPage, parameters used: int pgeNum, SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 Function Name: getBlockPos()
-Author: Arpitha Hebri Ravi Vokuda
-Description:  This function is used to return the current block position in file, parameters used: SM_FileHandle *fHandle
+Author: Suhas Palani
+Description:  Returning the current block location in the file is the purpose of this method.Parameters used: SM_FileHandle *fHandle
 
 Function Name: readFirstBlock()
 Author: Ramyashree Raghunandan
-Description: This function opens the file in reads the first block of the file, parameters used:SM_FileHandle *fileHandle, SM_PageHandle mrPg
+Description: This function opens the file in reads the first block of the file, parameters used:SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 Function Name: readPreviousBlock()
 Author: Ramyashree Raghunandan
-Description: his function reads the previous block of the page using memory address mrPg, parameters used:char* fileName, SM_FileHandle *fHandle
+Description: his function reads the previous block of the page using memory address memPage, parameters used:char* fileName, SM_FileHandle *fHandle
 
 Function Name: readCurrentBlock()
-Author: Rashmi Venkatesh Topannavar
-Description: This function reads the current block into the memory address mrPg, Parameters: SM_FileHandle *fHandle, SM_PageHandle mrPg
+Author: Suhas Palani
+Description: The current block is read by this function and stored in the memory location memPage.
+Parameters: SM_FileHandle *fHandle, SM_PageHandle memPage
 
 Function Name: readNextBlock()
 Author: Arpitha Hebri Ravi Vokuda
-Description: This is used to read the next block in to memory address mrPg, parameters used: SM_FileHandle *fHandle, SM_PageHandle mrPg
+Description: This is used to read the next block in to memory address memPage, parameters used: SM_FileHandle *fHandle, SM_PageHandle memPage
 
 Function Name: readLastBlock()
 Author: Ramyashree Raghunandan
-Description: This function reads the last block of the page using memory address mrPg, parameters used:SM_FileHandle *fileHandle, SM_PageHandle mrPg
+Description: This function reads the last block of the page using memory address memPage, parameters used:SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 
 *********************************
@@ -86,20 +87,20 @@ Description: This function reads the last block of the page using memory address
 *********************************
 
 Function Name: writeBlock()
-Author: Rashmi Venkatesh Topannavar
-Description: This function will write the data into the specified page number of the file, Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
+Author: Suhas Palani
+Description: This function will enter the data into the file on the designated page. Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
 
 Function Name: writeCurrentBlock()
 Author: Rashmi Venkatesh Topannavar
-Description: This function will write the data into the current block which the file handle is accessing, Parameters : SM_FileHandle *fHandle, SM_PageHandle mrPg
+Description: This function will write the data into the current block which the file handle is accessing, Parameters : SM_FileHandle *fHandle, SM_PageHandle memPage
 
 Function Name: appendEmptyBlock()
 Author: Ramyashree Raghunandan
 Description: This function will append an empty page to the file, Parameters used are SM_FileHandle *fHandle
 
 Function Name: ensureCapacity()
-Author: Arpitha Hebri Ravi Vokuda
-Description: This function make sure that the number of pages required, are available in the file. Parameters used are SM_FileHandle *fHandle and number of Pages
+Author: Suhas Palani
+Description: This function verifies that the file contains the necessary number of pages. Parameters used are SM_FileHandle *fHandle and number of Pages
 
 *********************************
     OTHER FUNCTIONS:
@@ -114,8 +115,8 @@ Author: Ramyashree Raghunandan
 Description: This function opens the file in read mode using file handle, parameters used: Filename and File Handle are the 2 parameters that are used
 
 Function Name: closePageFile()
-Author: Rashmi Venkatesh Topannavar
-Description: This function closes the opened page file. Parameters:  File Handle
+Author: Suhas Palani
+Description: The opened page file is closed using this method. Parameters Used:  File Handle :fHandle
 
 Function Name: destroyPageFile()
 Author: Rashmi Venkatesh Topannavar
@@ -126,9 +127,11 @@ Description: This function deletes the page file, Parameters : File name
 *********************************
 
 Function Name:testCreateOpenClose()	
-Description: It verifies if the code written, is able to create, open and close and delete a page file.
+Description: It checks to see if the written code can create, open, shut, and remove page files.
+
 
 Function Name:testSinglePageContent()	
-Description: It verified all the cases mentioned above along with which , it checks if the data can be read or written into the mentioned pageFiles.
+Description: Along with verifying each of the aforementioned scenarios, it also checked to see if the data could be written to or read from the specified page files.
+
 
 *********************************************************************************************
