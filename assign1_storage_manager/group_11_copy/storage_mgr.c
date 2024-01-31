@@ -260,72 +260,66 @@ extern RC destroyPageFile(char *fileName)
 
 // The function starts in the below code
 
-extern RC readBlock (int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
+extern RC readBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) {
+    int condition = 0; // 0: Initial state, 1: File handle not init, 2: Page number out of bounds, 3: Continue to read
 
-    // Init file handle so we can interact with the given file
-
-    if(fHandle == NULL) {
-        // If handle isn't initialized, return error
-        return RC_FILE_HANDLE_NOT_INIT;
+    // Determine initial condition
+    if (!fHandle) {
+        condition = 1;
+    } else if (pageNum < 0 || pageNum >= fHandle->totalNumPages) {
+        condition = 2;
+    } else {
+        condition = 3;
     }
 
+    switch (condition) {
+        case 1: // File handle not initialized
+            return RC_FILE_HANDLE_NOT_INIT;
+        
+        case 2: // Page number out of bounds
+            return RC_READ_NON_EXISTING_PAGE;
+        
+        case 3: { // Proceed with reading the block
+            FILE *filePointer = fopen(fHandle->fileName, "r");
+            int fileOpenCondition = filePointer ? 4 : 5; // 4: File opened, 5: File not found
 
+            switch (fileOpenCondition) {
+                case 5: // File not found
+                    return RC_FILE_NOT_FOUND;
 
+                case 4: { // File opened, proceed with further checks
+                    fseek(filePointer, pageNum * PAGE_SIZE, SEEK_SET);
+                    int seekCondition = (ftell(filePointer) == pageNum * PAGE_SIZE) ? 6 : 7; // 6: fseek successful, 7: fseek failed
 
-    if(pageNum < 0 || fHandle->totalNumPages <= pageNum) {
-        // If no page encountered, return no page error
-        return RC_READ_NON_EXISTING_PAGE;
+                    switch (seekCondition) {
+                        case 7: // fseek failed
+                            fclose(filePointer);
+                            return RC_READ_NON_EXISTING_PAGE;
+
+                        case 6: { // fseek successful, read the page
+                            size_t readBytes = fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
+                            fclose(filePointer);
+                            int readCondition = (readBytes == PAGE_SIZE) ? 8 : 9; // 8: Read successful, 9: Read failed
+
+                            switch (readCondition) {
+                                case 9: // Read failed
+                                    return RC_READ_NON_EXISTING_PAGE;
+                                
+                                case 8: // Read successful
+                                    fHandle->curPagePos = pageNum;
+                                    return RC_OK;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    // Use to track 
-    fHandle->curPagePos = pageNum;
-
-    // Open the file
-    FILE *filePointer = fopen(fHandle->fileName, "r");
-    
-
-    // Return error if failed opening
-
-
-    if(filePointer == NULL) {
-        return RC_FILE_NOT_FOUND;
-    }
-
-
-
-
-    // Calucalte offset 
-    long val_off = (long)pageNum * PAGE_SIZE;
-
-
-    // Used to go to the start of the page 
-
-    int pos_set = fseek(filePointer, val_off, SEEK_SET);
-
-    
-    if (pos_set != 0) {
-
-
-        // Close the file iff the eroro comes
-        fclose(filePointer);
-        return RC_READ_NON_EXISTING_PAGE;
-    }
-
-
-
-    // Read content of page
-    fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
-
-
-
-    // Close given file so we can utilize memory resources
-    fclose(filePointer);
-
-   
-   
-   // Return the gievn status code
-    return RC_OK;
+    // Fallback in case no conditions are met, which should not happen
+    return RC_FILE_NOT_FOUND;
 }
+
 
 
 
