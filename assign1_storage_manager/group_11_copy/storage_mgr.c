@@ -168,7 +168,7 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
  --> Author: Suhas Palani
 --> Function Name: closePageFile
 --> Description: This function closes the opened page file function.
---> Parameters:  File Handle
+--> Parameters:  File Handle : fHandle
 
 -------------------------------------------------*/
 
@@ -254,7 +254,7 @@ extern RC destroyPageFile(char *fileName)
 -->Author: Nishchal Gante Ravish
 --> Function: readBlock()
 --> Description: This func is used to read a specific page from teh given file
---> parameters used: int pgeNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
+--> parameters used: int pgeNum, SM_FileHandle *fHandle, SM_PageHandle memPage
 --> return type: Return the success or failure operation using status code
 -------------------------------------------------*/
 
@@ -369,7 +369,7 @@ RC getBlockPos(SM_FileHandle *fHandle) {
 --> Author: Uday Venkatesha 
 --> Function: readFirstBlock()
 --> Description: This function opens the file in reads the first block of the file
---> parameters used:SM_FileHandle *fileHandle, SM_PageHandle mrPg
+--> parameters used:SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 -------------------------------------------------*/
 
@@ -406,7 +406,7 @@ RC readFirstBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
         return RC_OK;
     }
 
-    // Read the first block of size PAGE_SIZE from the file into mrPg.
+    // Read the first block of size PAGE_SIZE from the file into memPage.
     size_t bytesRead = fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
     // Check if the bytes read are less than PAGE_SIZE and it's not end of file.
     if (bytesRead < PAGE_SIZE && !feof(filePointer)) {
@@ -513,8 +513,8 @@ RC readCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 /*-----------------------------------------------
 -->Author: Uday Venkatesha
 --> Function: readNextBlock()
---> Description:  This is used to read the next block in to memory address mrPg
---> parameters used: SM_FileHandle *fHandle, SM_PageHandle mrPg
+--> Description:  This is used to read the next block in to memory address memPage
+--> parameters used: SM_FileHandle *fHandle, SM_PageHandle memPage
 --> return type: Return Code
 -------------------------------------------------*/
 
@@ -619,7 +619,7 @@ RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 --> Author: Suhas Palani
 --> Function Name: writeBlock
 --> Description: The data will be written by this function to the designated file page.
---> Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
+--> Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
 --> Return type: Return Code
 
 -------------------------------------------------*/
@@ -665,7 +665,7 @@ RC writeBlock(int pageId, SM_FileHandle *fileDesc, SM_PageHandle dataBuffer) {
  --> Author: Uday Venkatesha
  --> Function Name: writeCurrentBlock
  --> Description: This function will write the data into the current block which the file handle is accessing
- --> Parameters : SM_FileHandle *fHandle, SM_PageHandle mrPg
+ --> Parameters : SM_FileHandle *fHandle, SM_PageHandle memPage
  --> Return type: Return Code
 
 -----------------------------------------------*/
