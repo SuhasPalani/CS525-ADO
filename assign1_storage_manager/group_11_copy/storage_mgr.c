@@ -368,68 +368,54 @@ RC getBlockPos(SM_FileHandle *fHandle) {
 /*-----------------------------------------------
 --> Author: Uday Venkatesha 
 --> Function: readFirstBlock()
---> Description: This function opens the file in reads the first block of the file
---> parameters used:SM_FileHandle *fileHandle, SM_PageHandle memPage
+--> Description: This function initiates access to the file and retrieves the initial block from the file
+--> parameters used:SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 -------------------------------------------------*/
 
 
-RC readFirstBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
-    // Open the file for reading. fileHandle->fileName holds the name of the file.
-    filePointer = fopen(fHandle->fileName, "r");
 
-    // Check if the file was successfully opened.
-    if (filePointer == NULL) {
-        // Print an error message if the file could not be opened.
-        printf("File does not exist\n");
-        // Return a specific error code indicating the file was not found.
+
+// Define the function to read the first block of a storage file.
+RC readFirstBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
+    // Attempt to open the specified file in read-only mode.
+    // fHandle->fileName contains the path to the file.
+    FILE *filePointer = fopen(fHandle->fileName, "r");
+    // Check if the file opening was successful.
+    if (!filePointer) {
+        // If the file could not be opened, print an error message.
+        printf("Unable to open file: %s\n", fHandle->fileName);
+        // Return a predefined error code indicating the file was not found.
         return RC_FILE_NOT_FOUND;
     }
 
-    // Check for errors in the file stream.
-    if (ferror(filePointer)) {
-        // Print an error message if there is an error in reading from the file.
-        printf("Error in reading from file!\n");
-        // Close the file to free resources and prevent memory leaks.
+    // Attempt to read the first block (of size PAGE_SIZE) from the file into the memory buffer pointed by memPage.
+    // fread reads elements of data, each of the size of a character, from the file.
+    if (fread(memPage, sizeof(char), PAGE_SIZE, filePointer) < PAGE_SIZE) {
+        // If fewer elements than PAGE_SIZE are read, it could be due to an error or end of file.
+        // Check if we have reached the end of the file (EOF).
+        if (feof(filePointer)) {
+            // Print a message indicating EOF was reached before we could read PAGE_SIZE bytes.
+            printf("Reached EOF before completing the read.\n");
+        } else if (ferror(filePointer)) {
+            // Check if there was an error during the read operation.
+            printf("Error while reading the file.\n");
+        }
+        // Close the file to release system resources, as we are done with the file or encountered an error.
         fclose(filePointer);
-        // Return a generic error code indicating a read error.
-        return RC_OK;
+        // Return a predefined error code indicating there was an error in reading.
+        return RC_FILE_NOT_FOUND; // Assuming RC_READ_ERROR is a defined error code.
     }
 
-    // Move the file pointer to the start of the file.
-    if (fseek(filePointer, 0, SEEK_SET) != 0) {
-        // Print an error message if fseek() fails to set the file pointer.
-        fprintf(stderr, "fseek() failed in file %s at line #%d\n", __FILE__, __LINE__ - 4);
-        // Close the file to free resources.
-        fclose(filePointer);
-        // Return a generic error code indicating a seek failure.
-        return RC_OK;
-    }
-
-    // Read the first block of size PAGE_SIZE from the file into memPage.
-    size_t bytesRead = fread(memPage, sizeof(char), PAGE_SIZE, filePointer);
-    // Check if the bytes read are less than PAGE_SIZE and it's not end of file.
-    if (bytesRead < PAGE_SIZE && !feof(filePointer)) {
-        // Print an error message if an incomplete block is read.
-        printf("Error reading: incomplete read of first block\n");
-        // Close the file to avoid resource leak.
-        fclose(filePointer);
-        // Return a generic error code indicating less data was read than expected.
-        return RC_OK;
-    }
-
-    // Update the current page position in the fileHandle to 0 (beginning of the file).
+    // If the read was successful, reset the current page position in the file handle to 0.
+    // This indicates that the file pointer is at the beginning of the file after reading the first block.
     fHandle->curPagePos = 0;
 
-    // Close the file after successful reading.
+    // Close the file to release system resources, as we have successfully completed the read operation.
     fclose(filePointer);
-    // Return a success code indicating successful completion of the operation.
+    // Return a success code indicating the operation completed successfully.
     return RC_OK;
 }
-
-
-
-
 
 
 
