@@ -11,14 +11,14 @@ CWID - A20548277
 Email- spalani3@hawk.iit.edu 
 
 
+Name - Nishchal Gante Ravish 
+CWID - A20540635
+Email- nganteravish@hawk.iit.edu
+
+
 Name - Uday venkatesha 
 CWID - A20547055
 Email- uvenkatesha@hawk.iit.edu
-
-
-Name - Arpitha Hebri Ravi Vokuda    
-CWID - A20541502 
-Email- avokuda@hawk.iit.edu
 
 
 *********************************
@@ -53,8 +53,8 @@ Description: To clear the data use the above command.
 *********************************
 
 Function Name: readBlock()
-Author: Arpitha Hebri Ravi Vokuda 		
-Description: This function is used to read the pageNum block from the file defined by fHandle into address memPage, parameters used: int pgeNum, SM_FileHandle *fileHandle, SM_PageHandle memPage
+Author: Nishchal Gante Ravish 		
+Description: This function reads the pageNum block from the file defined by fHandle into address memPage and thr parameters used by this function are int pageNum, SM_FileHandle *fileHandle, and SM_PageHandle memPage.
 
 Function Name: getBlockPos()
 Author: Suhas Palani
@@ -65,8 +65,8 @@ Author: Uday Venkatesha
 Description: The parameters used by this function are as follows: It opens the file and reads its first block.SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 Function Name: readPreviousBlock()
-Author: Ramyashree Raghunandan
-Description: his function reads the previous block of the page using memory address memPage, parameters used:char* fileName, SM_FileHandle *fHandle
+Author: Nishchal Gante Ravish
+Description: Using the memory address memPage, this function is used to read the previous block of the page and the params involved are SM_FileHandle *fHandle, char* fileName
 
 Function Name: readCurrentBlock()
 Author: Suhas Palani
@@ -79,8 +79,8 @@ Description: The purpose of this is to read the subsequent block from memory add
 parameters used: SM_FileHandle *fHandle, SM_PageHandle memPage
 
 Function Name: readLastBlock()
-Author: Ramyashree Raghunandan
-Description: This function reads the last block of the page using memory address memPage, parameters used:SM_FileHandle *fileHandle, SM_PageHandle memPage
+Author: Nishchal Gante Ravish
+Description: Used to read the last block of the page using memory address. The parameters used here are SM_FileHandle *fileHandle, SM_PageHandle memPage
 
 
 *********************************
@@ -96,8 +96,9 @@ Author: Uday Venkatesha
 Description: The data will be written by this function into the block that the file handle is now accessing, Parameters : SM_FileHandle *fHandle, SM_PageHandle memPage
 
 Function Name: appendEmptyBlock()
-Author: Ramyashree Raghunandan
-Description: This function will append an empty page to the file, Parameters used are SM_FileHandle *fHandle
+Author: Nishchal Gante Ravish
+Description: This given function is used to append an empty page to the file.
+Parameters used: SM_FileHandle *fHandle
 
 Function Name: ensureCapacity()
 Author: Suhas Palani
@@ -111,9 +112,10 @@ Function Name: createPageFile()
 Author: Uday Venkatesha
 Description: Using filePointer as a pointer, this function appends a new, empty file to the existing one, parameters used: fileName
 
+
 Function Name: openPageFile()
-Author: Ramyashree Raghunandan
-Description: This function opens the file in read mode using file handle, parameters used: Filename and File Handle are the 2 parameters that are used
+Author: Nishchal Gante Ravish
+Description: Using the file handle and the Filename and File Handle parameters, this function is used to open the file in read mode
 
 Function Name: closePageFile()
 Author: Suhas Palani
