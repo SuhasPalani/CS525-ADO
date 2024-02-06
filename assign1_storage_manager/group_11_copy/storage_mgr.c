@@ -611,38 +611,68 @@ RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 -------------------------------------------------*/
 
 RC writeBlock(int pageId, SM_FileHandle *fileDesc, SM_PageHandle dataBuffer) {
+    // Validate input parameters to ensure they are acceptable for operation.
     if (fileDesc == NULL || pageId < 0 || pageId >= fileDesc->totalNumPages) {
-        return RC_WRITE_FAILED;
+        return RC_WRITE_FAILED; // Return write failure if validation fails.
     }
+    // For file operations, the file stream pointer.
+    FILE *stream; 
 
-    FILE *stream;
-    int finalStatus = RC_OK;
-    long fileEndPos;
+    // Initially assume the operation will succeed.
+    int finalStatus = RC_OK; 
+
+    // Variable to hold the file's end location.
+
+    long fileEndPos; // Variable to store the end position of the file.
+
+
+
+    // Opt for the binary read/update mode when opening the file.
 
     stream = fopen(fileDesc->fileName, "r+b");
+
+    // Try opening in write/update mode (binary) if the read/update mode doesn't work.
+
     if (stream == NULL) {
+        
+        // This is done to ensure the file exists; if not, it is created.
         stream = fopen(fileDesc->fileName, "w+b");
+
         if (stream == NULL) {
+
+            // If opening the file fails again, return file not found error.
             return RC_FILE_NOT_FOUND;
         }
     }
 
+    // Set the file's position to the start of the target page.
+    // PAGE_SIZE is a predefined constant indicating the size of a page.
     if (fseek(stream, pageId * PAGE_SIZE, SEEK_SET) != 0) {
+        // If seeking fails, close the file and return write failure.
         fclose(stream);
         return RC_WRITE_FAILED;
     }
 
+    // Write the data from the buffer to the file.
+    // If the amount written is less than PAGE_SIZE, set the final status to write failure.
     if (fwrite(dataBuffer, 1, PAGE_SIZE, stream) < PAGE_SIZE) {
         finalStatus = RC_WRITE_FAILED;
     } else {
+        // Update the current page position in the file descriptor.
         fileDesc->curPagePos = pageId;
 
+        // Move to the end of the file to calculate the total number of pages.
         fseek(stream, 0, SEEK_END);
-        fileEndPos = ftell(stream);
+        fileEndPos = ftell(stream); // Get the current position (end of file).
+        // Update the total number of pages in the file descriptor.
         fileDesc->totalNumPages = (int)(fileEndPos / PAGE_SIZE);
+        // Adjusted the file descriptor's total page count.
+
     }
 
+    // Close the file stream.
     fclose(stream);
+    // Return the final status of the write operation.
     return finalStatus;
 }
 
