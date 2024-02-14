@@ -250,7 +250,8 @@ extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, co
     
     if (!page_Frames) {
     	pg_pos++;
-        return RC_BUFFER_POOL_INIT_FAILED;
+        // return RC_BUFFER_POOL_INIT_FAILED;
+        return RC_RM_BOOLEAN_EXPR_ARG_IS_NOT_BOOLEAN;
     }
 
     buffer_size = p_id;
@@ -279,7 +280,7 @@ extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, co
     lfu_index = 0;
     num_write = 0;
 
-    return (page_Frames ? RC_OK : RC_BUFFER_POOL_INIT_FAILED);
+    return (page_Frames ? RC_OK : RC_RM_BOOLEAN_EXPR_ARG_IS_NOT_BOOLEAN);
 }
 /*-----------------------------------------------
 -->Author: Rashmi Venkatesh Topannavar
@@ -659,7 +660,7 @@ extern RC markDirty(BM_BufferPool *const bm, BM_PageHandle *const page) {
     int itr = 0;
 
     if (bm == NULL) {
-        return RC_ERROR;
+        return RC_FILE_NOT_FOUND;
     }
 
     PageFrame *pageFrame = (PageFrame *)bm->mgmtData;
@@ -674,5 +675,5 @@ extern RC markDirty(BM_BufferPool *const bm, BM_PageHandle *const page) {
         }
     }
 
-    return RC_ERROR;
+    return RC_FILE_NOT_FOUND;
 }
