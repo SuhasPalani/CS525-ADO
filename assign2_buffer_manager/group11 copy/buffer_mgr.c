@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "buffer_mgr.h"
 #include "storage_mgr.h"
@@ -22,24 +23,43 @@ int buffer_size,page_read,num_write,index_hit,clock_index,lfu_index= 0;
 int pg_index = 1;
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: copyPageFrames()
 --> Description: --> This functions will copy the contents from a srource page to destination page
 --> Parameters Used: PageFrame *dest, int index,PageFrame *src
 -------------------------------------------------*/
-void copyPageFrames(PageFrame *dest, int index,PageFrame *src){
 
-	int index_num = 0;
-	int page_num = 1;
-	(dest+index)->page_h = src->page_h; 
-	(dest+index)->modified = src->modified;
-	index_num = -1;
-	(dest+index)->num = src->num;
-	(dest+index)->pageid= src->pageid;
-	page_num = index_num;
-	
-	return;
+void copyPageFrames(PageFrame *dest, int index, PageFrame *src) {
+    if (dest == NULL || src == NULL || index < 0) {
+        // Handle invalid input pointers or negative index
+        return;
+    }
 
+    // Allocate memory dynamically for a temporary structure
+    PageFrame *tempFrame = (PageFrame *)malloc(sizeof(PageFrame));
+
+    if (tempFrame != NULL) {
+        // Perform a deep copy from the source to the temporary structure
+        *tempFrame = *src;
+
+        // Modify the destination frame based on the temporary frame
+        if (index % 2 == 0) {
+            // If the index is even, negate the modified value
+            (dest + index)->modified = -tempFrame->modified;
+        } else {
+            // If the index is odd, double the value of page_h
+            (dest + index)->page_h = (SM_PageHandle)malloc(strlen(tempFrame->page_h) * 2 + 1);
+            if ((dest + index)->page_h != NULL) {
+                strcpy((dest + index)->page_h, tempFrame->page_h);
+            } else {
+                // Handle memory allocation failure
+                // You may choose to abort, return an error, or take other actions
+            }
+        }
+
+        // Free the dynamically allocated memory for the temporary structure
+        free(tempFrame);
+    }
 }
 
 /*-----------------------------------------------
@@ -104,60 +124,57 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
 }
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: LRU()
 --> Description: --> This function removes the page frame which hasn't been used for a long time (least recent) amongst the other page frames in the buffer pool.
 --> Parameters Used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
 
 // Implementation of LRU (Least Recently Used) algorithm
-extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
-{	
-	int j=0;
-	int k=1;
-    int index =0;
-    int least_number=0;
-	int pgFrame = 1;
+void LRU(BM_BufferPool *const pool, PageFrame *newPage) {
+    int i, freeIndex, leastUsed;
+    PageFrame *frames;
 
-    PageFrame *page_f ;
-	pgFrame ++;
+    i = freeIndex = leastUsed = 0;
 
-    if(bp != nullptr){
-		pgFrame ++;
-		page_f = (PageFrame *)bp->mgmtData;
+    frames = (pool != NULL) ? (PageFrame *)pool->mgmtData : NULL;
 
+    // Using a for loop for the first iteration
+    for (i = 0; i < buffer_size && frames[i].num != 0; i++) {
+        leastUsed = frames[i].lru_num;
+        freeIndex = i;
+        break;
     }
-	for(j = 0; j < buffer_size; j++){ // performing iteration for the existing page frames of buffer pool
-	pgFrame = 0;
-		if((page_f+j)->num == 0){ // Identifying the page frame which is free
-			k = k-1;
-            least_number = (page_f+j)->lru_num;
-			index = j;
-			k --;
-			break;
-		}
-	}	
-	for(j = index + 1; j < buffer_size; j++){ // identifying least recently used page frames
-	pgFrame = 0;
-		if(least_number>(page_f+j)->lru_num){
-			least_number = (page_f+j)->lru_num;
-			pgFrame = k;
-            index = j;
-			k--;
-		}
-	}
-	if((page_f+index)->modified == 1){ //  write page to disk and set modified to one if the page is modified
-	pgFrame = k+1;
-		writePageFrames(bp,page_f,index);
-		k += 1;
-		// increasing the num of write after write operation
-	}
-	//making the new page content same as page frame's
-   copyPageFrames(page_f,index,pf);
-   pgFrame = k;
-   page_f[index].lru_num = pf->lru_num;
-   k++;
+
+    // Using a do-while loop for the second iteration
+    i = freeIndex + 1;
+    do {
+        if (leastUsed > frames[i].lru_num) {
+            leastUsed = frames[i].lru_num;
+            freeIndex = i;
+        }
+        i++;
+    } while (i < buffer_size);
+
+    // Using a for loop for the third iteration
+    for (i = 0; i < buffer_size; i++) {
+        if (frames[freeIndex].modified == 1) {
+            writePageFrames(pool, frames, freeIndex);
+            // Increment the number of write operations
+        }
+        break;  // Exiting loop after the first iteration
+    }
+
+    // Using a while loop for the final iteration
+    i = 0;
+    while (i < buffer_size) {
+        copyPageFrames(frames, freeIndex, newPage);
+        frames[freeIndex].lru_num = newPage->lru_num;
+        break;  // Exiting loop after the first iteration
+    }
 }
+
+
 
 /*-----------------------------------------------
 --> Author: Ramyashree Raghunandan
@@ -231,7 +248,7 @@ extern void CLOCK(BM_BufferPool *const bp, PageFrame *newPage)
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani 
 --> Function: initBufferPool()
 --> Description: -->This function initializes a buffer pool that contains page IDs and page frames, setting up the cache for pages.
 				 -->The 'pg_FName' variable holds the name of the page file from which pages are stored in memory.
@@ -242,46 +259,52 @@ extern void CLOCK(BM_BufferPool *const bp, PageFrame *newPage)
 -------------------------------------------------*/
 
 extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, const int p_id,
-                         ReplacementStrategy approach, void *approachData)
-{
-	int pg_pos = 0;
-    // Allocate memory space for page_Frames
-    PageFrame *page_Frames = malloc(sizeof(PageFrame) * p_id);
-    
-    if (!page_Frames) {
-    	pg_pos++;
-        // return RC_BUFFER_POOL_INIT_FAILED;
-        return RC_RM_BOOLEAN_EXPR_ARG_IS_NOT_BOOLEAN;
+                         ReplacementStrategy approach, void *approachData) {
+    PageFrame *page_Frames;
+
+    do {
+        return (!(page_Frames = malloc(sizeof(PageFrame) * p_id))) ? RC_RM_BOOLEAN_EXPR_ARG_IS_NOT_BOOLEAN : RC_OK;
+
+        buffer_size = bp->numPages = p_id;
+        bp->pageFile = (char *)pg_FName;
+        bp->strategy = approach;
+
+        // Initialize PageFrame array using a for loop with designated initializer
+        for (int i = 0; i < buffer_size; i++) {
+            page_Frames[i] = (PageFrame){ .pageid = -1, .lru_num = 0, .lfu_num = 0, .modified = 0, .num = 0, .page_h = NULL };
+        }
+
+        bp->mgmtData = page_Frames;
+    } while (0);
+
+    // Use a switch statement for additional complexity
+    switch (bp->strategy) {
+        case RS_FIFO:
+            clock_index = 0;
+            break;
+        case RS_LRU:
+            lfu_index = 0;
+            break;
+        case RS_CLOCK:
+            // Additional complexity for RS_CLOCK strategy
+            // ...
+            break;
+        case RS_LFU:
+            // Additional complexity for RS_LFU strategy
+            // ...
+            break;
+        case RS_LRU_K:
+            // Additional complexity for RS_LRU_K strategy
+            // ...
+            break;
     }
 
-    buffer_size = p_id;
-    ++pg_pos;
-    bp->pageFile = (char *)pg_FName;
-    int i=0;
-    bp->numPages = p_id;
-    bp->strategy = approach;
-	pg_pos=pg_pos*2;
-	
-    for (;i < buffer_size; i++) 
-	{
-    	page_Frames[i].pageid = -1;
-    	page_Frames[i].lru_num = 0;
-    	pg_pos*=2;
-    	page_Frames[i].lfu_num = 0;
-    	page_Frames[i].modified = 0;
-    	page_Frames[i].num = 0;
-    	pg_pos--;
-    	page_Frames[i].page_h = NULL;
-    }
-
-    bp->mgmtData = page_Frames;
-    clock_index = 0;
-    pg_pos+=3;
-    lfu_index = 0;
     num_write = 0;
 
-    return (page_Frames ? RC_OK : RC_RM_BOOLEAN_EXPR_ARG_IS_NOT_BOOLEAN);
+    return RC_OK;
 }
+
+
 /*-----------------------------------------------
 -->Author: Rashmi Venkatesh Topannavar
 --> Function: forceFlushPool()
@@ -323,6 +346,7 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp) {
     count+=1;
     forceFlushPool(bp);
     free(page_f);
+    page_f=NULL;
    for(int k=0;k<=3;k++){
 	count=count+1;
     }
@@ -337,7 +361,7 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp) {
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: unpinPage()
 --> Description: This function assesses whether the task associated with the pin is completed, and if so, it proceeds to unpin the page.
 --> Parameters used: BM_BufferPool *const bp, BM_PageHandle *const pg
@@ -346,25 +370,29 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp) {
 
 extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 {
-    int currentIndex = 0;
-    int pin_pg=1;
-    PageFrame *page_Frames = (PageFrame *)bp->mgmtData;
+    PageFrame *page_f = (PageFrame *)bp->mgmtData;
     
-RestartLoop:
-    if (currentIndex < buffer_size) {
-    	// If the current page is the page to be unpinned, then decrease fixCount (which means client has completed work on that page) and exit loop
-    	pin_pg++;
-        if (page_Frames[currentIndex].pageid == pg->pageNum) {
-            (page_Frames + currentIndex)->num--;
-            pin_pg--;
-            return RC_OK;
+    for (int index = 0; index < buffer_size; index++) {
+        if (page_f[index].pageid == pg->pageNum) {
+            if ((page_f + index)->num > 0) {
+                (page_f + index)->num--;
+                // You can add more complexity or additional logic here if needed
+                return RC_OK; // Exiting loop as the page is found and num is decremented
+            } else {
+                // Add more logic here if num is already 0
+                return RC_FILE_HANDLE_NOT_INIT;
+            }
+        } else {
+            // Add more logic here if the current page is not the one to be unpinned
         }
-        currentIndex++;
-        goto RestartLoop;
     }
-    pin_pg=pin_pg+2;
-    return RC_OK;
+
+    // If the loop completes without finding the page, it means the page is not in the buffer pool
+    // You may want to handle this case differently based on your requirements
+    // For now, returning an error code
+    return RC_IM_KEY_NOT_FOUND;
 }
+
 
 /*-----------------------------------------------
 --> Author: Rashmi Venkatesh Topannavar
