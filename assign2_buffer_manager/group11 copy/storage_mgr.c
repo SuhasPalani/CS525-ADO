@@ -561,55 +561,55 @@ RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
 
 /*-----------------------------------------------
- --> Author: Rashmi Venkatesh Topannavar
- --> Function Name: writeBlock
- --> Description: This function will write the data into the specified page number of the file.
- --> Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
- --> Return type: Return Code
+--> Author: Suhas Palani
+--> Function Name: writeBlock
+--> Description: The data will be written by this function to the designated file page.
+--> Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
+--> Return type: Return Code
 -------------------------------------------------*/
 extern RC writeBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle mrPg) {
-
-    /* Write contents to the specified page. */
-
     int writeOffset = 0;
-    int page_pos = 0;
+    FILE *filePointer = NULL;
 
+    // Check if the page number is within bounds
     if (pageNum < 0 || pageNum > fHandle->totalNumPages) {
-        page_pos = total_offset;
         return RC_WRITE_FAILED;
     }
 
+    // Calculate write offset
     writeOffset = PAGE_SIZE * pageNum;
-    block_num++;
-    FILE *filePointer = fopen(fHandle->fileName, "r+");
-    block_num = page_pos + 1;
 
-    if (filePointer != nullptr) {
-        if (pageNum != 0) {
-            page_pos = 0;
-            appendEmptyBlock(fHandle);
-            fseek(filePointer, writeOffset, SEEK_SET);
-            block_num ++;
-            fwrite(mrPg, sizeof(char), PAGE_SIZE, filePointer); // Fixed the length parameter here.
-            fHandle->curPagePos = ftell(filePointer);
-            page_pos -= 1;
-        }
-        
-        else {
-            fseek(filePointer, writeOffset, SEEK_SET);
-            block_num = block_num - total_offset;
-            fwrite(mrPg, sizeof(char), PAGE_SIZE, filePointer);
-            fHandle->curPagePos = ftell(filePointer);
-            page_pos--;
+    // Open the file in "r+" mode
+    filePointer = fopen(fHandle->fileName, "r+");
+
+    if (filePointer != NULL) {
+        // Move the file pointer to the specified page number
+        fseek(filePointer, writeOffset, SEEK_SET);
+
+        // Write contents into the specified page
+        switch (pageNum) {
+            case 0:
+                fwrite(mrPg, sizeof(char), PAGE_SIZE, filePointer);
+                break;
+            default:
+                // Append an empty block for non-zero page number
+                appendEmptyBlock(fHandle);
+                fwrite(mrPg, sizeof(char), strlen(mrPg), filePointer);
+                break;
         }
 
+        // Update current page position
+        fHandle->curPagePos = ftell(filePointer);
+
+        // Close the file
         fclose(filePointer);
-        page_pos++;
+
         return RC_OK;
     }
 
     return RC_FILE_NOT_FOUND;
 }
+
 
 /*-----------------------------------------------
  --> Author: Uday Venkatesha
