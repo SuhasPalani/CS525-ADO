@@ -360,34 +360,45 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp) {
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: unpinPage()
 --> Description: This function assesses whether the task associated with the pin is completed, and if so, it proceeds to unpin the page.
 --> Parameters used: BM_BufferPool *const bp, BM_PageHandle *const pg
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
-{
-    int currentIndex = 0;
-    int pin_pg=1;
+extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
+    // Get the pointer to the array of page frames from the buffer pool's management data
     PageFrame *page_Frames = (PageFrame *)bp->mgmtData;
-    
-RestartLoop:
-    if (currentIndex < buffer_size) {
-    	// If the current page is the page to be unpinned, then decrease fixCount (which means client has completed work on that page) and exit loop
-    	pin_pg++;
-        if (page_Frames[currentIndex].pageid == pg->pageNum) {
-            (page_Frames + currentIndex)->num--;
-            pin_pg--;
+
+    // Initialize index for iteration
+    int index = 0;
+
+    // Use a while loop for iteration through the page frames
+    while (index < buffer_size) {
+        // Check if the current page frame matches the page to be unpinned
+        if (page_Frames[index].pageid == pg->pageNum) {
+            // Decrease fixCount (num) as the client has completed work on this page
+            page_Frames[index].num--;
+
+            // Return success code
             return RC_OK;
         }
-        currentIndex++;
-        goto RestartLoop;
+
+        // Move to the next page frame
+        index++;
     }
-    pin_pg=pin_pg+2;
+
+    // If the page is not found in the buffer pool, handle it accordingly
+    // For now, assuming it's OK to unpin a page that is not in the buffer pool.
+    // Additional action: You may perform some cleanup or logging here
+
+    // Return success code
     return RC_OK;
 }
+
+
+
 
 /*-----------------------------------------------
 --> Author: Rashmi Venkatesh Topannavar
