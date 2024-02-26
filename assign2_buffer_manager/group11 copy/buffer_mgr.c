@@ -4,7 +4,7 @@
 #include <limits.h>  // Include for INT_MAX
 #include "buffer_mgr.h"
 #include "storage_mgr.h"
-
+#include <string.h>
 #define nullptr NULL
 
 typedef struct Page
@@ -230,56 +230,81 @@ extern void CLOCK(BM_BufferPool *const bp, PageFrame *newPage)
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: initBufferPool()
---> Description: -->This function initializes a buffer pool that contains page IDs and page frames, setting up the cache for pages.
-				 -->The 'pg_FName' variable holds the name of the page file from which pages are stored in memory.
-				 --> The 'approach' parameter denotes the selected page replacement strategy (FIFO, LRU, LFU, CLOCK) for this buffer pool.
-				 --> If required, 'approachData' can be used to pass additional parameters to the chosen page replacement strategy.
+--> Description: --> This function initializes a buffer pool containing page IDs and page frames, configuring the page cache.
+				 --> The 'pg_FName' variable holds the name of the page file from which pages are loaded into memory.
+				 --> The 'approach' parameter indicates the chosen page replacement strategy (FIFO, LRU, LFU, CLOCK) for this buffer pool.
+				 --> If necessary, 'approachData' can be utilized to transmit additional parameters to the selected page replacement strategy.
 --> parameters used: BM_BufferPool *const bp, const char *const pg_FName, const int p_id, ReplacementStrategy approach, void *approachData
 --> return type: Return Code
 -------------------------------------------------*/
 
+
+
+int buffer_size;
+int clock_index;
+int lfu_index;
+int num_write;
+
+// Helper function to initialize page frames
+void initializePageFrames(PageFrame *page_Frames) {
+    int i = 0;
+
+    // Initialize each PageFrame structure in the array
+    while (i < buffer_size) {
+        page_Frames[i].pageid = -1;
+        page_Frames[i].lru_num = 0;
+        page_Frames[i].lfu_num = 0;
+        page_Frames[i].modified = 0;
+        page_Frames[i].num = 0;
+        page_Frames[i].page_h = NULL;
+        i++;
+    }
+}
+
+/**
+ * @brief Initializes a Buffer Pool.
+ *
+ * Allocates memory for the PageFrame array, sets default values, and initializes the Buffer Pool.
+ *
+ * @param bp Pointer to the Buffer Pool structure.
+ * @param pg_FName Name of the page file.
+ * @param p_id Number of pages in the buffer pool.
+ * @param approach Replacement strategy approach.
+ * @param approachData Pointer to replacement strategy-specific data (not used in this function).
+ *
+ * @return RC_OK if successful, RC_FILE_HANDLE_NOT_INIT if memory allocation fails.
+ */
+
 extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, const int p_id,
-                         ReplacementStrategy approach, void *approachData)
-{
-	int pg_pos = 0;
+                         ReplacementStrategy approach, void *approachData) {
     // Allocate memory space for page_Frames
-    PageFrame *page_Frames = malloc(sizeof(PageFrame) * p_id);
+    PageFrame *page_Frames = calloc(p_id, sizeof(PageFrame));
     
+    // Check if memory allocation was successful
     if (!page_Frames) {
-    	pg_pos++;
         return RC_FILE_HANDLE_NOT_INIT;
     }
 
     buffer_size = p_id;
-    ++pg_pos;
+
+    // Set Buffer Pool properties
     bp->pageFile = (char *)pg_FName;
-    int i=0;
     bp->numPages = p_id;
     bp->strategy = approach;
-	pg_pos=pg_pos*2;
-	
-    for (;i < buffer_size; i++) 
-	{
-    	page_Frames[i].pageid = -1;
-    	page_Frames[i].lru_num = 0;
-    	pg_pos*=2;
-    	page_Frames[i].lfu_num = 0;
-    	page_Frames[i].modified = 0;
-    	page_Frames[i].num = 0;
-    	pg_pos--;
-    	page_Frames[i].page_h = NULL;
-    }
 
+    // Initialize page_Frames array
+    initializePageFrames(page_Frames);
+
+    // Set Buffer Pool management data and counters
     bp->mgmtData = page_Frames;
-    clock_index = 0;
-    pg_pos+=3;
-    lfu_index = 0;
-    num_write = 0;
+    lfu_index=clock_index= num_write= 0;
+    
 
-    return (page_Frames ? RC_OK : RC_WRITE_FAILED);
+    return RC_OK;
 }
+
 /*-----------------------------------------------
 -->Author: Rashmi Venkatesh Topannavar
 --> Function: forceFlushPool()
