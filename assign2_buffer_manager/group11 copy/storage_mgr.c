@@ -3,6 +3,8 @@
 #include <string.h>
 #include "storage_mgr.h"
 #include "dberror.h"
+#include <stdbool.h>
+
 
 #define nullptr NULL
 
@@ -14,44 +16,55 @@ int total_offset = 1;
 
 
 /*-----------------------------------------------
- --> Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
+ --> Author: Nishchal Gante Ravish
  --> Function Name: setEmptyMemory
- --> Description: This function will set the memory to NULL.
+ --> Description: This func is used to set the mem to null
  --> Parameters used is Memory
 -----------------------------------------------*/
 
+
+
+
 void setEmptyMemory(char *memory) {
-    size_t i = 0;
-    do {
+    for (size_t i = 0; i < PAGE_SIZE; i++) {
         memory[i] = '\0';
-        i++;
-        block_num = block_num + 1;
-    } while (i < PAGE_SIZE);
+    }
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: initStorageManager()
---> Description: This function initialises file pointer to null, return_code to -1. 
+--> Description: This function sets return_code to -1 and the file reference to null. 
 --> parameters used: void (no return value and no parameters)
 -------------------------------------------------*/
 
-void initStorageManager (void)
-{
-    /*First call made to initStorageManager*/
-    //setting the filepointer to null
-    filePointer = nullptr;
-    block_num = 1;
-    //setting the return_code value to null
-    ret_value = -1;
 
-    block_num ++;
 
-    printf("\nDefining the Storage Manager function");
-	printf("\nStorage Manager Defined and successfully initiallized");
-    
+// Function declaration to set the storage manager's initial state
+void initStorageManager(void) {
+    // The file pointer should be initialized to make sure it doesn't point to an already-existing file.
+    filePointer = NULL; // Using NULL for pointer initialization for clarity
+
+    // Set the default error value for the return code at initialization.
+    int returnValue = -1; // For the return value, using a variable name that is more descriptive
+    // Print messages to show when the initialization of the storage manager has begun and finished.
+    printf("\nInitializing the Storage Manager....\n");
+    // If more initialization code is required, it can be placed here.
+   
+    // In the case of configuring memory, launching a log file, etc.
+
+    // Update the return value to reflect success after a successful initialization.
+    returnValue = 0; // In this case, assuming 0 denotes success
+
+
+    // Check if initialization was successful and print the appropriate message
+    if (returnValue == 0) {
+        printf("\nStorage Manager successfully initialized...\n");
+    } else {
+        printf("\nError initializing Storage Manager. Return code: %d", returnValue);
+    }
 }
-
+// End of initStorageManager Function
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
 --> Function: createPageFile()
