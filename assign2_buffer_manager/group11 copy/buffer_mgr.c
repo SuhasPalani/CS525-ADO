@@ -100,9 +100,9 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
 }
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: LRU()
---> Description: --> This function removes the page frame which hasn't been used for a long time (least recent) amongst the other page frames in the buffer pool.
+--> Description: --> This function eliminates from the buffer pool any page frame that hasn't been utilized recently or for an extended period of time.
 --> Parameters Used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
 
@@ -122,7 +122,7 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf) {
         page_f = (PageFrame *)bp->mgmtData;
     }
 
-    // First loop: Find the first free page frame or the one with the least lru_num
+    // First loop: Locate the first frame that is free or has the lowest lru_num.
     int j = 0;
     while (j < buffer_size && (page_f + index)->num != 0) {
         pgFrame = 0;
@@ -131,7 +131,8 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf) {
         j++;
     }
 
-    // Second loop: Identify the least recently used page frame
+    // Second loop: Determine which page frame hasn't been utilized recently.
+
     j = index + 1;
     do {
         pgFrame = 0;
@@ -140,13 +141,16 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf) {
         j++;
     } while (j < buffer_size);
 
-    // Check if the selected page frame is modified, then write it to disk
+    // Verify if the chosen page frame has been altered, then save it to disk.
+
     pgFrame = (page_f + index)->modified == 1 ? (writePageFrames(bp, page_f, index), k + 1) : k;
 
-    // Increase the num of write after write operation
+    // Boost the number of writes after write operations
+
     k += (page_f + index)->modified == 1 ? 1 : 0;
 
-    // Copy the content of the new page to the selected page frame
+    // Transfer the new page's content to the chosen page frame.
+
     copyPageFrames(page_f, index, pf);
     pgFrame = k;
     page_f[index].lru_num = pf->lru_num;
