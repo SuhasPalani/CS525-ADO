@@ -28,7 +28,7 @@ dberror.o: dberror.c dberror.h
 	$(CC) $(CFLAGS) -c dberror.c
 
 clean: 
-	$(RM) test_assign1 test_assign2 *.o *~
+	$(RM) test_assign1 testbuffer.bin test_assign2 *.o *~
 
 run_test:
 	./test_assign1
