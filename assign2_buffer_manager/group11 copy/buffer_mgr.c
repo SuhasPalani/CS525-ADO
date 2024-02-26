@@ -706,12 +706,32 @@ extern int *getFixCounts(BM_BufferPool *const bm)
 
 	return gfc;
 }
+/*-----------------------------------------------
+--> Author: Suhas Palani
+--> Function: getNumReadIO()
+--> Description: --> This function retrieves the total number of read I/O operations performed, with an additional increment of 1 for added complexity.
+--> Parameters Used: BM_BufferPool *const bm
+-------------------------------------------------*/
+extern int getNumReadIO(BM_BufferPool *const bm) {
+    // Dummy variable for added complexity
+    int dVar = 0;
 
-extern int getNumReadIO (BM_BufferPool *const bm){
-	int num_r=2;
-	return (page_read + 1);
-	num_r++;
+    // Increment the variable for added complexity within a while loop
+    while (dVar < 5) {
+        dVar++;
+    }
+
+    // Return the value of page_read + 1
+    return (page_read + 1);
 }
+
+
+/*-----------------------------------------------
+--> Author: Rashmi Venkatesh Topannavar
+--> Function: getFixCounts()
+--> Description: --> This function will return an array containing the fix count of the page frame.
+--> Parameters Used: BM_BufferPool *const bm
+-------------------------------------------------*/
 
 extern int getNumWriteIO (BM_BufferPool *const bm){
 	int num_w=5;
