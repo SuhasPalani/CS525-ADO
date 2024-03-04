@@ -43,7 +43,7 @@ void copyPageFrames(PageFrame *dest, int index, PageFrame *src) {
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: writePageFrames()	
---> Description: This func is used to cpoy the data from page to page func
+--> Description: This function is used to cpoy the data from page to page func
 --> parameters used: BM_BufferPool *const bp,  PageFrame *page_f, int page_index
 -------------------------------------------------*/
 
