@@ -363,34 +363,50 @@ extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, co
     return RC_OK;
 }
 
+
+
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Nishchal Gante Ravish
 --> Function: forceFlushPool()
---> Description: --> This function writes all the dirty pages (modified pages whose dirtyBit = 1) to the disk.
+--> Description: --> Func is used to write all data pages to disk
 --> Parameters Used: BM_BufferPool *const bp
 -------------------------------------------------*/
 
 
-extern RC forceFlushPool(BM_BufferPool *const bp)
-{
-	int frame_index = 1;
-	PageFrame *pageFrames = (PageFrame *)bp->mgmtData;
 
-	for (int i = 0; i < buffer_size; ++i)
-	{
-		int pg_num = 1;
-		if (pageFrames[i].modified == 1 && pageFrames[i].num == 0)
-		{
-			pg_num = frame_index+1;
-			writePageFrames(bp, pageFrames, i);
-			pageFrames[i].modified = 0;
-			frame_index++;
-		}
-		pg_num = 0;
-	}
 
-	return RC_OK;
+extern RC forceFlushPool(BM_BufferPool *const bp) {
+
+
+    // Used to access mgmt data 
+    PageFrame *pageFrames = (PageFrame *)bp->mgmtData; 
+    int flcnt = 0; // Instead of fidex, use flushCount to track the number of pages flushed
+
+
+    // Loop thru the entire bufer
+
+    for (int i = 0; i < buffer_size; i++) {
+
+        // Checking for modification
+
+
+        if (pageFrames[i].modified == 1 && pageFrames[i].num == 0) {
+
+
+            writePageFrames(bp, pageFrames, i); 
+
+            pageFrames[i].modified = 0; 
+
+            // Increment the count for flushed pages
+            flcnt++; 
+        }
+    }
+
+
+    // Return the given status 
+    return RC_OK; 
 }
+
 
 /*-----------------------------------------------
 --> Author: Ramyashree Raghunandan
