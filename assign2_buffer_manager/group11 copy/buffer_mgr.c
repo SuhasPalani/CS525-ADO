@@ -768,7 +768,7 @@ extern bool *getDirtyFlags(BM_BufferPool *const bm) {
     }
 
     return dirtyFlags; 
-    
+
 }
 
 
@@ -824,18 +824,28 @@ extern int getNumReadIO(BM_BufferPool *const bm) {
 }
 
 
+
+
 /*-----------------------------------------------
---> Author: Rashmi Venkatesh Topannavar
+--> Author: Nishchal Gante Ravish
 --> Function: getFixCounts()
---> Description: --> This function will return an array containing the fix count of the page frame.
+--> Description: --> Used to count the page frame.
 --> Parameters Used: BM_BufferPool *const bm
 -------------------------------------------------*/
 
+
+
 extern int getNumWriteIO (BM_BufferPool *const bm){
-	int num_w=5;
+
+	int nw=5;
+
 	return num_write;
-	num_w--;
+
+
+	nw--;
 }
+
+
 
 /*-----------------------------------------------
 --> Author: Ramyashree Raghunandan
