@@ -180,34 +180,70 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf) {
 }
 
 
+
+
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
---> Function: LRU_K()	
+--> Author: Nishchal Gante Ravish
+--> Function: The LRU_K() function
 --> parameters used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
 
-extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf) 
-{
-	int count=0;
-	PageFrame *page_f=(PageFrame *) bp->mgmtData;
-	count = count +1;
-	int j = 0, index, least_number;
-	while (j < buffer_size && (index = (page_f[j].num == 0) ? j : index) == -1) {
-    	least_number = (page_f[j].num == 0) ? page_f[j].lru_num : least_number;
-    	j++;
-	}
-	for (j = index + 1; j < buffer_size; j++) {
-        least_number = (least_number > page_f[j].lru_num) ? page_f[j].lru_num : least_number;
-        index = (least_number > page_f[j].lru_num) ? j : index;
+extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf) {
+
+    // Init cnt to 0
+    int cnt = 0; 
+
+
+    PageFrame *page_f = (PageFrame *) bp->mgmtData; // Pointer to page frames
+
+
+    
+    int j = 0, index = -1, least_number = INT_MAX; 
+
+
+
+    // LRU_NUM find page 
+
+    for (j = 0; j < buffer_size; j++) {
+
+        if (page_f[j].num == 0 || page_f[j].lru_num < least_number) {
+
+            least_number = page_f[j].lru_num;
+
+            index = j;
+
+        }
     }
+
+    // Page checking for modification
+
     if (page_f[index].modified == 1) {
-        count+=0;
-        writePageFrames(bp, page_f, index);
+
+        // Writing it back to disk
+        writePageFrames(bp, page_f, index); 
+
+
+    } else {
+
+        // Using this to track 
+        cnt += 1; 
     }
-    copyPageFrames(page_f, index, pf);
-    count = count +1;
-    page_f[index].lru_num = pf->lru_num;
+
+    // Copy the info to new page
+    copyPageFrames(page_f, index, pf); 
+
+
+    // Updtae lru for the new page
+    page_f[index].lru_num = pf->lru_num; 
+
+    // Count the final value
+    cnt++; 
 }
+
+
+
+
+
 
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
