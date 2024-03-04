@@ -474,33 +474,52 @@ extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
 
 
 
+
+
+
 /*-----------------------------------------------
---> Author: Rashmi Venkatesh Topannavar
+--> Author: Nishchal Gante Ravish
 --> Function: forcePage()
---> Description: --> This function writes the contents of the modified pages back to the page file on disk.
+--> Description: --> Used to write data of changed info back to pages
 --> Parameters Used: BM_BufferPool *const bp, BM_PageHandle *const pg
 -------------------------------------------------*/
 
-extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
-{
-	int page_Index = 1;
-	PageFrame *pageFrames = (PageFrame *)bp->mgmtData;
 
-	for (int i = 0; i < buffer_size; ++i)
-	{
-	  int page = 0;
-	  // If the current page's page number matches the page to be written to disk
-	  if (pg->pageNum == pageFrames[i].pageid)
-	  {
-			page = page_Index + 1;
-			writePageFrames(bp, pageFrames, i);
-			pageFrames[i].modified = 0;
-			page_Index++;
-	  }
-	}
 
-	return RC_OK;
+extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
+
+    // Acces page from mgmtData
+    PageFrame *pageFrames = (PageFrame *)bp->mgmtData; 
+
+    
+
+
+    for (int idx = 0; idx < buffer_size; idx++) {
+        
+
+
+        if (pageFrames[idx].pageid == pg->pageNum) {
+
+
+            if (pageFrames[idx].modified == 1) { 
+
+                writePageFrames(bp, pageFrames, idx); 
+
+
+                pageFrames[idx].modified = 0; 
+            }
+            
+            break; 
+        }
+    }
+
+    return RC_OK; 
 }
+
+
+
+
+
 
 /*-----------------------------------------------
 --> Author: Ramyashree Raghunandan, Arpitha Hebri Ravi Vokuda, Rashmi Venkatesh Topannavar
