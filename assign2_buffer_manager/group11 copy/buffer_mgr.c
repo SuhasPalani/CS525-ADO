@@ -508,7 +508,7 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
 
                 pageFrames[idx].modified = 0; 
             }
-            
+
             break; 
         }
     }
@@ -735,37 +735,42 @@ extern PageNumber *getFrameContents(BM_BufferPool *const bm) {
 }
 
 
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Nishchal Gante Ravish
 --> Function: getDirtyFlags()
---> Description: --> The purpose of this function is to provide an array that conveys the state of dirty flags. 
-				 --> If a page has been modified, the corresponding entry in the array is set to 'true,' otherwise, it is updated as 'false.'
+--> Description: --> Used to convey the status of the dirty flag
+				 --> If page is changed it's ture else false otherwise
 --> Parameters Used: BM_BufferPool *const bm
 --> return type: boolean
 -------------------------------------------------*/
 
+
+
 extern bool *getDirtyFlags(BM_BufferPool *const bm) {
-    int pos;
-    int flag=0;
-    bool *dirtyFlags = malloc(sizeof(bool) * buffer_size);
-    PageFrame *page = (PageFrame *)bm->mgmtData;
-    flag+=1;
-    
-    if (page != nullptr) {
-        for (pos = 0; pos < buffer_size; pos++) {
-            switch ((page + pos)->modified) {
-                case 1:
-                    dirtyFlags[pos] = true;
-                    flag=flag+1;
-                    break;
-                default:
-                    dirtyFlags[pos] = false;
-            }
-        }
+
+
+    // Reserve memory for dirty flags
+
+
+    bool *dirtyFlags = (bool *)malloc(sizeof(bool) * buffer_size);
+
+
+    PageFrame *frames = (PageFrame *)bm->mgmtData; 
+
+    // Initialize the state for each flags
+
+    for (int idx = 0; idx < buffer_size; idx++) {
+
+        
+
+        dirtyFlags[idx] = (frames[idx].modified != 0);
     }
-    flag=0;
-    return dirtyFlags;
+
+    return dirtyFlags; 
+    
 }
+
 
 /*-----------------------------------------------
 --> Author: Rashmi Venkatesh Topannavar
