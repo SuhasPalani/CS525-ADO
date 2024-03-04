@@ -38,26 +38,48 @@ void copyPageFrames(PageFrame *dest, int index, PageFrame *src) {
 }
 
 
+
+
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: writePageFrames()	
---> Description: This function copies the content from a page to a page frame.
+--> Description: This func is used to cpoy the data from page to page func
 --> parameters used: BM_BufferPool *const bp,  PageFrame *page_f, int page_index
 -------------------------------------------------*/
 
-void writePageFrames (BM_BufferPool *const bp,  PageFrame *page_f, int page_index )
-{
-    int pg_frame = 1;
-	SM_FileHandle f_handle;
-	openPageFile(bp->pageFile, &f_handle);
-    pg_frame = pg_frame +1;
-	writeBlock(page_f[page_index].pageid, &f_handle, page_f[page_index].page_h); 
-	num_write=1+num_write;
-	pg_frame++;
-	return;
-    pg_frame = 0;
 
+void writePageFrames(BM_BufferPool *const bp, PageFrame *page_f, int page_index) {
+
+    // Initialize to 0 
+    int pgfm = 0;
+
+
+    //Call file handl;er
+    SM_FileHandle f_handle;
+
+    
+    openPageFile(bp->pageFile, &f_handle);
+
+
+    // Increment pgfm
+    pgfm += 2; 
+
+
+
+    // writeblock func
+    writeBlock(page_f[page_index].pageid, &f_handle, page_f[page_index].page_h);
+
+    
+
+    // Increasing no of writes
+    num_write += 1; 
+    pgfm++; 
+
+    
+    return; 
 }
+
+
 
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
