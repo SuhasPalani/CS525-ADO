@@ -6,9 +6,14 @@ Assignment 1 - Storage Manager
       Group 11 Members:       
 *********************************
 
+<<<<<<< HEAD
 Name - Suhas Palani
 CWID - A20548277
 Email- spalani3@hawk.iit.edu 
+=======
+Spring 2024- Illinois Institute of Technology
+
+>>>>>>> c7dc14127dfd5f716980d174edd7104f93cc8845
 
 
 Name - Nishchal Gante Ravish 

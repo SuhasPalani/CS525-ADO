@@ -5,14 +5,14 @@
 #include "dberror.h"
 #include <stdbool.h>
 
+
 #define nullptr NULL
 
 FILE *filePointer;
 RC ret_value;
 
-
-
-
+int block_num = 0;
+int total_offset = 1;
 
 
 /*-----------------------------------------------
@@ -30,8 +30,6 @@ void setEmptyMemory(char *memory) {
         memory[i] = '\0';
     }
 }
-
-
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -68,57 +66,48 @@ void initStorageManager(void) {
 }
 // End of initStorageManager Function
 
+
 /*-----------------------------------------------
--->Author: Uday Venkatesha
+-->Author: Arpitha Hebri Ravi Vokuda
 --> Function: createPageFile()
 --> Description: This function creates a new empty file and appending that empty file into the file pointed by filePointer
 --> parameters used: fileName
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC createPageFile(char *fileName)
+extern RC createPageFile ( char * fileName )
 {
-    FILE *filePtr = fopen(fileName, "w+");
-
-    // Check if the file was successfully opened for read and write
-    if (filePtr == NULL)
-    
-        return RC_FILE_NOT_FOUND;
-
-    // Allocate memory for an empty page
-    SM_PageHandle emptyPage = (SM_PageHandle)malloc(PAGE_SIZE);
-    
-    // Ensure memory allocation was successful
-    if (emptyPage == NULL)
+    block_num = 0;
+    filePointer = fopen(fileName,"w+"); 
+	
+    //opening the file with write w+ mode, hence creating a empty file with both reading and writing mode.
+	//checking the existence of file through file pointer
+	
+	if(filePointer!= nullptr)
     {
-        fclose(filePtr);
-        return RC_WRITE_FAILED;  // Use a generic write failure code
-    }
-
-    // Initialize the empty page with null bytes
-    memset(emptyPage, 0, PAGE_SIZE);
-
-    // Write the empty page to the file
-    size_t writeResult = fwrite(emptyPage, sizeof(char), PAGE_SIZE, filePtr);
-
-    if (writeResult == PAGE_SIZE)
-    {
-        printf("Empty page successfully written to file.\n");
-    }
-    else
-    {
-        printf("Failed to write empty page to file.\n");
-    }
-
-    // Clean up: free allocated memory and close the file
-    free(emptyPage);
-    fclose(filePtr);
-
-    return RC_OK;
+    	SM_PageHandle new_page= (SM_PageHandle)malloc(PAGE_SIZE * sizeof(char)); 
+        block_num++;
+        setEmptyMemory(new_page);
+	    // creating empty page using malloc
+	    //checking if write operation is possible on the empty page.
+	    (PAGE_SIZE >= (fwrite(new_page, sizeof(char), PAGE_SIZE, filePointer)))?printf("\nzero page has been appended to file pointed by filePointer"):printf("\nzero page cannot be appended to file");
+	    
+        free(new_page);// freeing the memory allocated for zero page
+        block_num = block_num + 3;
+	    fclose(filePointer);// closing the file to make sure buffers are flushed
+	    printf("The new_page file was successfully closed");
+        block_num--;
+        ret_value = RC_OK;
+	}
+	else
+	{   
+        ++block_num;
+		ret_value=RC_FILE_NOT_FOUND;
+	}
+	return ret_value;
 }
 
 
-  
 
 
 /*-----------------------------------------------
@@ -161,7 +150,6 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
 
     return RC_OK;
 }
-
 
 
 /*-------------------------------------------------
@@ -213,8 +201,6 @@ extern RC closePageFile(SM_FileHandle *fHandle) {
 }
 
 
-
-
 /*-------------------------------------------------
  --> Author: Uday Venkatesha
  --> Function Name: destroyPageFile
@@ -241,13 +227,6 @@ extern RC destroyPageFile(char *fileName)
 
     return ret_value;
 }
-
-
-
-
-
-
-
 
 
 /*-----------------------------------------------
@@ -319,8 +298,6 @@ extern RC readBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage) 
     // Fallback in case no conditions are met, which should not happen
     return RC_FILE_NOT_FOUND;
 }
-
-
 
 
 /*-----------------------------------------------
@@ -417,11 +394,6 @@ RC readFirstBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
     return RC_OK;
 }
 
-
-
-
-
-
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: readPreviousBlock()
@@ -488,13 +460,6 @@ RC readCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
        return (fHandle == NULL) ? RC_FILE_NOT_FOUND : RC_READ_NON_EXISTING_PAGE;
    }
 }
-
-
-
-
-
-
-
 
 /*-----------------------------------------------
 -->Author: Uday Venkatesha
@@ -595,85 +560,54 @@ RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
 
 
-
-
-
-
-
-
 /*-----------------------------------------------
 --> Author: Suhas Palani
 --> Function Name: writeBlock
 --> Description: The data will be written by this function to the designated file page.
 --> Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle memPage
 --> Return type: Return Code
-
 -------------------------------------------------*/
+extern RC writeBlock(int pageNum, SM_FileHandle *fHandle, SM_PageHandle mrPg) {
+    int writeOffset = 0;
+    FILE *filePointer = NULL;
 
-RC writeBlock(int pageId, SM_FileHandle *fileDesc, SM_PageHandle dataBuffer) {
-    // Validate input parameters to ensure they are acceptable for operation.
-    if (fileDesc == NULL || pageId < 0 || pageId >= fileDesc->totalNumPages) {
-        return RC_WRITE_FAILED; // Return write failure if validation fails.
-    }
-    // For file operations, the file stream pointer.
-    FILE *stream; 
-
-    // Initially assume the operation will succeed.
-    int finalStatus = RC_OK; 
-
-    // Variable to hold the file's end location.
-
-    long fileEndPos; // Variable to store the end position of the file.
-
-
-
-    // Opt for the binary read/update mode when opening the file.
-
-    stream = fopen(fileDesc->fileName, "r+b");
-
-    // Try opening in write/update mode (binary) if the read/update mode doesn't work.
-
-    if (stream == NULL) {
-        
-        // This is done to ensure the file exists; if not, it is created.
-        stream = fopen(fileDesc->fileName, "w+b");
-
-        if (stream == NULL) {
-
-            // If opening the file fails again, return file not found error.
-            return RC_FILE_NOT_FOUND;
-        }
-    }
-
-    // Set the file's position to the start of the target page.
-    // PAGE_SIZE is a predefined constant indicating the size of a page.
-    if (fseek(stream, pageId * PAGE_SIZE, SEEK_SET) != 0) {
-        // If seeking fails, close the file and return write failure.
-        fclose(stream);
+    // Check if the page number is within bounds
+    if (pageNum < 0 || pageNum > fHandle->totalNumPages) {
         return RC_WRITE_FAILED;
     }
 
-    // Write the data from the buffer to the file.
-    // If the amount written is less than PAGE_SIZE, set the final status to write failure.
-    if (fwrite(dataBuffer, 1, PAGE_SIZE, stream) < PAGE_SIZE) {
-        finalStatus = RC_WRITE_FAILED;
-    } else {
-        // Update the current page position in the file descriptor.
-        fileDesc->curPagePos = pageId;
+    // Calculate write offset
+    writeOffset = PAGE_SIZE * pageNum;
 
-        // Move to the end of the file to calculate the total number of pages.
-        fseek(stream, 0, SEEK_END);
-        fileEndPos = ftell(stream); // Get the current position (end of file).
-        // Update the total number of pages in the file descriptor.
-        fileDesc->totalNumPages = (int)(fileEndPos / PAGE_SIZE);
-        // Adjusted the file descriptor's total page count.
+    // Open the file in "r+" mode
+    filePointer = fopen(fHandle->fileName, "r+");
 
+    if (filePointer != NULL) {
+        // Move the file pointer to the specified page number
+        fseek(filePointer, writeOffset, SEEK_SET);
+
+        // Write contents into the specified page
+        switch (pageNum) {
+            case 0:
+                fwrite(mrPg, sizeof(char), PAGE_SIZE, filePointer);
+                break;
+            default:
+                // Append an empty block for non-zero page number
+                appendEmptyBlock(fHandle);
+                fwrite(mrPg, sizeof(char), strlen(mrPg), filePointer);
+                break;
+        }
+
+        // Update current page position
+        fHandle->curPagePos = ftell(filePointer);
+
+        // Close the file
+        fclose(filePointer);
+
+        return RC_OK;
     }
 
-    // Close the file stream.
-    fclose(stream);
-    // Return the final status of the write operation.
-    return finalStatus;
+    return RC_FILE_NOT_FOUND;
 }
 
 
@@ -730,9 +664,6 @@ RC writeCurrentBlock(SM_FileHandle *fHandle, SM_PageHandle memPage) {
 
     return writeBlock(currentBlock, fHandle, memPage);
 }
-
-
-
 
 
 
@@ -840,11 +771,6 @@ void initializeEmptyBlock(char *block, size_t size) {
         memset(block, 0, size);
     }
 }
-
-
-
-
-
 
 /*----------------------------------------------------------
 --> Author: Suhas Palani
