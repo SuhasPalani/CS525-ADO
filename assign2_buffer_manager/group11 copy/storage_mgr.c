@@ -68,43 +68,74 @@ void initStorageManager(void) {
 
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Arpitha Hebri Ravi Vokuda/ Uday Venkatesha
 --> Function: createPageFile()
 --> Description: This function creates a new empty file and appending that empty file into the file pointed by filePointer
 --> parameters used: fileName
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC createPageFile ( char * fileName )
+// Function to create a new page file.
+// Returns an RC value indicating success or failure.
+extern RC createPageFile(char *fileName)
 {
+    // Initialize the block counter and attempt counter.
     block_num = 0;
-    filePointer = fopen(fileName,"w+"); 
-	
-    //opening the file with write w+ mode, hence creating a empty file with both reading and writing mode.
-	//checking the existence of file through file pointer
-	
-	if(filePointer!= nullptr)
+    int attempts = 0; // Added for looping logic, max three attempts to open file.
+
+    // Try to open the file, with a maximum of three attempts.
+    do
     {
-    	SM_PageHandle new_page= (SM_PageHandle)malloc(PAGE_SIZE * sizeof(char)); 
-        block_num++;
-        setEmptyMemory(new_page);
-	    // creating empty page using malloc
-	    //checking if write operation is possible on the empty page.
-	    (PAGE_SIZE >= (fwrite(new_page, sizeof(char), PAGE_SIZE, filePointer)))?printf("\nzero page has been appended to file pointed by filePointer"):printf("\nzero page cannot be appended to file");
-	    
-        free(new_page);// freeing the memory allocated for zero page
-        block_num = block_num + 3;
-	    fclose(filePointer);// closing the file to make sure buffers are flushed
-	    printf("The new_page file was successfully closed");
-        block_num--;
-        ret_value = RC_OK;
-	}
-	else
-	{   
-        ++block_num;
-		ret_value=RC_FILE_NOT_FOUND;
-	}
-	return ret_value;
+        // Open the file in write/update mode, creating it if it doesn't exist.
+        filePointer = fopen(fileName, "w+");
+        attempts++; // Increment the number of attempts.
+
+        // Check if the file was successfully opened.
+        if (filePointer != nullptr)
+        {
+            // Allocate memory for one page.
+            SM_PageHandle new_page = (SM_PageHandle)malloc(PAGE_SIZE * sizeof(char));
+
+            // Increment the block number as we have started to manipulate a file.
+            block_num++;
+
+            // Initialize the page with zeros or some default values.
+            setEmptyMemory(new_page);
+
+            // Write the empty page to the file and check if successful.
+            if (PAGE_SIZE == fwrite(new_page, sizeof(char), PAGE_SIZE, filePointer))
+            {
+                printf("\nZero page has been appended to the file pointed by filePointer.");
+            }
+            else
+            {
+                printf("\nZero page cannot be appended to the file.");
+            }
+
+            // Free the allocated memory to prevent leaks.
+            free(new_page);
+
+            // Close the file to ensure all changes are saved.
+            fclose(filePointer);
+            printf("The page file was successfully closed.");
+
+            // Operation successful, set return value to success.
+            ret_value = RC_OK;
+
+            // Exit loop after successful operation.
+            break;
+        }
+        else if (attempts >= 3) // Check if maximum attempts reached.
+        {
+            // If the file could not be opened after maximum attempts, set error.
+            ret_value = RC_FILE_NOT_FOUND;
+            // Increment the block number for diagnostics or error handling.
+            ++block_num;
+        }
+    } while (attempts < 3); // End of do-while loop after three attempts or successful file opening.
+
+    // Return the result of the file creation attempt.
+    return ret_value;
 }
 
 
