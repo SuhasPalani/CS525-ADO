@@ -341,19 +341,14 @@ int num_write;
 
 // Helper function to initialize page frames
 void initializePageFrames(PageFrame *page_Frames) {
-    int i = 0;
-
-    // Initialize each PageFrame structure in the array
-    while (i < buffer_size) {
-        page_Frames[i].pageid = -1;
-        page_Frames[i].lru_num = 0;
-        page_Frames[i].lfu_num = 0;
-        page_Frames[i].modified = 0;
-        page_Frames[i].num = 0;
-        page_Frames[i].page_h = NULL;
-        i++;
+    for (int i = 0; i < buffer_size; ++i) {
+        page_Frames[i] = (PageFrame){
+            .pageid = -1,
+            .page_h = NULL
+        };
     }
 }
+
 
 /**
  * @brief Initializes a Buffer Pool.
