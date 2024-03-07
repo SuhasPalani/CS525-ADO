@@ -240,43 +240,62 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
     // Init cnt to 0
     int cnt = 0;
 
+
+
     PageFrame *page_f = (PageFrame *)bp->mgmtData; // Pointer to page frames
 
-    int j = 0, index = -1, least_number = INT_MAX;
+
+
+    int rv = 0, indx = -1, lno = INT_MAX;
 
     // LRU_NUM find page
-    for (j = 0; j < buffer_size; j++)
+
+    for (rv = 0; rv < buffer_size; rv++)
+
     {
-        if (page_f[j].num == 0 || page_f[j].lru_num < least_number)
+
+        if (page_f[rv].num == 0 || page_f[rv].lru_num < lno)
+
         {
-            least_number = page_f[j].lru_num;
-            index = j;
+            lno = page_f[rv].lru_num;
+
+            indx = rv;
         }
     }
 
     // Using switch
-    switch (page_f[index].modified)
+
+
+    switch (page_f[indx].modified)
+
     {
 
         // Page gets modified
+
         case 1: 
-            writePageFrames(bp, page_f, index); // Writing it back to disk
+
+            writePageFrames(bp, page_f, indx); // Writing it back to disk
+
             break;
 
 
         // Page not modified
+
         default: 
+
             cnt += 1; 
+
             break;
     }
 
     // Copy the info to new page
-    copyPageFrames(page_f, index, pf);
+    
+    copyPageFrames(page_f, indx, pf);
 
     // Update lru for the new page
 
 
-    page_f[index].lru_num = pf->lru_num;
+    page_f[indx].lru_num = pf->lru_num;
 
 
     // Count the final value
@@ -885,28 +904,7 @@ extern int getNumReadIO(BM_BufferPool *const bm)
 
 
 
-/*-----------------------------------------------
---> Author: Nishchal Gante Ravish
---> Function: getFixCounts()
---> Description: --> Used to count the page frame.
---> Parameters Used: BM_BufferPool *const bm
--------------------------------------------------*/
 
-
-
-extern int getNumWriteIO(BM_BufferPool *const bm)
-{
-
-
-
-    int random_var = 5;
-
-
-    return num_write;
-
-
-    random_var--;
-}
 
 
 
@@ -943,4 +941,29 @@ extern RC markDirty(BM_BufferPool *const bm, BM_PageHandle *const page)
     // If no matching page was found, still return RC_OK as the function successfully checked all pages without errors
     // However, in real scenarios, you might want to return a different code to indicate the page was not found
     return RC_OK;
+}
+
+
+
+/*-----------------------------------------------
+--> Author: Nishchal Gante Ravish
+--> Function: getFixCounts()
+--> Description: --> Used to count the page frame.
+--> Parameters Used: BM_BufferPool *const bm
+-------------------------------------------------*/
+
+
+
+extern int getNumWriteIO(BM_BufferPool *const bm)
+{
+
+
+
+    int random_var = 5;
+
+
+    return num_write;
+
+
+    random_var--;
 }
