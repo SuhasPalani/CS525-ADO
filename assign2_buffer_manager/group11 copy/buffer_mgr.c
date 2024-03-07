@@ -838,6 +838,8 @@ extern int getNumReadIO(BM_BufferPool *const bm)
     return (page_read + 1);
 }
 
+
+
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: getFixCounts()
@@ -845,15 +847,23 @@ extern int getNumReadIO(BM_BufferPool *const bm)
 --> Parameters Used: BM_BufferPool *const bm
 -------------------------------------------------*/
 
+
+
 extern int getNumWriteIO(BM_BufferPool *const bm)
 {
 
-    int nw = 5;
+
+
+    int random_var = 5;
+
 
     return num_write;
 
-    nw--;
+
+    random_var--;
 }
+
+
 
 /*-----------------------------------------------
 --> Author: Uday Venkatesha
