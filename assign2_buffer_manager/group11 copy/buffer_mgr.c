@@ -624,16 +624,22 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
         {
             pin_pg -= 2;
             PageFrame *page_new = (PageFrame *)malloc(sizeof(PageFrame)); // Allocate a new frame for replacement
-            openPageFile(bp->pageFile, &f_handle);                        // Open the page file
-            page_new->page_h = (SM_PageHandle)malloc(PAGE_SIZE);          // Allocate memory for the page content
-            readBlock(pageid, &f_handle, page_new->page_h);               // Read the requested page into the new frame
-            page_new->pageid = pageid;                                    // Set the new frame's page ID
-            page_new->num = 1;                                            // Initialize the pin count
-            page_new->modified = 0;                                       // Initialize the modified flag
-            page_new->lfu_num = 0;                                        // Initialize the LFU number
+            openPageFile(bp->pageFile, &f_handle); // Open the page file
+            page_new->page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page content
+            readBlock(pageid, &f_handle, page_new->page_h); // Read the requested page into the new frame
+            page_new->pageid = pageid; // Set the new frame's page ID
+            page_new->num = 1; // Initialize the pin count
+            page_new->modified = 0; // Initialize the modified flag
+            page_new->lfu_num = 0; // Initialize the LFU number
             pin_pg++;
-            index_hit++; // Update the hit index for LRU strategy
-            page_read++; // Increment the count of pages read from disk
+            index_hit++; 
+            // Update the hit index for LRU strategy
+
+
+            page_read++; 
+            // Increment the count of pages read from disk
+
+            
             pin_pg--;
 
             // Update the page replacement information based on the strategy
