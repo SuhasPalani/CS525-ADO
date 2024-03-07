@@ -187,9 +187,10 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
 --> parameters used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
 
+
+
 extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 {
-
     // Init cnt to 0
     int cnt = 0;
 
@@ -198,43 +199,44 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
     int j = 0, index = -1, least_number = INT_MAX;
 
     // LRU_NUM find page
-
     for (j = 0; j < buffer_size; j++)
     {
-
         if (page_f[j].num == 0 || page_f[j].lru_num < least_number)
         {
-
             least_number = page_f[j].lru_num;
-
             index = j;
         }
     }
 
-    // Page checking for modification
-
-    if (page_f[index].modified == 1)
+    // Using switch
+    switch (page_f[index].modified)
     {
 
-        // Writing it back to disk
-        writePageFrames(bp, page_f, index);
-    }
-    else
-    {
+        // Page gets modified
+        case 1: 
+            writePageFrames(bp, page_f, index); // Writing it back to disk
+            break;
 
-        // Using this to track
-        cnt += 1;
+
+        // Page not modified
+        default: 
+            cnt += 1; 
+            break;
     }
 
     // Copy the info to new page
     copyPageFrames(page_f, index, pf);
 
-    // Updtae lru for the new page
+    // Update lru for the new page
+
+
     page_f[index].lru_num = pf->lru_num;
+
 
     // Count the final value
     cnt++;
 }
+
 
 /*-----------------------------------------------
 -->Author: Uday Venkatesha
