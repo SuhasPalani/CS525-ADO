@@ -341,19 +341,14 @@ int num_write;
 
 // Helper function to initialize page frames
 void initializePageFrames(PageFrame *page_Frames) {
-    int i = 0;
-
-    // Initialize each PageFrame structure in the array
-    while (i < buffer_size) {
-        page_Frames[i].pageid = -1;
-        page_Frames[i].lru_num = 0;
-        page_Frames[i].lfu_num = 0;
-        page_Frames[i].modified = 0;
-        page_Frames[i].num = 0;
-        page_Frames[i].page_h = NULL;
-        i++;
+    for (int i = 0; i < buffer_size; ++i) {
+        page_Frames[i] = (PageFrame){
+            .pageid = -1,
+            .page_h = NULL
+        };
     }
 }
+
 
 /**
  * @brief Initializes a Buffer Pool.
@@ -725,50 +720,42 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
 
 extern PageNumber *getFrameContents(BM_BufferPool *const bm) {
     // Set aside memory for the contents of the page.
-
     PageNumber *page_contents = (PageNumber *)malloc(sizeof(PageNumber) * buffer_size);
 
     // Obtain the pointer from the buffer pool's management data to the array of page frames.
-
     PageFrame *page = (PageFrame *)bm->mgmtData;
 
-    // To offset further intricacy
-
-    int count = 0;
-
-    // Set the loop's iterator to its initial value.
-
+    // Loop iterator
     int iter = 0;
 
-    // For iterating across the page frames, use a do-while loop.
-
-    do {
-        // To offset further intricacy
-
+    // Iterate across the page frames using a switch statement
+    while (iter < buffer_size) {
         int buf_count = 0;
 
-        // To set page_contents[iter] based on page[iter], use a ternary operator.pageid
+        switch (page[iter].pageid) {
+            case -1:
+                page_contents[iter] = NO_PAGE;
+                break;
 
-        page_contents[iter] = (page[iter].pageid != -1) ? page[iter].pageid : NO_PAGE;
+            default:
+                page_contents[iter] = page[iter].pageid;
+                break;
+        }
 
         // Extra action: Carry out a task that has no application.
-
-        count++;
+        // (Keeping it here for consistency with the original code)
+        iter++;
 
         // Extra action: Use layered loops to increase complexity.
-
         for (int i = 0; i < iter; i++) {
             buf_count++;
         }
-
-        // Increment the iterator
-        iter++;
-
-    } while (iter < buffer_size);
+    }
 
     // Return the array of page contents
     return page_contents;
 }
+
 
 
 
