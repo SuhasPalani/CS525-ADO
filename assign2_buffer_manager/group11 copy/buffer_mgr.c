@@ -28,11 +28,7 @@ int buffer_size = 0, page_read = 0, num_write = 0, index_hit = 0, clock_index = 
 --> Parameters Used: PageFrame *dest, int index,PageFrame *src
 -------------------------------------------------*/
 void copyPageFrames(PageFrame *dest, int index, PageFrame *src) {
-    // Using pointer notation to copy values
-    // dest[index].page_h = src->page_h;
-    // dest[index].modified = src->modified;
-    // dest[index].num = src->num;
-    // dest[index].pageid = src->pageid;
+   
     memcpy(dest + index, src, sizeof(PageFrame));
     return;
 }
