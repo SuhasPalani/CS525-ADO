@@ -17,7 +17,9 @@ typedef struct Page
     int lfu_num;          // Utilized by LFU algorithm to determine which page is used at least
 } PageFrame;
 
-int buffer_size = 0, page_read = 0, num_write = 0, index_hit = 0, clock_index = 0, lfu_index = 0;
+int hit_count = -1;
+int buffer_size,page_read,num_write,index_hit,clock_index,lfu_index= 0;
+int pg_index = 1;
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -335,13 +337,11 @@ int lfu_index;
 int num_write;
 
 // Helper function to initialize page frames
-void initializePageFrames(PageFrame *page_Frames)
-{
+void initializePageFrames(PageFrame *page_Frames) {
     int i = 0;
 
     // Initialize each PageFrame structure in the array
-    while (i < buffer_size)
-    {
+    while (i < buffer_size) {
         page_Frames[i].pageid = -1;
         page_Frames[i].lru_num = 0;
         page_Frames[i].lfu_num = 0;
@@ -351,6 +351,7 @@ void initializePageFrames(PageFrame *page_Frames)
         i++;
     }
 }
+
 
 /**
  * @brief Initializes a Buffer Pool.
@@ -495,14 +496,12 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp)
 extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 {
     // Get the pointer to the array of page frames from the buffer pool's management data
-    PageFrame *page_Frames = (PageFrame *)bp->mgmtData;
+    typedef PageFrame* PageFramesPtr;
+PageFramesPtr page_Frames = (PageFramesPtr)bp->mgmtData;
 
-    // Initialize index for iteration
-    int index = 0;
 
     // Use a while loop for iteration through the page frames
-    while (index < buffer_size)
-    {
+    while (index < buffer_size) {
         // Check if the current page frame matches the page to be unpinned
         if (page_Frames[index].pageid == pg->pageNum)
         {
@@ -512,9 +511,6 @@ extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
             // Return success code
             return RC_OK;
         }
-
-        // Move to the next page frame
-        index++;
     }
 
     // If the page is not found in the buffer pool, handle it accordingly
@@ -524,6 +520,12 @@ extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
     // Return success code
     return RC_OK;
 }
+
+
+
+
+
+
 
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
@@ -734,52 +736,47 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
 extern PageNumber *getFrameContents(BM_BufferPool *const bm)
 {
     // Set aside memory for the contents of the page.
-
     PageNumber *page_contents = (PageNumber *)malloc(sizeof(PageNumber) * buffer_size);
 
     // Obtain the pointer from the buffer pool's management data to the array of page frames.
-
     PageFrame *page = (PageFrame *)bm->mgmtData;
 
-    // To offset further intricacy
-
-    int count = 0;
-
-    // Set the loop's iterator to its initial value.
-
+    // Loop iterator
     int iter = 0;
 
     // For iterating across the page frames, use a do-while loop.
 
-    do
-    {
+    do {
         // To offset further intricacy
 
         int buf_count = 0;
 
-        // To set page_contents[iter] based on page[iter], use a ternary operator.pageid
+        switch (page[iter].pageid) {
+            case -1:
+                page_contents[iter] = NO_PAGE;
+                break;
 
-        page_contents[iter] = (page[iter].pageid != -1) ? page[iter].pageid : NO_PAGE;
+            default:
+                page_contents[iter] = page[iter].pageid;
+                break;
+        }
 
         // Extra action: Carry out a task that has no application.
-
-        count++;
+        // (Keeping it here for consistency with the original code)
+        iter++;
 
         // Extra action: Use layered loops to increase complexity.
 
-        for (int i = 0; i < iter; i++)
-        {
+        for (int i = 0; i < iter; i++) {
             buf_count++;
         }
-
-        // Increment the iterator
-        iter++;
-
-    } while (iter < buffer_size);
+    }
 
     // Return the array of page contents
     return page_contents;
 }
+
+
 
 /*-----------------------------------------------
 -->Author: Nishchal Gante Ravish
