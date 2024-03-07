@@ -443,7 +443,7 @@ extern RC forceFlushPool(BM_BufferPool *const bp) {
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Uday Venkatesha
 --> Function: shutDownBufferPool()	
 --> Description: This function shutdowns the buffer pool, freeing resources and writing modified pages to disk using forceFlushPool(), while throwing a RC_PINNED_PAGES_IN_BUFFER error if any pages are still in use.
 --> parameters used: BM_BufferPool *const bp
@@ -579,7 +579,7 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan, Arpitha Hebri Ravi Vokuda, Rashmi Venkatesh Topannavar
+--> Author: Uday Venkatesha
 --> Function: pinPage()
 --> Description: This function pins a page by taking the corresponding page file from the disk.It checks if the buffer pool is empty before pinning the page. If there is no empty space in the page frame, it invokes page replacement algorithms. If the 'modified' flag is set to one, the page is replaced by a new page according to the page replacement algorithms.
 --> Parameters Used: BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid
