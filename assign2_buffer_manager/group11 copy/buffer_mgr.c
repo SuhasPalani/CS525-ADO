@@ -17,9 +17,9 @@ typedef struct Page
     int lfu_num;   // Utilized by LFU algorithm to determine which page is used at least
 } PageFrame;
 
-int hit_count = -1;
-int buffer_size,page_read,num_write,index_hit,clock_index,lfu_index= 0;
-int pg_index = 1;
+
+int buffer_size = 0, page_read = 0, num_write = 0, index_hit = 0, clock_index = 0, lfu_index = 0;
+
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -498,26 +498,25 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp) {
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
+extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
+{
     // Get the pointer to the array of page frames from the buffer pool's management data
-    PageFrame *page_Frames = (PageFrame *)bp->mgmtData;
+    typedef PageFrame* PageFramesPtr;
+PageFramesPtr page_Frames = (PageFramesPtr)bp->mgmtData;
 
-    // Initialize index for iteration
-    int index = 0;
 
-    // Use a while loop for iteration through the page frames
-    while (index < buffer_size) {
+    // Iterate through the page frames using a for loop
+    for (int index = 0; index < buffer_size; index++)
+    {
         // Check if the current page frame matches the page to be unpinned
-        if (page_Frames[index].pageid == pg->pageNum) {
+        if (page_Frames[index].pageid == pg->pageNum)
+        {
             // Decrease fixCount (num) as the client has completed work on this page
             page_Frames[index].num--;
 
             // Return success code
             return RC_OK;
         }
-
-        // Move to the next page frame
-        index++;
     }
 
     // If the page is not found in the buffer pool, handle it accordingly
@@ -527,6 +526,7 @@ extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg) {
     // Return success code
     return RC_OK;
 }
+
 
 
 
