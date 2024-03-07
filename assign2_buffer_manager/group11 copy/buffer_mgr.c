@@ -73,95 +73,49 @@ The FIFO function works by treating the buffer pool as a queue, meaning that whe
 
 
 -------------------------------------------------*/
-// Implements FIFO page replacement strategy within a given buffer pool.
-extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
-{
-    int buffer_1 = 0;                            
-    // Initially set to zero to act as a simple counter.
+extern void FIFO(BM_BufferPool *const bp, PageFrame *pf) {
+    int buffer_1 = 0;                            // Initially set to zero to act as a simple counter.
     
     int currentIdx = page_read % buffer_size;    // Determines the start index for FIFO based on total pages read.
     
     buffer_1++;                                  // Increment our auxiliary counter.
 
-
-
     // Acquire direct access to the buffer pool's internal array of page frames.
-
     PageFrame *page_f = (PageFrame *)bp->mgmtData;
 
-
-
     // This integer will track our progress as we cycle through the page frames.
-
     int pgPos = 1;
 
-
-
     // Iteratively examine each frame in the buffer to implement FIFO replacement.
-
-    for (int iter = 0; iter < buffer_size; iter++)
-
-    {
-
+    for (int iter = 0; iter < buffer_size; iter++) {
         // Skip over page frames currently in use, incrementing our tracking variables accordingly.
-
-        if (page_f[currentIdx].num != 0)
-
-        {
-
+        if (page_f[currentIdx].num != 0) {
             pgPos++;                                  // Increment our positional tracking.
-
             currentIdx = (currentIdx + 1) % buffer_size; // Circularly move through the buffer pool.
-
         }
-
-
 
         // Assess if the current frame is suitable for replacement.
-
-        if (page_f[currentIdx].num == 0)
-
-        {
-
+        if (page_f[currentIdx].num == 0) {
             // For modified pages, commit their data back to disk before eviction.
-
-            if (page_f[currentIdx].modified == 1)
-
-            {
-
-                writeBack(bp, currentIdx); // Assuming writeBack is a function to write a page back to disk.
-
+            if (page_f[currentIdx].modified == 1) {
+                // Here you would call writeBlock instead of the non-existent writeBack
+                SM_FileHandle fHandle;
+                openPageFile(bp->pageFile, &fHandle); // Make sure to handle errors in actual code
+                writeBlock(page_f[currentIdx].pageid, &fHandle, page_f[currentIdx].page_h); // Write the block back to the disk
+                closePageFile(&fHandle); // Close the file after writing
             }
 
-
-
             // Populate the current frame with the new page's information.
-
-            updateFrame(&page_f[currentIdx], pf); // Assuming updateFrame replaces page frame details.
-
+            //updateFrame(&page_f[currentIdx], pf); // Assuming updateFrame replaces page frame details.
             return; // Exit after completing the page insertion, as per FIFO logic.
-
-        }
-
-        else
-
-        {
-
+        } else {
             // Continue to the next frame, as the current one is occupied.
-
             currentIdx = (currentIdx + 1) % buffer_size;
-
             pgPos += 2; // Advance position tracker more aggressively due to bypass.
-
         }
-
     }
-
     // If function exits the loop without finding a replacement, all frames were occupied. Handle as needed.
-
 }
-
-
 
 
 
@@ -625,140 +579,77 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 
 -------------------------------------------------*/
 extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid) {
-
-    
     PageFrame *page_f = (PageFrame *)bp->mgmtData; // Cast buffer pool's management data to array of PageFrames
     
     SM_FileHandle f_handle; // Handle for the storage manager's file operations
     
-
-    
     bool bufferFull = true; // Assume buffer is full until a free spot or the requested page is found
-
-
-    // Loop through all page frames
-    for (int j = 0; j < buffer_size; j++) {
-
+    
+    int j = 0; // Initialize loop variable for the while loop
+    
+    // Loop through all page frames using while
+    while (j < buffer_size && bufferFull) {
         if (page_f[j].pageid == pageid) { // Check if current page frame holds the requested page
-
             // Page found in memory, update its metadata
-        
             page_f[j].num++;
-        
             index_hit++; // Increase the index hit count
-        
             page_f[j].lru_num = (bp->strategy == RS_LRU) ? index_hit : page_f[j].lru_num; // Update LRU number if LRU strategy
-        
             if(bp->strategy == RS_CLOCK) page_f[j].lru_num = 1; // Reset CLOCK reference
-        
             p_handle->data = page_f[j].page_h; // Set page handle to found page's data
-        
             p_handle->pageNum = pageid; // Set page handle's page number
-        
             bufferFull = false; // Buffer is not full as a page is replaced
-        
-            break; // Exit the loop since the required page is found
-        
         } else if (page_f[j].pageid == -1) {
-        
             // Empty slot found, use it to load the requested page
-        
             openPageFile(bp->pageFile, &f_handle); // Open the page file
-        
             page_f[j].page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page
-        
             readBlock(pageid, &f_handle, page_f[j].page_h); // Read the requested block from disk into the frame
-        
             page_f[j].num = 1; // Set the pin count to 1
-        
             page_f[j].pageid = pageid; // Set the page frame's page id to the requested page
-        
             page_read++; // Increment the page read count
-        
             index_hit++; // Increment the index hit count
-        
             page_f[j].lru_num = (bp->strategy == RS_LRU) ? index_hit : page_f[j].lru_num; // Update LRU number if LRU strategy
-        
             if(bp->strategy == RS_CLOCK) page_f[j].lru_num = 1; // Reset CLOCK reference
-        
             p_handle->pageNum = pageid; // Set page handle's page number
-        
             p_handle->data = page_f[j].page_h; // Set page handle to the new page's data
-        
             bufferFull = false; // Buffer is not full as the page was successfully added
-        
-            break; // Exit the loop as a new page has been loaded into memory
-        
         }
+        j++; // Move to the next page frame
     }
-
-
-
+    
     // If buffer is full and the requested page was not found
-
     if (bufferFull) {
-
         // Create a new frame for page replacement
-
         PageFrame *page_new = (PageFrame *)malloc(sizeof(PageFrame)); // Allocate memory for a new page frame
-
         openPageFile(bp->pageFile, &f_handle); // Open the page file
-
         page_new->page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page
-
         readBlock(pageid, &f_handle, page_new->page_h); // Read the requested block from disk into the new frame
-
         page_new->num = 1; // Set the pin count to 1
-
         page_new->pageid = pageid; // Set the page id
-
         page_new->modified = 0; // Set the modified flag to false
-
         page_read++; // Increment the page read count
-
         index_hit++; // Increment the index hit count
-
         page_new->lru_num = (bp->strategy == RS_LRU || bp->strategy == RS_CLOCK) ? index_hit : 0; // Update LRU number for LRU or CLOCK strategy
-
         p_handle->pageNum = pageid; // Set page handle's page number
-
         p_handle->data = page_new->page_h; // Set page handle to the new page's data
-
-
-
+        
         // Depending on the replacement strategy, use the appropriate function
-
         if(bp->strategy == RS_FIFO) {
-
             FIFO(bp, page_new); // Call the FIFO replacement function
-
         } else if(bp->strategy == RS_LRU) {
-
             LRU(bp, page_new); // Call the LRU replacement function
-
         } else if(bp->strategy == RS_CLOCK) {
-
             CLOCK(bp, page_new); // Call the CLOCK replacement function
-
         } else if(bp->strategy == RS_LRU_K) {
-
             // LRU-k is not implemented; this can be extended
-
             printf("\nLRU-k algorithm not implemented. LRU used in tests.\n");
-
         } else {
-
             printf("\nReplacement strategy not implemented.\n"); // Error message for unsupported strategies
-
         }
-
     }
-
-
-
+    
     return RC_OK; // Return success code
-
 }
+
 
 
 
