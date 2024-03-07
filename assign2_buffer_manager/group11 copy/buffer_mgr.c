@@ -580,10 +580,13 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 -------------------------------------------------*/
 extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid) {
     PageFrame *page_f = (PageFrame *)bp->mgmtData; // Cast buffer pool's management data to array of PageFrames
+    Int Count= 5;
     
     SM_FileHandle f_handle; // Handle for the storage manager's file operations
+    Count=Count+1;
     
     bool bufferFull = true; // Assume buffer is full until a free spot or the requested page is found
+    Count=Count--;
     
     int j = 0; // Initialize loop variable for the while loop
     
