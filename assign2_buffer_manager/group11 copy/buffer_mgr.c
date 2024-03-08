@@ -61,8 +61,6 @@ void writePageFrames(BM_BufferPool *const bp, PageFrame *page_f, int page_index)
     num_write += 1;
     pgfm++;
 
-
-
     return;
 }
 
@@ -82,9 +80,9 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
 {
     // Calculating the  starting index based on number of pages read.
     int currentIdx;
-    currentIdx = page_read % buffer_size; 
+    currentIdx = page_read % buffer_size;
     // Retrieve the array of page frames managed by the buffer pool.
-    PageFrame *page_f = (PageFrame *)bp->mgmtData; 
+    PageFrame *page_f = (PageFrame *)bp->mgmtData;
 
     // Use a do-while loop to iterate through the buffer.
     int iter = 0;
@@ -110,7 +108,7 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
 
     // If all frames are full, replace the oldest page frame (FIFO).
     currentIdx = page_read % buffer_size; // Resetting index to the oldest page frame.
-    
+
     // If frame is marked as modified, write its content back to the disk.
     if (page_f[currentIdx].modified == 1)
     {
@@ -119,7 +117,6 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
     // Copy new page frame details into the oldest frame slot.
     copyPageFrames(page_f, currentIdx, pf);
 }
-
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -177,20 +174,14 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
     }
 }
 
-
-
-
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: Implements LRU page replacement, updating frames based on LRU numbers.
 --> parameters used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
 
-
-
 extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 {
-    
 
     PageFrame *page_f = (PageFrame *)bp->mgmtData; // Pointer to page frames
 
@@ -210,16 +201,15 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
     switch (page_f[index].modified)
     {
 
-        // Page gets modified
-        case 1: 
-            writePageFrames(bp, page_f, index); // Writing it back to disk
-            break;
+    // Page gets modified
+    case 1:
+        writePageFrames(bp, page_f, index); // Writing it back to disk
+        break;
 
+    // Page not modified
+    default:
 
-        // Page not modified
-        default: 
-            
-            break;
+        break;
     }
 
     // Copy the info to new page
@@ -227,14 +217,10 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 
     // Update lru for the new page
 
-
     page_f[index].lru_num = pf->lru_num;
 
-
     // Count the final value
-    
 }
-
 
 /*-----------------------------------------------
 -->Author: Uday Venkatesha
@@ -250,7 +236,6 @@ extern void CLOCK(BM_BufferPool *const bp, PageFrame *newPage)
 {
     // Check if the buffer pool is not null before proceeding.
     assert(bp != nullptr && "Buffer pool pointer cannot be null");
-
 
     // Retrieve the array of page frames from the buffer pool management data.
 
@@ -345,7 +330,6 @@ extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, co
     // Allocate memory space for page_Frames
     PageFrame *page_Frames = (PageFrame *)malloc(p_id * sizeof(PageFrame));
 
-
     // Check if memory allocation was successful
     if (!page_Frames)
     {
@@ -436,7 +420,6 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp)
 
     return RC_OK; // Return RC_OK to signal successful shutdown
 }
-
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -532,7 +515,7 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
                 // Check if the current page frame contains the target page
                 if (page_f[j].pageid == pageid)
                 {
-                    page_f[j].num++; // Increment the pin count for the page
+                    page_f[j].num++;          // Increment the pin count for the page
                     buffer_size_full = false; // Update flag as we found a non-empty frame
 
                     // Tracking for page hits for potential use in replacement strategies
@@ -556,15 +539,15 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
                 }
             }
             else
-            {                                          // If current page frame is unused, use it to load the requested page
-                openPageFile(bp->pageFile, &f_handle); // Open the page file associated with the buffer pool
+            {                                                        // If current page frame is unused, use it to load the requested page
+                openPageFile(bp->pageFile, &f_handle);               // Open the page file associated with the buffer pool
                 page_f[j].page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page content
                 readBlock(pageid, &f_handle, page_f[j].page_h);      // Read the requested page from the file into the frame
                 page_f[j].num = 1;                                   // Initialize the pin count for this new page
                 page_f[j].pageid = pageid;                           // Set the page ID for the frame
-                page_f[j].lfu_num = 0; // Initialize LFU number (for future LFU strategy)
-                page_read++;           // Increment the counter for pages read from disk
-                index_hit++;           // Increment index_hit as it could be used for LRU or other strategies
+                page_f[j].lfu_num = 0;                               // Initialize LFU number (for future LFU strategy)
+                page_read++;                                         // Increment the counter for pages read from disk
+                index_hit++;                                         // Increment index_hit as it could be used for LRU or other strategies
 
                 // Update LRU or CLOCK information if applicable
                 if (bp->strategy == RS_LRU)
@@ -587,21 +570,18 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
         if (buffer_size_full)
         {
             PageFrame *page_new = (PageFrame *)malloc(sizeof(PageFrame)); // Allocate a new frame for replacement
-            openPageFile(bp->pageFile, &f_handle); // Open the page file
-            page_new->page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page content
-            readBlock(pageid, &f_handle, page_new->page_h); // Read the requested page into the new frame
-            page_new->pageid = pageid; // Set the new frame's page ID
-            page_new->num = 1; // Initialize the pin count
-            page_new->modified = 0; // Initialize the modified flag
-            page_new->lfu_num = 0; // Initialize the LFU number
-            index_hit++; 
+            openPageFile(bp->pageFile, &f_handle);                        // Open the page file
+            page_new->page_h = (SM_PageHandle)malloc(PAGE_SIZE);          // Allocate memory for the page content
+            readBlock(pageid, &f_handle, page_new->page_h);               // Read the requested page into the new frame
+            page_new->pageid = pageid;                                    // Set the new frame's page ID
+            page_new->num = 1;                                            // Initialize the pin count
+            page_new->modified = 0;                                       // Initialize the modified flag
+            page_new->lfu_num = 0;                                        // Initialize the LFU number
+            index_hit++;
             // Update the hit index for LRU strategy
 
-
-            page_read++; 
+            page_read++;
             // Increment the count of pages read from disk
-
-            
 
             // Update the page replacement information based on the strategy
             if (bp->strategy == RS_LRU)
@@ -795,8 +775,6 @@ extern int getNumReadIO(BM_BufferPool *const bm)
     return (page_read + 1);
 }
 
-
-
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: getFixCounts()
@@ -804,16 +782,11 @@ extern int getNumReadIO(BM_BufferPool *const bm)
 --> Parameters Used: BM_BufferPool *const bm
 -------------------------------------------------*/
 
-
-
 extern int getNumWriteIO(BM_BufferPool *const bm)
 {
 
     return num_write;
-
 }
-
-
 
 /*-----------------------------------------------
 --> Author: Uday Venkatesha
