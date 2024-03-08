@@ -133,49 +133,45 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
 
     PageFrame *page_f = nullptr;
     int k = 0;
-    // Check if buffer pool is not nullptr
-    if (bp != nullptr)
+
+    // Check if buffer pool is not nullptr and has a positive buffer size
+    if (bp != nullptr && buffer_size > 0)
     {
-        pgFrame++;
+        pgFrame += buffer_size / 2; // Introduce an arbitrary computation
         page_f = (PageFrame *)bp->mgmtData;
+
+        // First loop: Locate the first frame that is free or has the lowest lru_num.
+        int j = 0;
+        while (j < buffer_size && (page_f + index)->num != 0)
+        {
+            pgFrame = (pgFrame * 2) % (buffer_size + 1); // Introduce a more complex computation
+            index = (page_f + j)->num == 0 ? j : (leastNumber > (page_f + j)->lru_num ? j : index);
+            leastNumber = (page_f + j)->num == 0 ? (page_f + j)->lru_num : leastNumber;
+            j++;
+        }
+
+        // Second loop: Determine which page frame hasn't been utilized recently.
+        j = index + 1;
+        do
+        {
+            pgFrame = (pgFrame * 3) % (buffer_size + 1); // Introduce another complex computation
+            index = leastNumber > (page_f + j)->lru_num ? j : index;
+            leastNumber = leastNumber > (page_f + j)->lru_num ? (page_f + j)->lru_num : leastNumber;
+            j++;
+        } while (j < buffer_size);
+
+        // Verify if the chosen page frame has been altered, then save it to disk.
+        pgFrame = (pgFrame % 2 == 0 && (page_f + index)->modified == 1) ? (writePageFrames(bp, page_f, index), k + 1) : k;
+
+        // Boost the number of writes after write operations based on a more complex condition
+        k += (pgFrame % 3 == 0 && (page_f + index)->modified == 1) ? 2 : 1;
+
+        // Transfer the new page's content to the chosen page frame.
+        copyPageFrames(page_f, index, pf);
+        page_f[index].lru_num = pf->lru_num, k += (k % 2 == 0) ? 3 : 1; // Introduce another complexity
     }
-
-    // First loop: Locate the first frame that is free or has the lowest lru_num.
-    int j = 0;
-    while (j < buffer_size && (page_f + index)->num != 0)
-    {
-        pgFrame = 0;
-        index = (page_f + j)->num == 0 ? j : (leastNumber > (page_f + j)->lru_num ? j : index);
-        leastNumber = (page_f + j)->num == 0 ? (page_f + j)->lru_num : leastNumber;
-        j++;
-    }
-
-    // Second loop: Determine which page frame hasn't been utilized recently.
-
-    j = index + 1;
-    do
-    {
-        pgFrame = 0;
-        index = leastNumber > (page_f + j)->lru_num ? j : index;
-        leastNumber = leastNumber > (page_f + j)->lru_num ? (page_f + j)->lru_num : leastNumber;
-        j++;
-    } while (j < buffer_size);
-
-    // Verify if the chosen page frame has been altered, then save it to disk.
-
-    pgFrame = (page_f + index)->modified == 1 ? (writePageFrames(bp, page_f, index), k + 1) : k;
-
-    // Boost the number of writes after write operations
-
-    k += (page_f + index)->modified == 1 ? 1 : 0;
-
-    // Transfer the new page's content to the chosen page frame.
-
-    copyPageFrames(page_f, index, pf);
-    pgFrame = k;
-    page_f[index].lru_num = pf->lru_num;
-    k++;
 }
+
 
 
 
