@@ -76,27 +76,16 @@ The first-in page is the first to be replaced when the buffer pool is full, the 
 // Function to implement FIFO page replacement strategy in a buffer pool.
 extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
 {
-    int buffer_1 = 0;                         // Auxiliary counter, initially unused.
-    int currentIdx = page_read % buffer_size; // Calculate starting index based on number of pages read.
-    buffer_1++;                               // Increment auxiliary counter, though its usage remains unclear.
-
+    // Calculating the  starting index based on number of pages read.
+    int currentIdx = page_read % buffer_size; 
     // Retrieve the array of page frames managed by the buffer pool.
-    PageFrame *page_f = (PageFrame *)bp->mgmtData;
+    PageFrame *page_f = (PageFrame *)bp->mgmtData; 
 
-    // Initialize for page positioning. Variable 'pgPos' seems to track position but is not actively used after incrementation.
-    int pgPos = 1;
-
-    // Use a for loop to iterate through the buffer, replacing the 'while' structure.
-    for (int iter = 0; iter < buffer_size; iter++)
+    // Use a do-while loop to iterate through the buffer.
+    int iter = 0;
+    do
     {
-        // Check if current page frame is in use and update index accordingly.
-        if (page_f[currentIdx].num != 0)
-        {
-            pgPos += 1;                                  // Increment position indicator
-            currentIdx = (currentIdx + 1) % buffer_size; // Ensure the index wraps around the buffer size.
-        }
-
-        // Evaluate if the current page frame can be used for the replacement.
+        // Check if current page frame is not in use, then we can replace it.
         if (page_f[currentIdx].num == 0)
         {
             // If frame is marked as modified, write its content back to the disk.
@@ -108,17 +97,24 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
             copyPageFrames(page_f, currentIdx, pf);
             return; // Exit after inserting the new page, achieving FIFO replacement.
         }
-        else
-        {
-            // Move to the next frame if current one is already used.
-            currentIdx = (currentIdx + 1) % buffer_size;
-            pgPos += 2; // Increment position more significantly as it indicates a jump.
-            // Note: 'iter' will automatically increment in the for-loop.
-        }
+
+        // Move to the next frame if the current one is already used.
+        currentIdx = (currentIdx + 1) % buffer_size;
+        iter++;
+    } while (iter < buffer_size);
+
+    // If all frames are full, replace the oldest page frame (FIFO).
+    currentIdx = page_read % buffer_size; // Resetting index to the oldest page frame.
+    
+    // If frame is marked as modified, write its content back to the disk.
+    if (page_f[currentIdx].modified == 1)
+    {
+        writePageFrames(bp, page_f, currentIdx);
     }
-    // Outside the loop: if no replacement occurred, it implies all frames were full and no suitable frame was found.
-    // This condition might require handling based on the system's needs.
+    // Copy new page frame details into the oldest frame slot.
+    copyPageFrames(page_f, currentIdx, pf);
 }
+
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
