@@ -413,12 +413,11 @@ extern RC forceFlushPool(BM_BufferPool *const bp)
 -------------------------------------------------*/
 extern RC shutdownBufferPool(BM_BufferPool *const bp)
 {
-    int count = 0; // Initialize count to 0 to keep track of operations
 
     // Casting the void pointer mgmtData to PageFrame pointer for operational clarity
-    PageFrame *page_f = (PageFrame *)bp->mgmtData;
+    PageFrame *page_f;
+    page_f = (PageFrame *)bp->mgmtData;
 
-    count += 1; // Increment count to indicate the start of the shutdown process
 
     // Flush all pages currently in the pool back to disk
     forceFlushPool(bp);
@@ -426,15 +425,7 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp)
     // Deallocate the memory allocated to page frames to avoid memory leaks
     free(page_f);
 
-    // Replaced for loop with while for a change in control structure
-    int k = 0; // Initialize loop counter for while loop
-    while (k <= 3)
-    {
-        count = count + 1; // Increment count for each iteration
-        k++;               // Increment loop counter
-    }
 
-    // Process each page frame; conditional operator is replaced with if-else
     for (int itr = 0; itr < buffer_size; itr++)
     {
         if (page_f[itr].modified == 1 && page_f[itr].num == 0)
@@ -445,14 +436,6 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp)
     }
 
     bp->mgmtData = NULL; // Clear management data pointer to avoid dangling references
-
-    // Reusing the while loop for consistency, replaces second for loop
-    k = 0; // Reset loop counter
-    while (k <= 3)
-    {
-        count = count + 1; // Increment count for each iteration
-        k++;               // Increment loop counter
-    }
 
     return RC_OK; // Return RC_OK to signal successful shutdown
 }
@@ -535,17 +518,12 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 -------------------------------------------------*/
 extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid)
 {
-    int pin_pg = 1;                                // Initialize a page pin count
     PageFrame *page_f = (PageFrame *)bp->mgmtData; // Retrieve the array of page frames from the buffer pool's management data
     SM_FileHandle f_handle;                        // File handle for interacting with page files
-    int pgPos = 0;                                 // Position index used for different operations
-
     // Check if the first page frame has been used (indicating the buffer pool is not empty)
     if (page_f[0].pageid != -1)
     {
-        pin_pg++;
         bool buffer_size_full = true; // Flag to track if the buffer pool is full
-        pgPos += 1;
 
         // Loop through page frames to find the target page or an empty frame
         for (int j = 0; j < buffer_size; j++)
@@ -553,12 +531,10 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
             // Check if current page frame is used
             if (page_f[j].pageid != -1)
             {
-                pgPos *= 2;
                 // Check if the current page frame contains the target page
                 if (page_f[j].pageid == pageid)
                 {
                     page_f[j].num++; // Increment the pin count for the page
-                    pin_pg--;
                     buffer_size_full = false; // Update flag as we found a non-empty frame
 
                     // Tracking for page hits for potential use in replacement strategies
@@ -568,18 +544,15 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
                     if (bp->strategy == RS_LRU)
                     {
                         page_f[j].lru_num = index_hit; // Set LRU number for Least Recently Used strategy
-                        pgPos--;
                     }
                     else if (bp->strategy == RS_CLOCK)
                     {
                         page_f[j].lru_num = 1; // Indicating recent use in CLOCK strategy
-                        pgPos += 2;
                     }
 
                     // Update the page handle to point to the current page frame
                     p_handle->data = page_f[j].page_h;
                     p_handle->pageNum = pageid;
-                    pin_pg++;
                     clock_index++; // Increment CLOCK index if applicable
                     break;         // Exit the loop as the target page has been found and processed
                 }
@@ -587,27 +560,22 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
             else
             {                                          // If current page frame is unused, use it to load the requested page
                 openPageFile(bp->pageFile, &f_handle); // Open the page file associated with the buffer pool
-                pin_pg += 3;
                 page_f[j].page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page content
                 readBlock(pageid, &f_handle, page_f[j].page_h);      // Read the requested page from the file into the frame
                 page_f[j].num = 1;                                   // Initialize the pin count for this new page
                 page_f[j].pageid = pageid;                           // Set the page ID for the frame
-                pin_pg -= 2;
                 page_f[j].lfu_num = 0; // Initialize LFU number (for future LFU strategy)
                 page_read++;           // Increment the counter for pages read from disk
                 index_hit++;           // Increment index_hit as it could be used for LRU or other strategies
-                pgPos += 4;
 
                 // Update LRU or CLOCK information if applicable
                 if (bp->strategy == RS_LRU)
                 {
                     page_f[j].lru_num = index_hit; // Set LRU number for Least Recently Used strategy
-                    pgPos++;
                 }
                 else if (bp->strategy == RS_CLOCK)
                 {
                     page_f[j].lru_num = 1; // Indicating recent use in CLOCK strategy
-                    pin_pg--;
                 }
 
                 buffer_size_full = false;          // An empty frame was used, so buffer is not full
@@ -620,7 +588,6 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
         // If after scanning the whole buffer, it is still full, then replace a page
         if (buffer_size_full)
         {
-            pin_pg -= 2;
             PageFrame *page_new = (PageFrame *)malloc(sizeof(PageFrame)); // Allocate a new frame for replacement
             openPageFile(bp->pageFile, &f_handle); // Open the page file
             page_new->page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page content
@@ -629,7 +596,6 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
             page_new->num = 1; // Initialize the pin count
             page_new->modified = 0; // Initialize the modified flag
             page_new->lfu_num = 0; // Initialize the LFU number
-            pin_pg++;
             index_hit++; 
             // Update the hit index for LRU strategy
 
@@ -638,7 +604,6 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
             // Increment the count of pages read from disk
 
             
-            pin_pg--;
 
             // Update the page replacement information based on the strategy
             if (bp->strategy == RS_LRU)
@@ -648,7 +613,6 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
             else if (bp->strategy == RS_CLOCK)
             {
                 page_new->lru_num = 1; // Indicating recent use for CLOCK strategy
-                pin_pg++;
             }
 
             p_handle->pageNum = pageid;        // Update the page handle with the new page information
@@ -682,7 +646,6 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
     else
     {
         // If the first page frame is unused, this section loads the requested page into the first frame
-        pin_pg++;
         openPageFile(bp->pageFile, &f_handle);               // Open the page file associated with the buffer pool
         page_f[0].page_h = (SM_PageHandle)malloc(PAGE_SIZE); // Allocate memory for the page content
         ensureCapacity(pageid, &f_handle);                   // Ensure the file is large enough for the requested page
