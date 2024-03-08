@@ -414,19 +414,11 @@ extern RC forceFlushPool(BM_BufferPool *const bp)
 -------------------------------------------------*/
 extern RC shutdownBufferPool(BM_BufferPool *const bp)
 {
-
     // Casting the void pointer mgmtData to PageFrame pointer for operational clarity
     PageFrame *page_f;
     page_f = (PageFrame *)bp->mgmtData;
 
-
-    // Flush all pages currently in the pool back to disk
-    forceFlushPool(bp);
-
-    // Deallocate the memory allocated to page frames to avoid memory leaks
-    free(page_f);
-
-
+    // First, ensure all pages are written back to disk if they're modified and not pinned
     for (int itr = 0; itr < buffer_size; itr++)
     {
         if (page_f[itr].modified == 1 && page_f[itr].num == 0)
@@ -436,10 +428,15 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp)
         }
     }
 
-    bp->mgmtData = NULL; // Clear management data pointer to avoid dangling references
+    // Now that all necessary operations on page_f have been completed, we can safely free the memory
+    free(page_f);
+
+    // Clear the management data pointer to avoid dangling references
+    bp->mgmtData = NULL;
 
     return RC_OK; // Return RC_OK to signal successful shutdown
 }
+
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
