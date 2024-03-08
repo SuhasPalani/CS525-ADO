@@ -19,6 +19,12 @@ typedef struct Page
 } PageFrame;
 
 int buffer_size = 0, page_read = 0, num_write = 0, index_hit = 0, clock_index = 0, lfu_index = 0;
+void updateUsageMetrics(BM_BufferPool *const bufferPool, PageFrame *frames, int index);
+void setPageHandleData(BM_PageHandle *const pageHandle, SM_PageHandle pageData, PageNumber pageID);
+void loadPageIntoFrame(BM_BufferPool *const bufferPool, SM_FileHandle *fileHandle, PageFrame *frame, PageNumber pageID);
+void handlePageReplacement(BM_BufferPool *const bufferPool, BM_PageHandle *const pageHandle, PageNumber pID, SM_FileHandle *fileHandle);
+void incrementPageMetrics();
+void prepareNewFrame(BM_BufferPool *const bufferPool, PageFrame *newFrame, PageNumber pageID, SM_FileHandle *fileHandle);
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
