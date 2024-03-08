@@ -811,15 +811,8 @@ extern int getNumReadIO(BM_BufferPool *const bm)
 extern int getNumWriteIO(BM_BufferPool *const bm)
 {
 
-
-
-    int random_var = 5;
-
-
     return num_write;
 
-
-    random_var--;
 }
 
 
