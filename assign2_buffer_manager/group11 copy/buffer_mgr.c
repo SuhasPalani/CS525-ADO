@@ -325,22 +325,22 @@ void initializePageFrames(PageFrame *page_Frames)
 /**
  * @brief Initializes a Buffer Pool.
  *
- * Allocates memory for the PageFrame array, sets default values, and initializes the Buffer Pool.
+ * initializes the Buffer Pool, sets default values, and allots memory for the PageFrame array.
  *
- * @param bp Pointer to the Buffer Pool structure.
+ * @param bp Pointer to the structure of the buffer pool.
  * @param pg_FName Name of the page file.
  * @param p_id Number of pages in the buffer pool.
  * @param approach Replacement strategy approach.
- * @param approachData Pointer to replacement strategy-specific data (not used in this function).
+ * @param approachData Pointer to data relevant to replacement strategies (not utilized in this function).
  *
  * @return RC_OK if successful, RC_FILE_HANDLE_NOT_INIT if memory allocation fails.
  */
 
-extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, const int p_id,
-                         ReplacementStrategy approach, void *approachData)
+extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, const int p_id, ReplacementStrategy approach, void *approachData)
 {
     // Allocate memory space for page_Frames
-    PageFrame *page_Frames = calloc(p_id, sizeof(PageFrame));
+    PageFrame *page_Frames = (PageFrame *)malloc(p_id * sizeof(PageFrame));
+
 
     // Check if memory allocation was successful
     if (!page_Frames)
