@@ -827,7 +827,7 @@ extern int getNumWriteIO(BM_BufferPool *const bm)
 /*-----------------------------------------------
 --> Author: Uday Venkatesha
 --> Function: markDirty()
---> Description: This function will set the modified bit to 1 for a modified page.
+--> Description: This function will assign a value of 1 to the modified bit, indicating that the page has been modified.
 --> parameters used: BM_BufferPool *const bm, BM_PageHandle *const page
 -------------------------------------------------*/
 
