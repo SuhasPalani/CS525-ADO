@@ -177,9 +177,11 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
     k++;
 }
 
+
+
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
---> Function: The LRU_K() function
+--> Function: Implements LRU page replacement, updating frames based on LRU numbers.
 --> parameters used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
 
@@ -187,8 +189,7 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
 
 extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 {
-    // Init cnt to 0
-    int cnt = 0;
+    
 
     PageFrame *page_f = (PageFrame *)bp->mgmtData; // Pointer to page frames
 
@@ -216,7 +217,7 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 
         // Page not modified
         default: 
-            cnt += 1; 
+            
             break;
     }
 
@@ -230,7 +231,7 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 
 
     // Count the final value
-    cnt++;
+    
 }
 
 
