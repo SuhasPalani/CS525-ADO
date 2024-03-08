@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include <limits.h> // Include for INT_MAX
 #include "buffer_mgr.h"
 #include "storage_mgr.h"
@@ -60,6 +61,8 @@ void writePageFrames(BM_BufferPool *const bp, PageFrame *page_f, int page_index)
     num_write += 1;
     pgfm++;
 
+
+
     return;
 }
 
@@ -75,9 +78,11 @@ The first-in page is the first to be replaced when the buffer pool is full, the 
 
 // Function to implement FIFO page replacement strategy in a buffer pool.
 extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
+
 {
     // Calculating the  starting index based on number of pages read.
-    int currentIdx = page_read % buffer_size; 
+    int currentIdx;
+    currentIdx = page_read % buffer_size; 
     // Retrieve the array of page frames managed by the buffer pool.
     PageFrame *page_f = (PageFrame *)bp->mgmtData; 
 
@@ -234,8 +239,8 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 /*-----------------------------------------------
 -->Author: Uday Venkatesha
 --> Function: CLOCK()
---> Description: -->CLOCK algorithm keeps a track of the last added page frame in the buffer pool.
-                 --> Also, we use a clockPointer which is a counter to point the page frames in the buffer pool.
+--> Description: -->The CLOCK algorithm maintains a record of the most recently added page frame in the buffer pool.
+                 --> Additionally, it utilizes a clock pointer, acting as a counter, to indicate the position of page frames within the buffer pool.
 --> parameters used: BM_BufferPool *const bp, PageFrame *pf
 --> return type: void
 -------------------------------------------------*/
@@ -244,12 +249,11 @@ extern void LRU_K(BM_BufferPool *const bp, PageFrame *pf)
 extern void CLOCK(BM_BufferPool *const bp, PageFrame *newPage)
 {
     // Check if the buffer pool is not null before proceeding.
-    if (bp == nullptr)
-    {
-        return; // If the buffer pool is null, exit the function early.
-    }
+    assert(bp != nullptr && "Buffer pool pointer cannot be null");
+
 
     // Retrieve the array of page frames from the buffer pool management data.
+
     PageFrame *page_Frames = (PageFrame *)bp->mgmtData;
 
     // Initialize a flag to check if a replacement has been made.
