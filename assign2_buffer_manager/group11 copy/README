@@ -16,9 +16,9 @@ CWID - A20540635
 Email- nganteravish@hawk.iit.edu
 
 
-Name - Arpitha Hebri Ravi Vokuda    
-CWID - A20541502 
-Email- avokuda@hawk.iit.edu
+Name - Uday Venkatesha   
+CWID - A20547055 
+Email- uvenkatesha@hawk.iit.edu
 
 
 *********************************
@@ -56,8 +56,8 @@ parameters used: BM_BufferPool *const bp, const char *const pg_FName, const int 
 
 
 Function Name: shutdownBufferPool()
-Author: Ramyashree Raghunandan
-Description:This function shutdowns the buffer pool, freeing resources and writing modified pages to disk using forceFlushPool(), while throwing a RC_PINNED_PAGES_IN_BUFFER error if any pages are still in use. 
+Author: Uday Venkatesha
+Description:This method uses forceFlushPool() to write updated pages to disc and shuts down the buffer pool, freeing up resources. If any pages are still being used, it throws an RC_PINNED_PAGES_IN_BUFFER exception.
 parameters used: BM_BufferPool *const bp
 
 
@@ -84,13 +84,13 @@ Parameters used -> BM_BufferPool *const bp, BM_PageHandle *const pg
 
 
 Function Name: pinPage()
-Author: Ramyashree Raghunandan, Arpitha Hebri Ravi Vokuda, Rashmi Venkatesh Topannavar
-Description: This function pins a page by taking the corresponding page file from the disk.It checks if the buffer pool is empty before pinning the page. If there is no empty space in the page frame, it invokes page replacement algorithms. If the 'modified' flag is set to one, the page is replaced by a new page according to the page replacement algorithms.
+Author: Uday Venkatesha
+Description: This function uses the relevant page file from the disc to pin a page.Before pinning the page, it determines whether the buffer pool is empty. Page replacement algorithms are triggered if the page frame is not empty. The page replacement algorithms replace the existing page with a new one if the'modified' flag is set to one.
 Parameters : BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid
 
 Function Name: markDirty()
-Author: Ramyashree Raghunandan
-Description: This function will set the modified bit to 1 for a modified page 
+Author: Uday Venkatesha
+Description: For a modified page, this function will set the modified bit to 1. 
 Parameters : BM_BufferPool *const bm, BM_PageHandle *const page
 
 *********************************
@@ -109,7 +109,7 @@ Parameters : BM_BufferPool *const bm
 
 
 Function Name: getFixCounts()
-Author: Rashmi Venkatesh Topannavar
+Author: Uday Venkatesha 
 Description: This function will return an array containing the fix count of the page frame. 
 Parameters:  BM_BufferPool *const bm
 
@@ -141,8 +141,8 @@ Parameters : BM_BufferPool *const bp,  PageFrame *page_f, int page_index
 ********************************************
 
 Function Name: FIFO()
-Author: Arpitha Hebri Ravi Vokuda
-Description: Its content is written back to the page file on disk when a page is found, and at that position the new page. The first-in page is the first to be replaced when the buffer pool is full, the FIFO function operates by treating the buffer pool as a queue. 
+Author: Uday Venkatesha
+Description: When a page is located, its content is written back to the disc page file, along with the new page at that place. When the buffer pool fills up, the first-in page gets replaced first; this is how the FIFO function works: the buffer pool is treated like a queue. 
 Parameters : BM_BufferPool *const bp, PageFrame *pf
 
 
@@ -159,8 +159,8 @@ Parameters used are -> BM_BufferPool *const bp, PageFrame *pf
 
 
 Function Name: CLOCK()
-Author: Arpitha Hebri Ravi Vokuda
-Description: CLOCK algorithm keeps a track of the last added page frame in the buffer pool. Also, we use a clockPointer which is a counter to point the page frames in the buffer pool.
+Author: Uday Venkatesha
+Description: The most recent page frame added to the buffer pool is tracked by the CLOCK algorithm. Also, we position the page frames in the buffer pool using a clockPointer, which is a counter.
 Parameters : BM_BufferPool *const bp, PageFrame *pf
 
 *********************************************************************************************
