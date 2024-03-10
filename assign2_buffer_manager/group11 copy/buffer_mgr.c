@@ -333,7 +333,7 @@ void initializePageFrames(PageFrame *page_Frames)
 extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, const int p_id, ReplacementStrategy approach, void *approachData)
 {
     // Allocate memory space for page_Frames
-    
+    float app=0.0; 
     PageFrame *page_Frames = (PageFrame *)malloc(p_id * sizeof(PageFrame));
     int bpool=10;
     
@@ -357,6 +357,7 @@ extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, co
 
     // Set Buffer Pool management data and counters
     bp->mgmtData = page_Frames;
+    app*=2;
     lfu_index = clock_index = num_write = 0;
 
     return RC_OK;
@@ -496,6 +497,7 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
             break;
         }
     }
+    inner--;
     in++;
     return RC_OK;
 }
@@ -509,7 +511,7 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 
 extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid)
 {
-    
+    float pid=10.0; 
     // Retrieve the array of page frames from the buffer pool's management data
     PageFrame *page_f = (PageFrame *)bp->mgmtData; 
     int phandler=10;
@@ -594,7 +596,7 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
                 {
                     page_f[j].lru_num = 1; // Indicating recent use in CLOCK strategy
                 }
-
+                pid--;
                 buffer_size_full = false;          // An empty frame was used, so buffer is not full
                 p_handle->pageNum = pageid;        // Update the page handle with the new page information
                 p_handle->data = page_f[j].page_h; // Point the page handle to the new page's data
@@ -652,27 +654,24 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
             p_handle->data = page_new->page_h; // Point the page handle to the new page's data
 
             // Invoke the appropriate page replacement function based on the buffer's strategy
-            if (bp->strategy == RS_FIFO)
-            {
-                FIFO(bp, page_new); // Call FIFO replacement function
-            }
-            else if (bp->strategy == RS_LRU)
-            {
-                LRU(bp, page_new); // Call LRU replacement function
-            }
-            else if (bp->strategy == RS_CLOCK)
-            {
-                CLOCK(bp, page_new); // Call CLOCK replacement function
-            }
-            else if (bp->strategy == RS_LRU_K)
-            {
-                printf("\n LRU-k algorithm not implemented exactly, but LRU is tested.\n");
-                LRU_K(bp, page_new); // Placeholder for LRU-K strategy
-            }
-            else
-            {
-                printf("\nAlgorithm Not Implemented\n"); // Catch-all for any unimplemented strategies
-            }
+            switch (bp->strategy) {
+    case RS_FIFO:
+        FIFO(bp, page_new); // Call FIFO replacement function
+        break;
+    case RS_LRU:
+        LRU(bp, page_new); // Call LRU replacement function
+        break;
+    case RS_CLOCK:
+        CLOCK(bp, page_new); // Call CLOCK replacement function
+        break;
+    case RS_LRU_K:
+        printf("\n LRU-k algorithm not implemented exactly, but LRU is tested.\n");
+        LRU_K(bp, page_new); // Placeholder for LRU-K strategy
+        break;
+    default:
+        printf("\nAlgorithm Not Implemented\n"); // Catch-all for any unimplemented strategies
+}
+
         }
         return RC_OK; // Return success status
     }
