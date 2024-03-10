@@ -3,7 +3,7 @@ CS 525 - Advanced Database Organisation
 Assignment 2 - Buffer Manager
 
 *********************************       
-      Group 5 Members:       
+      Group 3 Members:       
 *********************************
 
 Name - Suhas Palani
@@ -11,9 +11,9 @@ CWID - A20548277
 Email- rtopannavar@hawk.iit.edu 
 
 
-Name - Ramyashree Raghunandan 
-CWID - A20541091
-Email- rraghunandan@hawk.iit.edu
+Name - Nishchal Gante Ravish 
+CWID - A20540635
+Email- nganteravish@hawk.iit.edu
 
 
 Name - Arpitha Hebri Ravi Vokuda    
@@ -62,9 +62,9 @@ parameters used: BM_BufferPool *const bp
 
 
 Function Name: forceFlushPool()
-Author: Rashmi Venkatesh Topannavar
-Description: This function writes all the dirty pages (modified pages whose dirtyBit = 1) to the disk.
-Parameters used: BM_BufferPool *const bp
+Author: Nishchal Gante Ravish
+Description: This function is used to write every modified page with a dirtyBit of 1 which basically are dirty pages to the disc.
+The parameters used are BM_BufferPool *const bp
 
 
 *********************************
@@ -78,9 +78,9 @@ Parameters :  BM_BufferPool *const bp, BM_PageHandle *const pg
 
 
 Function Name: forcePage()
-Author: Rashmi Venkatesh Topannavar
-Description: This function writes the contents of the modified pages back to the page file on disk.
-Parameters : BM_BufferPool *const bp, BM_PageHandle *const pg
+Author: Nishchal Gante Ravish
+Description: This function is used to modify contents of the updated pages are written back into the disc page file.
+Parameters used -> BM_BufferPool *const bp, BM_PageHandle *const pg
 
 
 Function Name: pinPage()
@@ -103,8 +103,8 @@ Description: If there is a file pointer present, this function will store and re
 Parameters : BM_BufferPool *const bm
 
 Function Name: getDirtyFlags()
-Author: Arpitha Hebri Ravi Vokuda
-Description: The purpose of this function is to provide an array that conveys the state of dirty flags. If a page has been modified, the corresponding entry in the array is set to 'true,' otherwise, it is updated as 'false.'
+Author: Nishchal Gante Ravish
+Description: This function is used to output an array that represents the dirty flags current state. and the corresponding entry in the array is updated as false if the page has not been modified, and is set to true otherwise.
 Parameters : BM_BufferPool *const bm
 
 
@@ -121,8 +121,8 @@ Parameters : BM_BufferPool *const bm
 
 
 Function Name: getNumWriteIO()
-Author: 
-Description: This function gives back the total count of pages that have been written to the disk. The variable num_write is utilized to obtain the count of writes. 
+Author: Nishchal Gante Ravish
+Description: This function returns the total number of pages that are written to disc and the value count is saved to the var num_write
 Parameters : BM_BufferPool *const bm
 
 Function Name: copyPageFrames()
@@ -130,9 +130,9 @@ Author: Suhas Palani
 Description: The contents of a source page will be copied to a target page by this function. 
 Parameters : PageFrame *dest, int index,PageFrame *src
 
-Function Name: writePageFramse()
-Author: Ramyashree Raghunandan
-Description: This functions will copy the contents from a srource page to destination page. 
+Function Name: writePagesFrames()
+Author: Nishchal Gante Ravish
+Description: This function copies the contents from source page to destination.
 Parameters : BM_BufferPool *const bp,  PageFrame *page_f, int page_index
 
 
@@ -153,8 +153,9 @@ Parameters : BM_BufferPool *const bp, PageFrame *pf
 
 
 Function Name: LRU_K()
-Author: Ramyashree Raghunandan
-Parameters : BM_BufferPool *const bp, PageFrame *pf
+Author: Nishchal Gante Ravish
+Description: This function is used to implement and update the LRU page replacement by updating the frames of the LRU numbers
+Parameters used are -> BM_BufferPool *const bp, PageFrame *pf
 
 
 Function Name: CLOCK()
