@@ -50,8 +50,8 @@ If it's necessary to execute the code again, we should clear the files and then 
 *********************************
 
 Function Name: initBufferPool()
-Author: Arpitha Hebri Ravi Vokuda 		
-Description: This function initializes a buffer pool that contains page IDs and page frames, setting up the cache for pages.The 'pg_FName' variable holds the name of the page file from which pages are stored in memory.The 'approach' parameter denotes the selected page replacement strategy (FIFO, LRU, LFU, CLOCK) for this buffer pool.If required, 'approachData' can be used to pass additional parameters to the chosen page replacement strategy. 
+Author: Suhas Palani	
+Description: This function sets up the page cache by initializing a buffer pool containing page frames and IDs.The name of the page file from which pages are loaded into memory is kept in the 'pg_FName' variable.The chosen page replacement technique (FIFO, LRU, LFU, or CLOCK) for this buffer pool is indicated by the 'approach' argument.If more parameters need to be sent to the selected page replacement technique, 'approachData' can be utilized. 
 parameters used: BM_BufferPool *const bp, const char *const pg_FName, const int p_id, ReplacementStrategy approach, void *approachData
 
 
@@ -72,8 +72,8 @@ Parameters used: BM_BufferPool *const bp
 *********************************
 
 Function Name: unpinPage()
-Author: Arpitha Hebri Ravi Vokuda
-Description: This function assesses whether the task associated with the pin is completed, and if so, it proceeds to unpin the page.
+Author: Suhas Palani
+Description: This function determines whether the pin-related task has been finished, and if so, it unpins the page.
 Parameters :  BM_BufferPool *const bp, BM_PageHandle *const pg
 
 
@@ -98,8 +98,8 @@ Parameters : BM_BufferPool *const bm, BM_PageHandle *const page
 *********************************
 
 Function Name: getFrameContents()
-Author: Ramyashree Raghunandan
-Description: This function will get the pageId of the page frame, storing and returning the content if present. filePointer
+Author: Suhas Palani
+Description: If there is a file pointer present, this function will store and return the content after obtaining the pageId of the page frame.
 Parameters : BM_BufferPool *const bm
 
 Function Name: getDirtyFlags()
@@ -115,17 +115,19 @@ Parameters:  BM_BufferPool *const bm
 
 
 Function Name: getNumReadIO()
-Description: This function provides the count of pages read from the disk. 
+Author: Suhas Palani
+Description: The number of pages read from the disk is provided by this function. 
 Parameters : BM_BufferPool *const bm
 
 
 Function Name: getNumWriteIO()
+Author: 
 Description: This function gives back the total count of pages that have been written to the disk. The variable num_write is utilized to obtain the count of writes. 
 Parameters : BM_BufferPool *const bm
 
 Function Name: copyPageFrames()
-Author: Rashmi Venkatesh Topannavar
-Description: This functions will copy the contents from a srource page to destination page. 
+Author: Suhas Palani
+Description: The contents of a source page will be copied to a target page by this function. 
 Parameters : PageFrame *dest, int index,PageFrame *src
 
 Function Name: writePageFramse()
@@ -145,8 +147,8 @@ Parameters : BM_BufferPool *const bp, PageFrame *pf
 
 
 Function Name: LRU()
-Author: Rashmi Venkatesh Topannavar
-Description: This function removes the page frame which hasn't been used for a long time (least recent) amongst the other page frames in the buffer pool.
+Author: Suhas Palani
+Description: This function eliminates from the buffer pool any page frame that hasn't been utilized recently or for an extended period of time.
 Parameters : BM_BufferPool *const bp, PageFrame *pf
 
 
