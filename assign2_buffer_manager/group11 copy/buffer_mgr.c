@@ -333,8 +333,10 @@ void initializePageFrames(PageFrame *page_Frames)
 extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, const int p_id, ReplacementStrategy approach, void *approachData)
 {
     // Allocate memory space for page_Frames
-    int bpool=10;
+    
     PageFrame *page_Frames = (PageFrame *)malloc(p_id * sizeof(PageFrame));
+    int bpool=10;
+    
     int res=bpool%2;
     // Check if memory allocation was successful
     if (!page_Frames)
@@ -473,10 +475,10 @@ extern RC unpinPage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 
 extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 {
-    int in=0;
+    float inner = 0.0;
     // Acces page from mgmtData
     PageFrame *pageFrames = (PageFrame *)bp->mgmtData;
-
+    int in=0;
     for (int idx = 0; idx < buffer_size; idx++)
     {
 
@@ -487,7 +489,7 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
             {
 
                 writePageFrames(bp, pageFrames, idx);
-
+                inner+=0.5;
                 pageFrames[idx].modified = 0;
             }
 
@@ -507,10 +509,11 @@ extern RC forcePage(BM_BufferPool *const bp, BM_PageHandle *const pg)
 
 extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const PageNumber pageid)
 {
-    int phandle=10;
+    
     // Retrieve the array of page frames from the buffer pool's management data
     PageFrame *page_f = (PageFrame *)bp->mgmtData; 
-    int prod=phandle%10;
+    int phandler=10;
+    int prod=phandler%10;
     // File handle for interacting with page files
     SM_FileHandle f_handle;                        
     // Check if the first page frame has been used (indicating the buffer pool is not empty)
@@ -522,7 +525,7 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
         // Loop through page frames to find the target page or an empty frame
         for (int j = 0; j < buffer_size; j++)
         {
-            prod+=phandle/3;
+            prod+=phandler/3;
             // Check if current page frame is used
             if (page_f[j].pageid != -1)
             {
