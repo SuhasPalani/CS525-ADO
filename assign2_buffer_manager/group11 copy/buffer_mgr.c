@@ -655,21 +655,21 @@ extern RC pinPage(BM_BufferPool *const bp, BM_PageHandle *const p_handle, const 
 
             // Invoke the appropriate page replacement function based on the buffer's strategy
             switch (bp->strategy) {
-    case RS_FIFO:
-        FIFO(bp, page_new); // Call FIFO replacement function
-        break;
-    case RS_LRU:
-        LRU(bp, page_new); // Call LRU replacement function
-        break;
-    case RS_CLOCK:
-        CLOCK(bp, page_new); // Call CLOCK replacement function
-        break;
-    case RS_LRU_K:
-        printf("\n LRU-k algorithm not implemented exactly, but LRU is tested.\n");
-        LRU_K(bp, page_new); // Placeholder for LRU-K strategy
-        break;
-    default:
-        printf("\nAlgorithm Not Implemented\n"); // Catch-all for any unimplemented strategies
+                case RS_FIFO:
+                    FIFO(bp, page_new); // Call FIFO replacement function
+                    break;
+                case RS_LRU:
+                    LRU(bp, page_new); // Call LRU replacement function
+                    break;
+                case RS_CLOCK:
+                    CLOCK(bp, page_new); // Call CLOCK replacement function
+                    break;
+                case RS_LRU_K:
+                    printf("\n LRU-k algorithm not implemented exactly, but LRU is tested.\n");
+                    LRU_K(bp, page_new); // Placeholder for LRU-K strategy
+                    break;
+                default:
+                    printf("\nAlgorithm Not Implemented\n"); // Catch-all for any unimplemented strategies
 }
 
         }
