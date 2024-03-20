@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stddef.h>
 #include "record_mgr.h"
 #include "buffer_mgr.h"
 #include "storage_mgr.h"
-#define PAGE_SIZE 1024
 
 // This is custom data structure defined for making the use of Record Manager.
 typedef struct Rec_Manager
@@ -28,35 +26,23 @@ Rec_Manager *table_Manager;
 
 // ******** CUSTOM FUNCTIONS ******** //
 
-/*-----------------------------------------------
---> Author: Suhas Palani
---> Function: findFreeSlot()
---> Description: This function provides the index of an available slot within a page.
---> Parameters used: char *data, int recordSize
---> return type: Return Code
--------------------------------------------------*/
 // This function returns a free slot within a page
-int findFreeSlot(char *data, int recordSize) {
-    int index = -1, numberOfSlots;
-	number=PAGE_SIZE;
-	slots=recordSize;
-	numberOfSlots=number/slots;
+int findFreeSlot(char *data, int recordSize)
+{
+	int i=0;
+	int no_of_Slots = PAGE_SIZE / recordSize; 
+	while (i < no_of_Slots)
+	{
+		if (data[i * recordSize] != '+')
+		{
+			return i;
+		}
 
-    switch (index) {
-        case -1:
-            index = 0;
-            while (index < numberOfSlots) {
-                if (*(data + index * recordSize) != '+') {
-                    return index;
-                }
-                index++;
-            }
-            break;
-        default:
-            return -1;
-    }
+		i++;
+	}
 
-    return -1;
+	return -1;
+	
 }
 
 void checker()
