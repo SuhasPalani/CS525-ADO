@@ -308,24 +308,26 @@ extern RC createTable (char *name, Schema *schema)
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Suhas Palani
 --> Function: closeTable()
---> Description: The CloseTable function concludes the operation on the table referenced by the "rel" parameter.
+--> Description: The operation on the table that the "rel" parameter references is completed by the CloseTable function.
 --> Parameters used: RM_TableData *rel
 --> return type: Return Code
 -------------------------------------------------*/
 
 extern RC closeTable(RM_TableData *rel) {
-    int result;
-
+    float relative;
     Rec_Manager *rMgr= (*rel).mgmtData;
+    int result;
 
     switch (result = shutdownBufferPool(&rMgr->buffer)) {
         case RC_ERROR:
+            relative=0;
             checker();
-            return result;
+            return (float)result;
         default:
-            return RC_OK;
+            relative++;
+            return (float)RC_OK;
     }
 }
 /*-----------------------------------------------
