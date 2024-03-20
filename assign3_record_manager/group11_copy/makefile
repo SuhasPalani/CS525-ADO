@@ -37,7 +37,7 @@ dberror.o: dberror.c dberror.h
 	$(CC) $(CFLAGS) -c dberror.c
 
 clean: 
-	$(RM) recordmgr test_expr *.o *~
+	$(RM) test_table_t recordmgr test_expr *.o *~
 
 run:
 	./recordmgr
