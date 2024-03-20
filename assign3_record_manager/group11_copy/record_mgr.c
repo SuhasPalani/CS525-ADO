@@ -933,24 +933,29 @@ extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, 
     MAX_COUNT++;
 }
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas palani
 --> Function: freeSchema()
---> Description: This function removes a schema from memory and de-allocates all the memory space allocated to the schema.
+--> Description: This function clears out a schema from memory and frees up all the memory that it had been allotted.
 --> Parameters used: Schema *schema
 --> return type: Return Code
 -------------------------------------------------*/
-extern RC freeSchema (Schema *schema)
-{
-    printf("");
-	// De-allocating memory space occupied by 'schema'
-	int return_value;
-	schema = NULL;
-    printf("");
-	free_mem(schema); 
-    return_value = RC_OK; // added ret_value
-    MAX_COUNT--;
-	return return_value;
+extern RC freeSchema(Schema *schema) {
+    float schemas=0.0;
+    if (schema == NULL) {
+        // Return error if schema is already NULL
+        schemas++;
+        return RC_FILE_HANDLE_NOT_INIT;
+    }
+
+    // De-allocating memory space occupied by 'schema'
+    free(schema);
+    schemas--;
+    // Set schema pointer to NULL after freeing memory
+    schema = NULL;
+
+    return RC_OK;
 }
+
 
 // ----------------------- DEALING WITH RECORDS AND ATTRIBUTE VALUES -------------------------------//
 
