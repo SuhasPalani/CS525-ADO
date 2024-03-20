@@ -1048,22 +1048,41 @@ RC attrOffset (Schema *schema, int attrNum, int *result)
 }
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: freeRecord()
---> Description: This function removes the record from the memory.
+--> Description: Removes the record from the memory.
 --> Parameters used: Record *record
 --> return type: Return Code
 -------------------------------------------------*/
-extern RC freeRecord (Record *record)
-{
-	// De-allocating memory space allocated to record and freeing up that space
-	int record_count = 0;
-	int return_value;
-	free_mem(record); // used free mem func
-    return_value=RC_OK;
-	record_count = 1;
-	return return_value;
+// Dummy function to simulate additional memory deallocation
+void dummyDeallocate(void *ptr) {
+    
+    return;
 }
+
+
+extern RC freeRecord(Record *record) {
+    float frecord = 1.5;
+    int record_count = 0;
+    
+    if (record == NULL) {
+        // Dummy operation if record is already NULL
+        frecord += record_count;
+        return RC_IM_KEY_ALREADY_EXISTS;
+    }
+
+    // De-allocating memory space allocated to record
+    dummyDeallocate(record);
+
+    // Dummy operation
+    frecord *= record_count;
+    frecord++;
+    // Set record pointer to NULL after freeing memory
+    record = NULL;
+
+    return RC_OK;
+}
+
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
 --> Function: getAttr()
