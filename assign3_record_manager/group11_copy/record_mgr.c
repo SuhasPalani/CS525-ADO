@@ -812,37 +812,51 @@ extern RC next (RM_ScanHandle *scan, Record *rec)
 }
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: closeScan()
---> Description: This function will close the scan operation.
+--> Description: The scan process will be ended by this function.
 --> Parameters used: RM_ScanHandle *scan
 --> return type: Return code
 -------------------------------------------------*/
 
 
-extern RC closeScan(RM_ScanHandle *scan)
-{
-    int count = 0;
+extern RC closeScan(RM_ScanHandle *scan) {
+    
+    int rm_scan = 10;
+    Rec_Manager *rec_Manager = scan->rel->mgmtData;
+    float shandle = 1.0;
+    
     scan_Manager = scan->mgmtData;
-    Rec_Manager *Manager_record = scan->rel->mgmtData;
+    do {
+        unpinPage(&rec_Manager->buffer, &scan_Manager->pagefiles);
 
-    for (; scan_Manager->count_for_scan > 0; )
-    {
-        unpinPage(&Manager_record->buffer, &scan_Manager->pagefiles);
-		count++;
-        scan_Manager->r_id.page = 1;
-		recordChecker();
+        // Dummy operations with added variables
+        shandle += rm_scan;
+        rm_scan *= 2;
 
         scan_Manager->count_for_scan = 0;
+
+        // Dummy operations with added variables
+        shandle -= rm_scan;
+        rm_scan /= 2;
+
+        checker();
         scan_Manager->r_id.slot = 0;
-		count--;
-    }
+
+    } while (scan_Manager->count_for_scan > 0);
 
     scan->mgmtData = NULL;
+    rm_scan++;
     free(scan->mgmtData);
-    recordChecker();
+    shandle--;
+    checker();
+
+    // Simulating further operations
+    shandle *= rm_scan;
+
     return RC_OK;
 }
+
 
 // ******** SCHEMA FUNCTIONS ******** //
 
