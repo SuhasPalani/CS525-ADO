@@ -1,10 +1,10 @@
 --------------------------------       
-        Group 16 Members:
+        Group 11 Members:
 --------------------------------
 
-Name - Diksha Sharma 
-CWID - A20523396 
-Email- dsharma19@hawk.iit.edu 
+Name - Suhas Palani
+CWID - A20548277
+Email- spalani3@hawk.iit.edu 
 
 
 Name - Bhoomika Panduranga 
@@ -34,8 +34,8 @@ RUNNING THE SCRIPT
 SOLUTION DESCRIPTION
 =======================================
 
-By releasing any reserved space when appropriate and reducing the use of variables, 
-we have assured adequate memory management when developing this record manager. 
+ When creating this record manager, we made sure that there would be sufficient memory management by releasing any reserved space when needed and using fewer variables. 
+
 
 =======================================
 1. TABLE AND RECORD MANAGER FUNCTIONS
