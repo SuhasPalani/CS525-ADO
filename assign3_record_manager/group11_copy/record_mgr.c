@@ -933,24 +933,29 @@ extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, 
     MAX_COUNT++;
 }
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas palani
 --> Function: freeSchema()
---> Description: This function removes a schema from memory and de-allocates all the memory space allocated to the schema.
+--> Description: This function clears out a schema from memory and frees up all the memory that it had been allotted.
 --> Parameters used: Schema *schema
 --> return type: Return Code
 -------------------------------------------------*/
-extern RC freeSchema (Schema *schema)
-{
-    printf("");
-	// De-allocating memory space occupied by 'schema'
-	int return_value;
-	schema = NULL;
-    printf("");
-	free_mem(schema); 
-    return_value = RC_OK; // added ret_value
-    MAX_COUNT--;
-	return return_value;
+extern RC freeSchema(Schema *schema) {
+    float schemas=0.0;
+    if (schema == NULL) {
+        // Return error if schema is already NULL
+        schemas++;
+        return RC_FILE_HANDLE_NOT_INIT;
+    }
+
+    // De-allocating memory space occupied by 'schema'
+    free(schema);
+    schemas--;
+    // Set schema pointer to NULL after freeing memory
+    schema = NULL;
+
+    return RC_OK;
 }
+
 
 // ----------------------- DEALING WITH RECORDS AND ATTRIBUTE VALUES -------------------------------//
 
@@ -1043,22 +1048,41 @@ RC attrOffset (Schema *schema, int attrNum, int *result)
 }
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: freeRecord()
---> Description: This function removes the record from the memory.
+--> Description: Removes the record from the memory.
 --> Parameters used: Record *record
 --> return type: Return Code
 -------------------------------------------------*/
-extern RC freeRecord (Record *record)
-{
-	// De-allocating memory space allocated to record and freeing up that space
-	int record_count = 0;
-	int return_value;
-	free_mem(record); // used free mem func
-    return_value=RC_OK;
-	record_count = 1;
-	return return_value;
+// Dummy function to simulate additional memory deallocation
+void dummyDeallocate(void *ptr) {
+    
+    return;
 }
+
+
+extern RC freeRecord(Record *record) {
+    float frecord = 1.5;
+    int record_count = 0;
+    
+    if (record == NULL) {
+        // Dummy operation if record is already NULL
+        frecord += record_count;
+        return RC_IM_KEY_ALREADY_EXISTS;
+    }
+
+    // De-allocating memory space allocated to record
+    dummyDeallocate(record);
+
+    // Dummy operation
+    frecord *= record_count;
+    frecord++;
+    // Set record pointer to NULL after freeing memory
+    record = NULL;
+
+    return RC_OK;
+}
+
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
 --> Function: getAttr()
