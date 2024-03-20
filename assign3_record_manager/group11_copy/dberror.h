@@ -21,12 +21,17 @@ typedef int RC;
 #define RC_RM_NO_MORE_TUPLES 203
 #define RC_RM_NO_PRINT_FOR_DATATYPE 204
 #define RC_RM_UNKOWN_DATATYPE 205
+#define RC_BUFFER_POOL_INIT_FAILED -1
 
 #define RC_IM_KEY_NOT_FOUND 300
 #define RC_IM_KEY_ALREADY_EXISTS 301
 #define RC_IM_N_TO_LAGE 302
 #define RC_IM_NO_MORE_ENTRIES 303
-
+#define RC_ERROR 400 // Added a new definiton for ERROR
+#define RC_PINNED_PAGES_IN_BUFFER 500 // Added a new definition for Buffer Manager
+// Added new definitions for Record Manager
+#define RC_RM_NO_TUPLE_WITH_GIVEN_RID 600
+#define RC_SCAN_CONDITION_NOT_FOUND 601
 /* holder for error messages */
 extern char *RC_message;
 
