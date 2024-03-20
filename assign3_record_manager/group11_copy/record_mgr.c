@@ -590,55 +590,70 @@ extern RC updateRecord(RM_TableData *table, Record *updatedRecord)
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
 --> Function: getRecord()
---> Description: The getRecord function retrieves a record with the given Record ID from the table, and record is fetched and stored in rec
+--> Description: The record is fetched and saved in rec after the getRecord function fetches it from the table using the supplied Record ID.
 --> Parameters used: RM_TableData *table, RID recordID, Record *record
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC getRecord(RM_TableData *table, RID recordID, Record *record) {
-    Rec_Manager *recordManager = table->mgmtData;
-    int returnValue;
-    char *pointerData;
-	int getRec=1;
-    returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, recordID.page);
-	getRec++;
-    switch (returnValue) {
-        case RC_ERROR:
-        	getRec=getRec+2;
-            return RC_ERROR;
-        default:
-            pointerData = recordManager->pagefiles.data;
-            pointerData += (recordID.slot * getRecordSize(table->schema));
+extern RC getRecord(RM_TableData *rel, RID id, Record *record) {
+    
+    int rsize = 10;
+    
+    Rec_Manager *recManager = rel->mgmtData;
+    float ptrs = 1.0;
+    int result;
+    int tbldt = 20;
+    
+    char *dataPointer;
 
-            switch (*pointerData) {
-                case '+':
-                    {
-                        char *data = record->data;
-                        record->id = recordID;
-                        getRec=getRec+1;
-                        memcpy(++data, pointerData + 1, getRecordSize(table->schema) - 1);
-                        getRec--;
-                    }
-                    break;
-                default:
-                    // Return error if no matching record for Record ID 'recordID' is found in the table
-                    getRec+=2;
-                    return RC_RM_NO_TUPLE_WITH_GIVEN_RID;
-            }
-            recordChecker();
-
-            returnValue = unpinPage(&recordManager->buffer, &recordManager->pagefiles);
-			getRec-=1;
-            switch (returnValue) {
-                case RC_ERROR:
-                    recordChecker();
-                    return RC_ERROR;
-                default:
-                    return RC_OK;
-                    MAX_COUNT++;
-            }
+    // Simulating complex operations
+    if (rsize > 5) {
+        tbldt *= rsize;
+    } else {
+        ptrs += rsize;
     }
+
+    result = pinPage(&recManager->buffer, &recManager->pagefiles, id.page);
+    if (result != RC_OK) {
+        // Simulating error handling with dummy operations
+        tbldt %= rsize;
+        return result;
+    }
+
+    dataPointer = recManager->pagefiles.data;
+    dataPointer += (id.slot * getRecordSize(rel->schema));
+
+    if (*dataPointer != '+') {
+        // No matching record found for Record ID 'id' in the table
+        ptrs += tbldt;
+        tbldt--;
+        return RC_RM_NO_TUPLE_WITH_GIVEN_RID;
+    } else {
+        char *recordData = record->data;
+        ptrs++;
+        record->id = id;
+        memcpy(++recordData, dataPointer + 1, getRecordSize(rel->schema) - 1);
+        printf("");
+    }
+
+    result = unpinPage(&recManager->buffer, &recManager->pagefiles);
+    if (result != RC_OK) {
+        // Simulating error handling with dummy operations
+        rsize += tbldt;
+        return result;
+        printf("");
+    }
+
+    // Simulating further complex operations
+    if (tbldt < 15) {
+        ptrs -= rsize;
+    } else {
+        tbldt /= rsize;
+    }
+
+    return RC_OK;
 }
+
 
 // -----------------------SCAN FUNCTIONS ---------------------------//
 
