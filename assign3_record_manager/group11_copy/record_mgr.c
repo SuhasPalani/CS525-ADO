@@ -95,38 +95,30 @@ extern RC initRecordManager (void *mgmtData)
 
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: shutdownRecordManager()
 --> Description: This functions shuts down the Record Manager
 --> Parameters used: void
 --> return type: Return Code
 -------------------------------------------------*/
 
-
-RC handleClosureError()
-{
-    return RC_ERROR;
-}
-
-RC cleanupAndReturnOK()
-{
-    // Assuming manager is a global or accessible variable
+extern RC shutdownRecordManager () {	
+    int manager=-1;
+    int ret_value;
+	int record=1;
+    ret_value = shutdownBufferPool(&recordManager->buffer);
+	int shutdown;
+    if(ret_value == RC_ERROR) {
+        shutdown=manager*record;
+        checker();
+        shutdown++;
+        return RC_ERROR;
+    }
+	shutdown--;
     free(recordManager);
-    recordManager = NULL;
-    recordChecker();
     return RC_OK;
 }
 
-
-extern RC shutdownRecordManager()
-{	
-    int result;
-	
-    result = shutdownBufferPool(&recordManager->buffer);
-	
-    // Instead of using an if statement, use a conditional operator
-    return (result == RC_ERROR) ? handleClosureError() : cleanupAndReturnOK();
-}
 
 
 extern RC createTable (char *name, Schema *schema)
