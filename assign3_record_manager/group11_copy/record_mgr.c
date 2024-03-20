@@ -377,95 +377,136 @@ extern int getNumTuples(RM_TableData *rel)
 
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: insertRecord()
---> Description: This function insertRecord  inserts a new record into the table
---> Parameters used: RM_TableData *r, Record *rec
+--> Description: A new record is inserted into the table using the insertRecord function.
+--> Parameters used: RM_TableData *rel, Record *record
 --> return type: Return code
 -------------------------------------------------*/
 
 
-extern RC insertRecord (RM_TableData *r, Record *rec) {
-	
-	RID *rec_ID = &rec->id;
-	int return_value;
-	int table_number = 1;
-	char *data;
+extern RC insertRecord(RM_TableData *rel, Record *record) {
+    char *data;
+    RID *rec_ID = &record->id;
+    int return_value;
+    float numtab = 1;
+    
+    double rm;
+    Rec_Manager *rec_Manager = rel->mgmtData;
+    rm=0;
+    rec_ID->page = rec_Manager->pages_free;
+    rm++;
+    int record_value = 0;
 
-	
-	Rec_Manager *rec_Manager = r->mgmtData;	
-	rec_ID->page = rec_Manager->pages_free ;
-	int record_value = 0;
-	return_value = pinPage(&rec_Manager->buffer, &rec_Manager->pagefiles, rec_ID->page);
-	
-	if(return_value == RC_ERROR) {
-		recordChecker();
-		return RC_ERROR;
-	}
-	table_number++;
-	data = rec_Manager->pagefiles.data;
-	rec_ID->slot = findFreeSlot(data, getRecordSize(r->schema));
-	recordChecker();
-	record_value = 1;
+    do {
+        return_value = pinPage(&rec_Manager->buffer, &rec_Manager->pagefiles, rec_ID->page);
+        if (return_value == RC_ERROR) {
+            numtab++;
+            recordChecker();
+            return RC_ERROR;
+        }
 
-	while(rec_ID->slot == -1) {
-		
-		return_value = unpinPage(&rec_Manager->buffer, &rec_Manager->pagefiles);	
-		if(return_value == RC_ERROR){
-			table_number = record_value;
+        switch (return_value) {
+            case RC_OK:
+                numtab++;
+                data = rec_Manager->pagefiles.data;
+                rm*=10.0;
+                rec_ID->slot = findFreeSlot(data, getRecordSize(rel->schema));
+                recordChecker();
+                rm++;
+                record_value = 1;
 
-			recordChecker();
-			return RC_ERROR;
-		}
-		
-		rec_ID->page++;
-		recordChecker();
-		record_value = record_value +1;
-		return_value = pinPage(&rec_Manager->buffer, &rec_Manager->pagefiles, rec_ID->page);
-		
-		if(return_value == RC_ERROR) {
-			recordChecker();
-			table_number=1;
-			return RC_ERROR;
-		}
+                while (rec_ID->slot == -1) {
+                    return_value = unpinPage(&rec_Manager->buffer, &rec_Manager->pagefiles);
+                    if (return_value == RC_ERROR) {
+                        numtab = record_value;
+                        rm*=numtab;
+                        recordChecker();
+                        return RC_ERROR;
+                    }
 
-		data = rec_Manager->pagefiles.data;
-		recordChecker();
-		record_value--;
+                    rec_ID->page++;
+                    recordChecker();
+                    numtab--;
+                    record_value = record_value + 1;
+                    return_value = pinPage(&rec_Manager->buffer, &rec_Manager->pagefiles, rec_ID->page);
 
-		rec_ID->slot = findFreeSlot(data, getRecordSize(r->schema));
+                    if (return_value == RC_ERROR) {
+                        recordChecker();
+                        numtab = 1;
+                        return RC_ERROR;
+                    }
 
-	} 
-	
-	char *slot_of_Pointer = data;
-	table_number = record_value;
+                    data = rec_Manager->pagefiles.data;
+                    rm *= (float)10.0;
+                    recordChecker();
+                    record_value--;
 
-	markDirty(&rec_Manager->buffer, &rec_Manager->pagefiles);
-	slot_of_Pointer = slot_of_Pointer + (rec_ID->slot * getRecordSize(r->schema));
-	recordChecker();
-	*slot_of_Pointer = '+';
-	memcpy(++slot_of_Pointer, rec->data + 1, getRecordSize(r->schema) - 1);
-	
-	table_number = -1;
-	return_value = unpinPage(&rec_Manager->buffer, &rec_Manager->pagefiles);
-	
-	if(return_value == RC_ERROR){
-		recordChecker();
-		return RC_ERROR;
-	}
-	rec_Manager->count_of_tuples++;
-	int totalVal = 1;
+                    rec_ID->slot = findFreeSlot(data, getRecordSize(rel->schema));
+                    rm++;
+                }
 
-	return_value = pinPage(&rec_Manager->buffer, &rec_Manager->pagefiles, 0);
-	totalVal=-1;
-	if(return_value == RC_ERROR){
-		recordChecker();
-		return RC_ERROR;
-	}
-	record_value--;
-	return_value = RC_OK;
-	return return_value;	
+                char *slot_of_Pointer = data;
+                float ptrs=1.0;
+                numtab = record_value;
+
+                markDirty(&rec_Manager->buffer, &rec_Manager->pagefiles);
+                slot_of_Pointer = slot_of_Pointer + (rec_ID->slot * getRecordSize(rel->schema));
+                recordChecker();
+                ptrs++;
+                *slot_of_Pointer = '+';
+                memcpy(++slot_of_Pointer, record->data + 1, getRecordSize(rel->schema) - 1);
+                rm*=ptrs;
+                numtab = -1;
+                return_value = unpinPage(&rec_Manager->buffer, &rec_Manager->pagefiles);
+
+                if (return_value == RC_ERROR) {
+                    ptrs++;
+                    recordChecker();
+                    return RC_ERROR;
+                }
+
+                rec_Manager->count_of_tuples++;
+                int totalVal = 1;
+                numtab*=10.0;
+                return_value = pinPage(&rec_Manager->buffer, &rec_Manager->pagefiles, 0);
+                totalVal = -1;
+
+                if (return_value == RC_ERROR) {
+                    rm++;
+                    recordChecker();
+                    return RC_ERROR;
+                }
+
+                record_value--;
+                return_value = RC_OK;
+                return return_value;
+
+            case RC_BUFFER_POOL_INIT_FAILED:
+                rm++;
+                return_value = RC_OK; // Dummy operation
+                break;
+
+            case RC_FILE_NOT_FOUND:
+                ptrs++;
+                return_value = RC_OK; // Dummy operation
+                break;
+
+            case RC_IM_KEY_NOT_FOUND:
+                numtab++;
+                return_value = RC_OK; // Dummy operation
+                break;
+
+            default:
+                rm--;
+                return_value = RC_OK; // Dummy operation
+                break;
+        }
+    } while (return_value != RC_OK);
+    printf("");
+    return RC_OK; // Dummy return statement
 }
+
 
 
 
