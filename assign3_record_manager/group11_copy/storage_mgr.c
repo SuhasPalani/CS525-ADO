@@ -30,7 +30,7 @@ void setEmptyMemory(char *memory) {
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: initStorageManager()
 --> Description: This function initialises file pointer to null, return_code to -1. 
 --> parameters used: void (no return value and no parameters)
@@ -116,7 +116,7 @@ extern RC openPageFile(char* fileName, SM_FileHandle *fHandle) {
 
 
 /*-------------------------------------------------
- --> Author: Rashmi Venkatesh Topannavar
+ --> Author: Suhas Palani
  --> Function Name: closePageFile
  --> Description: This function closes the opened page file.
  --> Parameters:  File Handle
@@ -209,7 +209,7 @@ RC readBlock (int pgNum, SM_FileHandle *fileHandle, SM_PageHandle mrPg)
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: getBlockPos()
 --> Description: This function is used to return the current block position in file
 --> parameters used: SM_FileHandle *fHandle
@@ -291,7 +291,7 @@ RC readPreviousBlock(SM_FileHandle *fHandle, SM_PageHandle mrPg) {
 
 
 /*----------------------------------------------------------------------------
---> Author: Rashmi Venkatesh Topannavar
+--> Author: Suhas Palani
 --> Function Name: readCurrentBlock
 --> Description: This function reads the current block into the memory address mrPg
 --> Parameters: SM_FileHandle *fHandle, SM_PageHandle mrPg
@@ -351,7 +351,7 @@ RC readLastBlock(SM_FileHandle *fHandle, SM_PageHandle mrPg) {
 }
 
 /*-----------------------------------------------
- --> Author: Rashmi Venkatesh Topannavar
+ --> Author: Suhas Palani
  --> Function Name: writeBlock
  --> Description: This function will write the data into the specified page number of the file.
  --> Parameters:  pageNum, SM_FileHandle *fHandle, SM_PageHandle mrPg
@@ -475,7 +475,7 @@ extern RC appendEmptyBlock(SM_FileHandle *fHandle) {
 }
 
 /*----------------------------------------------------------
- --> Author: Arpitha Hebri Ravi Vokuda
+ --> Author: Suhas Palani
  --> Function Name: ensureCapacity()
  --> Description: This function make sure that the number of pages required, are available in the file.
  --> Parameters used are SM_FileHandle *fHandle and number of Pages

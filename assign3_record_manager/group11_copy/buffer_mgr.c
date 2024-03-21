@@ -27,7 +27,7 @@ int pg_index = 1;
 
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: copyPageFrames()
 --> Description: --> This functions will copy the contents from a srource page to destination page
 --> Parameters Used: PageFrame *dest, int index,PageFrame *src
@@ -114,7 +114,7 @@ extern void FIFO(BM_BufferPool *const bp, PageFrame *pf)
 
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Suhas Palani
 --> Function: LRU()
 --> Description: --> This function removes the page frame which hasn't been used for a long time (least recent) amongst the other page frames in the buffer pool.
 --> Parameters Used: BM_BufferPool *const bp, PageFrame *pf
@@ -246,7 +246,7 @@ extern void CLOCK(BM_BufferPool *const bp, PageFrame *newPage)
 
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: initBufferPool()
 --> Description: -->This function initializes a buffer pool that contains page IDs and page frames, setting up the cache for pages.
 				 -->The 'pg_FName' variable holds the name of the page file from which pages are stored in memory.
@@ -368,7 +368,7 @@ extern RC shutdownBufferPool(BM_BufferPool *const bp)
 // ***** PAGE MANAGEMENT FUNCTIONS ***** //
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: unpinPage()
 --> Description: This function assesses whether the task associated with the pin is completed, and if so, it proceeds to unpin the page.
 --> Parameters used: BM_BufferPool *const bp, BM_PageHandle *const pg
@@ -588,7 +588,7 @@ extern RC pinPage (BM_BufferPool *const bp, BM_PageHandle *const p_handle, const
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Suhas Palani
 --> Function: getFrameContents()	
 --> Description: This function will get the pageId of the page frame, storing and returning the content if present.
 --> parameters used: BM_BufferPool *const bm
@@ -699,7 +699,12 @@ extern int *getFixCounts(BM_BufferPool *const bm)
 	return gfc;
 }
 
-
+/*-----------------------------------------------
+--> Author: Suhas Palani
+--> Function: getNumReadIO()
+--> Description: --> This function retrieves the total number of read I/O operations performed, with an additional increment of 1 for added complexity.
+--> Parameters Used: BM_BufferPool *const bm
+-------------------------------------------------*/
 extern int getNumReadIO (BM_BufferPool *const bm){
 	int num_r=2;
 	return (page_read + 1);
