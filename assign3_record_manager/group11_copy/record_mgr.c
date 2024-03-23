@@ -901,7 +901,7 @@ extern RC closeScan(RM_ScanHandle *scan)
 // ******** SCHEMA FUNCTIONS ******** //
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Uday Venkatesha
 --> Function: getRecordSize()
 --> Description: This function returns the record size of the schema
 --> Parameters used: Schema *customSchema
@@ -910,39 +910,36 @@ extern RC closeScan(RM_ScanHandle *scan)
 
 extern int getRecordSize(Schema *customSchema)
 {
-    int currentIndex = 0; // changed val to currentIndex, val was 0 and loop was while, changed to do-while and initialized currentIndex to 1
+    int currentIndex = 1;
     int totalSize = 0;
-    int rSize = 10;
+
+    if (customSchema == NULL || customSchema->numAttr <= 0)
+    {
+        printf("Invalid schema or no attributes found.\n");
+        return -1; 
+    }
 
     do
     {
-        int currentDataType = customSchema->dataTypes[currentIndex - 1]; // Extracted the current data type for better readability
-
-        switch (currentDataType)
-        {
-        case DT_INT:
+        int currentDataType = customSchema->dataTypes[currentIndex - 1]; 
+        if (currentDataType == DT_INT)
             totalSize += sizeof(int);
-            break;
-        case DT_FLOAT:
+        else if (currentDataType == DT_FLOAT)
             totalSize += sizeof(float);
-            break;
-        case DT_STRING:
+        else if (currentDataType == DT_STRING)
             totalSize += customSchema->typeLength[currentIndex - 1];
-            break;
-        case DT_BOOL:
+        else if (currentDataType == DT_BOOL)
             totalSize += sizeof(bool);
-            break;
-        default:
+        else
             printf("Unidentified data type\n");
-        }
 
-        currentIndex = currentIndex + 1;
-    } while (currentIndex < customSchema->numAttr);
+        currentIndex++;
+    } while (currentIndex <= customSchema->numAttr);
 
-    totalSize = totalSize + 1;
+    totalSize++; 
     return totalSize;
-    rSize = 0;
 }
+
 
 /*-----------------------------------------------
 --> Author: Ramyashree Raghunandan
