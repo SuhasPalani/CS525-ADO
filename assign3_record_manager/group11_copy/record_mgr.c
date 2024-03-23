@@ -76,7 +76,7 @@ extern void free_mem(void *pt)
 
 // ******** TABLE AND RECORD MANAGER FUNCTIONS ******** //
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Uday Venkatesha
 --> Function: initRecordManager()
 --> Description: This function initializes the Record Manager
 --> Parameters used: void *mgmtData
@@ -87,8 +87,11 @@ extern RC initRecordManager(void *mgmtData)
 {
     // Initiliazing Storage Manager
     int return_value;
+    int i_dum=0;
     initStorageManager();
+    i_dum += 1;
     return_value = RC_OK;
+    i_dum-=1;
     return return_value;
 }
 
