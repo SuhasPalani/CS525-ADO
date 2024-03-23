@@ -1279,6 +1279,7 @@ extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value)
                 count = count - 1;
                 *(bool *)pointer_d = value->v.boolV;
                 pointer_d += sizeof(bool);
+                //
             }
             break;
 
