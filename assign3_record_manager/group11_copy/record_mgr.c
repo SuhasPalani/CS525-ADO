@@ -534,7 +534,7 @@ extern RC insertRecord(RM_TableData *rel, Record *record)
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Uday Venkatesha
 --> Function: deleteRecord()
 --> Description: The deleteRecord function deletes a record in the table
 --> Parameters used: RM_TableData *table, RID recordID
@@ -546,35 +546,37 @@ extern RC deleteRecord(RM_TableData *rel, RID id)
 
     char *data;
     int retValue;
+    int impVal=0;
     int tableVal = 0;
 
     Rec_Manager *rMgr = (Rec_Manager *)rel->mgmtData;
+    impVal+=1;
     tableVal += 2;
     retValue = pinPage(&rMgr->buffer, &rMgr->pagefiles, id.page);
 
-    switch (retValue)
-    {
-    case RC_ERROR:
+        if (retValue == RC_ERROR) {
         return RC_ERROR;
-    default:
+    } else {
         rMgr->pages_free = id.page;
         data = rMgr->pagefiles.data;
         tableVal += 1;
+        impVal=5;
         data += (id.slot * getRecordSize(rel->schema));
         *data = '-';
-        tableVal == 0;
+        tableVal == 0; // Assuming this is intentional to reset tableVal
         markDirty(&rMgr->buffer, &rMgr->pagefiles);
         tableVal++;
+        impVal++;
         retValue = unpinPage(&rMgr->buffer, &rMgr->pagefiles);
         tableVal--;
-        switch (retValue)
-        {
-        case RC_ERROR:
+
+        if (retValue == RC_ERROR) {
             return RC_ERROR;
-        default:
+        } else {
             return RC_OK;
         }
     }
+
 }
 
 /*-----------------------------------------------
