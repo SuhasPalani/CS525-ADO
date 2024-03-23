@@ -684,7 +684,7 @@ extern RC getRecord(RM_TableData *rel, RID id, Record *record)
 // -----------------------SCAN FUNCTIONS ---------------------------//
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Uday Venkatesha
 --> Function: startScan()
 --> Description: This function starts the scan.
 --> Parameters used:RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition
@@ -693,33 +693,48 @@ extern RC getRecord(RM_TableData *rel, RID id, Record *record)
 
 extern RC startScan(RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition)
 {
-
-    while (condition == NULL)
+    if (condition == NULL)
     {
-        MAX_COUNT = MAX_COUNT - 1;
+        MAX_COUNT--;
         return RC_SCAN_CONDITION_NOT_FOUND;
     }
-    printf(" ");
+
+    printf("Scanning table...\n");
     openTable(r, "ScanTable");
+
     int scanner = 1;
+    int scan_status = 0;
     scan_Manager = (Rec_Manager *)malloc(sizeof(Rec_Manager));
     s_handle->mgmtData = scan_Manager;
+
     recordChecker();
     scanner--;
+    
+
     scan_Manager->r_id.page = 1;
-    (*scan_Manager).r_id.slot = 0;
+    scan_status+=1;
+    scan_Manager->r_id.slot = 0;
+
+    printf("Initializing scan manager...\n");
     printf(" ");
+
     scan_Manager->count_for_scan = 0;
     int scanCount = 0;
     scan_Manager->condition = condition;
 
     table_Manager = r->mgmtData;
+    scan_status+=1;
     recordChecker();
+
     table_Manager->count_of_tuples = SIZE_OF_ATTRIBUTE;
-    (*s_handle).rel = r;
-    scanCount = scanCount + 1;
+
+    s_handle->rel = r;
+    scan_status+=1;
+    scanCount++;
+
     return RC_OK;
 }
+
 
 /*-----------------------------------------------
 -->Author: Rashmi Venkatesh Topannavar
