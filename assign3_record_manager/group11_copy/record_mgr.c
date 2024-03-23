@@ -347,7 +347,7 @@ extern RC closeTable(RM_TableData *rel)
     }
 }
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Uday Venkatesha
 --> Function: deleteTable()
 --> Description: deleteTable function deletes the table
 --> Parameters used: char *name
@@ -357,18 +357,22 @@ extern RC closeTable(RM_TableData *rel)
 extern RC deleteTable(char *name)
 {
     int table_Count = 1;
-    int return_value;
-    return_value = destroyPageFile(name);
+    int return_value = destroyPageFile(name); // Assign directly from function
+    int i=10;
+
     if (return_value == RC_ERROR)
     {
-        MAX_COUNT = table_Count;
-        recordChecker();
-        return return_value;
-        printf(" ");
+        MAX_COUNT = table_Count; 
+        recordChecker(); 
+        i=i-2;
+        return return_value; 
     }
-    return_value = RC_OK;
-    return return_value;
+    
+    // If no error, proceed here
+    return RC_OK; // Directly return RC_OK as no changes to return_value beyond this point
 }
+
+
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
 --> Function: getNumTuples()
