@@ -230,6 +230,7 @@ extern RC createTable(char *name, Schema *schema)
 -------------------------------------------------*/
 
 
+
 extern RC openTable(RM_TableData *rel, char *name) {
 
     int attributeCount, returnValue, i;
@@ -380,23 +381,35 @@ extern RC deleteTable(char *name)
 }
 
 
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Nishchal Gante Ravish
 --> Function: getNumTuples()
---> Description: This function fetches the number of tuples or records  in the table
+--> Description: Used to get the number of tuples in the table
 --> Parameters used: RM_TableData *table
 --> return type: Integer
 -------------------------------------------------*/
 
-extern int getNumTuples(RM_TableData *rel)
-{
-    int tuple_count = 1;
-    recordChecker();
-    tuple_count++;
-    Rec_Manager *recMgr = (*rel).mgmtData;
-    recordChecker();
-    return (*recMgr).count_of_tuples;
+
+
+
+extern int getNumTuples(RM_TableData *rel) {
+    
+    Rec_Manager *recMgr = rel->mgmtData;
+    
+    
+    recordChecker(); 
+
+    int tuple_count = recMgr->count_of_tuples; 
+
+
+    recordChecker(); 
+
+ 
+    return tuple_count;
 }
+
 
 // ******** RECORD FUNCTIONS ******** //
 
