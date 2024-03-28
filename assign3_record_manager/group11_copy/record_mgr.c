@@ -599,28 +599,67 @@ extern RC deleteRecord(RM_TableData *rel, RID id)
 
 }
 
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Nishchal Gante Ravish
 --> Function: updateRecord()
---> Description: The updateRecord function updates a record in the table
+--> Description: Used to update records in a table
 --> Parameters used: RM_TableData *table, Record *updatedRecord
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC updateRecord(RM_TableData *table, Record *updatedRecord)
-{
-    char *recordData;
-    recordChecker();
+
+
+extern RC updateRecord(RM_TableData *table, Record *updatedRecord) {
+    
     RC returnValue;
-    RID recordID;
-    int tableVal = 0;
+
 
     Rec_Manager *recordManager = (Rec_Manager *)table->mgmtData;
-    returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, updatedRecord->id.page);
-    tableVal == 1;
 
-    return (returnValue == RC_ERROR) ? RC_ERROR : (recordID = updatedRecord->id, recordData = recordManager->pagefiles.data, recordData += (recordID.slot * getRecordSize(table->schema)), *recordData = '+', memcpy(++recordData, updatedRecord->data + 1, getRecordSize(table->schema) - 1), markDirty(&recordManager->buffer, &recordManager->pagefiles), (returnValue = unpinPage(&recordManager->buffer, &recordManager->pagefiles)), (returnValue == RC_ERROR) ? RC_ERROR : RC_OK);
+
+
+    recordChecker();
+
+
+
+    returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, updatedRecord->id.page);
+
+
+    if (returnValue != RC_OK) {
+
+
+
+        return RC_ERROR;
+    }
+
+
+    char *recordPosition = recordManager->pagefiles.data;
+
+    recordPosition += (updatedRecord->id.slot * getRecordSize(table->schema));
+
+
+    *recordPosition = '+';
+
+
+    memcpy(recordPosition + 1, updatedRecord->data + 1, getRecordSize(table->schema) - 1);
+
+
+    returnValue = markDirty(&recordManager->buffer, &recordManager->pagefiles);
+
+
+    if (returnValue != RC_OK) {
+        return RC_ERROR;
+    }
+
+
+    returnValue = unpinPage(&recordManager->buffer, &recordManager->pagefiles);
+
+    
+    return (returnValue == RC_ERROR) ? RC_ERROR : RC_OK;
 }
+
 
 /*-----------------------------------------------
 -->Author: Arpitha Hebri Ravi Vokuda
