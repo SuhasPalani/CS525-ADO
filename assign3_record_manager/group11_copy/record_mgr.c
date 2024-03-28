@@ -219,106 +219,113 @@ extern RC createTable(char *name, Schema *schema)
     return RC_ERROR;
 }
 
+
+
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
+-->Author: Nishchal Gante Ravish
 --> Function: openTable()
---> Description: This function opens the table with table name "name"
+--> Description: This func is used to open the table with the name specified as 'name'
 --> Parameters used: RM_TableData *relation, char *tableName
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC openTable(RM_TableData *rel, char *name)
-{
-    int attributeCount;
-    SM_PageHandle pageHandle;
-    int i;
-    int k = 0;
-    int tableData = 0;
-    int returnValue;
 
-    rel->name = name;
-    tableData += 1;
-    rel->mgmtData = recordManager;
-    tableData++;
+extern RC openTable(RM_TableData *rel, char *name) {
+
+    int attributeCount, returnValue, i;
+
+    SM_PageHandle pageHandle;
+
+    // Assign a table name
+
+    rel->name = name; 
+
+
+    rel->mgmtData = recordManager; 
 
     returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, 0);
 
-    if (returnValue == RC_ERROR)
-    {
-        tableData++;
-        return returnValue;
+
+    if (returnValue != RC_OK) return returnValue;
+
+    
+
+    // Init table data
+    int tableData = 2; 
+
+
+    pageHandle = (char *)recordManager->pagefiles.data; 
+
+
+    
+    recordManager->count_of_tuples = *(int *)pageHandle;
+
+
+    pageHandle += sizeof(int);
+
+    recordManager->pages_free = *(int *)pageHandle;
+
+
+
+    pageHandle += sizeof(int);
+
+    attributeCount = *(int *)pageHandle;
+
+    pageHandle += sizeof(int);
+
+
+    tableData += attributeCount; 
+
+    Schema *schema = (Schema *)malloc(sizeof(Schema)); 
+
+
+    schema->numAttr = attributeCount; 
+
+
+    schema->attrNames = (char **)malloc(attributeCount * sizeof(char *));
+
+
+    schema->dataTypes = (DataType *)malloc(attributeCount * sizeof(DataType));
+
+
+    schema->typeLength = (int *)malloc(attributeCount * sizeof(int));
+
+
+
+
+    for (i = 0; i < attributeCount; ++i) {
+
+
+        schema->attrNames[i] = (char *)malloc(SIZE_OF_ATTRIBUTE);
+
+
+        strncpy(schema->attrNames[i], pageHandle, SIZE_OF_ATTRIBUTE);
+
+
+        pageHandle += SIZE_OF_ATTRIBUTE;
+
+
+        schema->dataTypes[i] = *(DataType *)pageHandle;
+
+
+        pageHandle += sizeof(DataType);
+
+
+        schema->typeLength[i] = *(int *)pageHandle;
+
+
+        pageHandle += sizeof(int);
     }
 
-    pageHandle = (char *)recordManager->pagefiles.data;
-    tableData = tableData + 3;
 
-    while (k < 4)
-    {
-        if (k == 0)
-        {
-            recordManager->count_of_tuples = *(int *)pageHandle;
-            tableData--;
-            printf("recordManager->count_of_tuples = (int)pageHandle; \n");
-        }
-        else if (k == 1)
-        {
-            recordManager->pages_free = *(int *)pageHandle;
-            tableData -= 1;
-            printf("recordManager->pages_free = (int)pageHandle\n");
-        }
-        else if (k == 2)
-        {
-            tableData = tableData + 5;
-            attributeCount = *(int *)pageHandle;
-            printf("attributeCount = (int)pageHandle; \n");
-            tableData++;
-        }
+    rel->schema = schema; 
 
-        tableData--;
-        pageHandle = pageHandle + sizeof(int);
-        printf("%d\n", i);
-        k++;
-    }
-    Schema *tableSchema;
-    tableData++;
-    tableSchema = (Schema *)malloc(sizeof(Schema));
-    printf(" ");
-    (*tableSchema).numAttr = attributeCount;
-    recordChecker();
-    MAX_COUNT = 1;
-    (*tableSchema).attrNames = (char *)malloc(sizeof(char *) * attributeCount);
-    (*tableSchema).dataTypes = (DataType *)malloc(sizeof(DataType) * attributeCount);
-    recordChecker();
-    printf(" ");
-    (*tableSchema).typeLength = (int *)malloc(sizeof(int) * attributeCount);
-    for (i = 0; i < attributeCount; i++)
-    {
-        tableData--;
-        tableSchema->attrNames[i] = (char *)malloc(SIZE_OF_ATTRIBUTE);
-    }
 
-    i = 0; // Reset i after using it in the previous loop
 
-    while (i < tableSchema->numAttr)
-    {
-        strncpy(tableSchema->attrNames[i], pageHandle, SIZE_OF_ATTRIBUTE);
-        tableData--;
-        pageHandle = pageHandle + SIZE_OF_ATTRIBUTE;
-        recordChecker();
-        tableSchema->dataTypes[i] = *(int *)pageHandle;
-        tableData++;
-        pageHandle = pageHandle + sizeof(int);
-        recordChecker();
-        tableSchema->typeLength[i] = *(int *)pageHandle;
-        pageHandle = pageHandle + sizeof(int);
-        recordChecker();
-        i++;
-    }
+    returnValue = forcePage(&recordManager->buffer, &recordManager->pagefiles);
 
-    rel->schema = tableSchema;
-    tableData = 0;
-
-    return ((returnValue = forcePage(&recordManager->buffer, &recordManager->pagefiles)) == RC_ERROR) ? returnValue : RC_OK;
+    
+    return (returnValue == RC_ERROR) ? returnValue : RC_OK;
 }
 
 /*-----------------------------------------------
