@@ -1135,60 +1135,91 @@ extern RC createRecord(Record **record, Schema *schema)
     return returnValue;
 }
 
+
+
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: attrOffset()
---> Description:
-This function determines and assigns the byte offset from the initial position to the specified attribute within the record, storing the result in the 'result' parameter passed to the function.
+--> Description: This function is used to store the outcome of the'result' parameter that is passed to it. It also finds and assigns the byte offset from the initial position to the designated attribute within the record.
 --> Parameters used: Schema *schema, int attrNum, int *result
 --> return type: Return Code
 -------------------------------------------------*/
-RC attrOffset(Schema *schema, int attrNum, int *result)
-{
+
+RC attrOffset(Schema *schema, int attrNum, int *result) {
+
+
     *result = 1;
-    int k = 0;
-    int numVal = 1;
-    int ret_value = RC_OK;
-    if (attrNum >= 0)
-    {
-        numVal++;
-    execute:
-        if (schema->dataTypes[k] == DT_STRING)
-        {
-            numVal = 0;
-            if (k < attrNum)
-                *result = *result + (*schema).typeLength[k];
-            recordChecker();
+    
+
+    if (attrNum < 0) {
+
+
+        return RC_INVALID_ATTR_NUM;
+
+
+    }
+
+    for (int k = 0; k < attrNum; ++k) {
+
+
+        switch (schema->dataTypes[k]) {
+
+
+            case DT_STRING:
+
+
+                *result += schema->typeLength[k];
+
+
+                break;
+
+
+            case DT_INT:
+
+
+                *result += sizeof(int);
+
+
+                break;
+
+
+            case DT_BOOL:
+
+
+                *result += sizeof(bool);
+
+
+                break;
+
+
+            case DT_FLOAT:
+
+
+                *result += sizeof(float);
+
+
+                break;
+
+
+            default:
+
+
+                printf("Incorrect DataType\n");
+
+
+                return RC_INVALID_DATATYPE;
+
+
         }
-        else if (schema->dataTypes[k] == DT_INT)
-        {
-            numVal = numVal + 1;
-            if (k < attrNum)
-                *result = sizeof(int) + *result;
-        }
-        else if (schema->dataTypes[k] == DT_BOOL)
-        {
-            recordChecker();
-            if (k < attrNum)
-                *result = sizeof(bool) + *result;
-            numVal++;
-        }
-        else if (schema->dataTypes[k] == DT_FLOAT)
-        {
-            if (k < attrNum)
-                *result = sizeof(float) + *result;
-            recordChecker();
-        }
-        else
-            printf("Incorrect Datatype\n");
-        k++;
-        numVal--;
-        if (k < attrNum)
-            goto execute;
         recordChecker();
     }
-    return ret_value;
+
+    
+
+    return RC_OK;
 }
+
+
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
