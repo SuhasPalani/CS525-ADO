@@ -994,45 +994,58 @@ extern int getRecordSize(Schema *customSchema)
     return totalSize;
 }
 
-
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: createSchema()
---> Description: This function establishes a new schema.
+--> Description: Used to create a new schema
 --> Parameters used: int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys
 --> return type: Return Code
 -------------------------------------------------*/
-extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys)
-{
-    switch (keySize > 0 && keySize != 0)
-    {
-    case 1:
-    {
-        Schema *sch = (Schema *)calloc(1, sizeof(Schema));
 
-        if (keySize != 0)
-            sch->dataTypes = dataTypes;
-        int schemaCount = 0;
-        if (keySize != 0)
-            sch->keySize = keySize;
-        if (keySize != 0)
-            sch->numAttr = numAttr;
-        recordChecker();
-        if (keySize != 0)
-            sch->typeLength = typeLength;
-        if (keySize != 0)
-            sch->keyAttrs = keys;
-        schemaCount = schemaCount + 1;
-        if (keySize != 0)
-            sch->attrNames = attrNames;
 
-        return sch;
-    }
-    default:
+
+extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys) {
+
+
+    if (keySize <= 0) {
+
+
         return NULL;
     }
-    MAX_COUNT++;
+
+    Schema *schema = (Schema *)calloc(1, sizeof(Schema));
+
+
+    if (!schema) {
+
+        return NULL;
+    }
+
+    schema->numAttr = numAttr;
+
+
+    schema->attrNames = attrNames;
+
+
+    schema->dataTypes = dataTypes;
+
+
+    schema->typeLength = typeLength;
+
+
+    schema->keySize = keySize;
+
+
+    schema->keyAttrs = keys;
+
+    recordChecker();
+
+    return schema;
 }
+
+
+
+
 /*-----------------------------------------------
 -->Author: Suhas palani
 --> Function: freeSchema()
