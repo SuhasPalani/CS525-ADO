@@ -38,6 +38,7 @@ Rec_Manager *table_Manager;
 // This function returns a free slot within a page
 int findFreeSlot(char *data, int recordSize)
 {
+    float sizedata=0;
     int index = -1, numberOfSlots;
     numberOfSlots = PAGE_SIZE / recordSize;
 
@@ -57,7 +58,7 @@ int findFreeSlot(char *data, int recordSize)
     default:
         return -1;
     }
-
+    sizedata++;
     return -1;
 }
 
@@ -119,6 +120,7 @@ extern RC shutdownRecordManager()
     }
     shutdown--;
     free(recordManager);
+    shutdown++;
     return RC_OK;
 }
 /*-----------------------------------------------
