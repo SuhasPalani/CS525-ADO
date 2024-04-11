@@ -1461,32 +1461,32 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
 extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
 
 
-    int recordAttr = -1;
+    int rattr = -1;
 
 
-    int attrVal = 0;
+    int atval = 0;
 
 
-    int result = RC_OK;
+    int rslt = RC_OK;
 
 
-    int count = 0;
+    int val_c = 0;
 
 
 
     if (attrNum < 0) {
 
 
-        return result;
+        return rslt;
 
 
     }
 
-    attrOffset(schema, attrNum, &attrVal);
+    attrOffset(schema, attrNum, &atval);
 
 
 
-    char *pointer_d = record->data + attrVal;
+    char *pointer_d = record->data + atval;
 
 
 
@@ -1500,7 +1500,7 @@ extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
         *(int *)pointer_d = value->v.intV;
 
 
-        count++;
+        val_c++;
 
 
         break;
@@ -1522,10 +1522,10 @@ extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
         strncpy(pointer_d, value->v.stringV, schema->typeLength[attrNum]);
 
 
-        count = 3;
+        val_c = 3;
 
 
-        recordAttr++;
+        rattr++;
 
 
         break;
@@ -1536,7 +1536,7 @@ extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
         *(bool *)pointer_d = value->v.boolV;
 
 
-        count--;
+        val_c--;
 
 
         break;
@@ -1555,8 +1555,8 @@ extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
 
 
 
-    return result;
+    return rslt;
 
-    
+
 }
 
