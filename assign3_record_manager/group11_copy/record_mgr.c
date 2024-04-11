@@ -657,10 +657,10 @@ extern RC updateRecord(RM_TableData *table, Record *updatedRecord) {
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: getRecord()
 --> Description: The record is fetched and saved in rec after the getRecord function fetches it from the table using the supplied Record ID.
---> Parameters used: RM_TableData *table, RID recordID, Record *record
+--> Parameters used: RM_TableData *rel, RID id, Record *record
 --> return type: Return Code
 -------------------------------------------------*/
 
@@ -789,21 +789,28 @@ extern RC startScan(RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition)
     return RC_OK;
 }
 
+/*-----------------------------------------------
+-->Author: Rashmi Venkatesh Topannavar
+--> Function: next()
+--> Description: This function retrieves the next tuple that satisfies the specified test expression.
+--> Parameters used: RM_ScanHandle *scan, Record *rec
+--> return type: Return code
+-------------------------------------------------*/
 
-extern RC next (RM_ScanHandle *scan, Record *rec)
-{	
-	Rec_Manager *scan_Manager = scan->mgmtData;
-	int page_Count = 0;
-	int slotCount;
-	
-	Rec_Manager *table_Manager = scan->rel->mgmtData;
-	
-	Value *output;
-	int scan_Count = 1;
-	int flagValue = true;
-	
-   	 Schema *schema = scan->rel->schema;
-	 page_Count--;
+extern RC next(RM_ScanHandle *scan, Record *rec)
+{
+    Rec_Manager *scan_Manager = scan->mgmtData;
+    int page_Count = 0;
+    int slotCount;
+
+    Rec_Manager *table_Manager = scan->rel->mgmtData;
+
+    Value *output;
+    int scan_Count = 1;
+    int flagValue = true;
+
+    Schema *schema = scan->rel->schema;
+    page_Count--;
 
 	while (scan_Manager->condition == NULL)
 	{
