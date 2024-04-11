@@ -125,26 +125,25 @@ extern RC shutdownRecordManager()
 }
 /*-----------------------------------------------
 -->Author: Uday Venkatesha
---> Function: createTable()-
+--> Function: createTable()
 --> return type: Return Code
 -------------------------------------------------*/
 extern RC createTable(char *name, Schema *schema)
 {
     char data[PAGE_SIZE];
     char *p_handle;
-    int tabVal = 0;
-    int res = 0;
+    int jv=0;
     int index = 0;
+    int CTValue=0;
     int jVal;
     SM_FileHandle f_handle;
     int k = 0;
 
     recordManager = (Rec_Manager *)malloc(sizeof(Rec_Manager));
-    tabVal = tabVal + 1;
-    res++;
     initBufferPool(&recordManager->buffer, name, MAX_NUMBER_OF_PAGES, RS_LRU, NULL);
-
+    jv++;
     p_handle = data;
+    jv++;
 
     for (k = 0; k < 4; k++)
     {
@@ -154,59 +153,50 @@ extern RC createTable(char *name, Schema *schema)
 
         case 0:
             *(int *)p_handle = 0;
-            tabVal = 5;
             printf("*(int*)p_handle = 0; \n");
+            CTValue++;
             break;
             recordChecker();
         case 1:
             *(int *)p_handle = 1;
+            CTValue++;
             printf("*(int*)p_handle = 1; \n");
-            tabVal++;
             break;
         case 2:
             *(int *)p_handle = schema->numAttr;
-            tabVal--;
             printf("*(int*)p_handle = schema->numAttr; \n");
+            CTValue++;
             break;
             recordChecker();
         case 3:
             *(int *)p_handle = schema->keySize;
             printf(" *(int *)p_handle = schema->keySize; \n");
-            tabVal += 2;
+            CTValue++;
             break;
         }
 
         p_handle = p_handle + sizeof(int);
         recordChecker();
+        CTValue++;
         printf("%d\n", index);
     }
 
     for (index = 0; index < schema->numAttr; index++, jVal++)
     {
-        int bIndex = 0;
         strncpy(p_handle, schema->attrNames[index], SIZE_OF_ATTRIBUTE);
         recordChecker();
-        MAX_COUNT--;
         p_handle = p_handle + SIZE_OF_ATTRIBUTE;
-        tabVal++;
-        printf(" ");
         *(int *)p_handle = (int)schema->dataTypes[index];
         p_handle = p_handle + sizeof(int);
-        MAX_COUNT--;
-        bIndex++;
         recordChecker();
         *(int *)p_handle = (int)schema->typeLength[index];
-        MAX_COUNT--;
         p_handle = p_handle + sizeof(int);
-        printf(" ");
         recordChecker();
     }
     if (createPageFile(name) == RC_OK)
     {
-        MAX_COUNT++;
         if (openPageFile(name, &f_handle) == RC_OK)
         {
-            tabVal = 7;
             printf(" ");
             if (writeBlock(0, &f_handle, data) == RC_OK)
             {
@@ -214,7 +204,6 @@ extern RC createTable(char *name, Schema *schema)
 
                 if (closePageFile(&f_handle) == RC_OK)
                 {
-                    tabVal = tabVal + 3;
                     return RC_OK;
                 }
             }
@@ -1211,33 +1200,35 @@ extern RC freeSchema(Schema *schema)
 
 extern RC createRecord(Record **record, Schema *schema)
 {
-    printf(" ");
     int returnValue;
-    int newRec = 0;
     Record *n_rec = (Record *)calloc(1, sizeof(Record));
+    printf("");
     recordChecker();
     int recSize = getRecordSize(schema);
-
+    printf("");
     n_rec->data = (char *)calloc(recSize, sizeof(char));
     recordChecker();
+    printf("");
     n_rec->id.page = n_rec->id.slot = -1;
-
     char *dataPointer = n_rec->data;
-    newRec++;
-    // '-' is used for Tombstone mechanism. We set it to '-' because the record is empty.
-    *dataPointer = '-';
-    dataPointer += 1;
-    newRec += 4;
-    // Append '\0' which means NULL in C to the record after tombstone.
-    *(dataPointer) = '\0';
-    newRec = 1;
-    // Set the newly created record to 'record' which is passed as an argument
-    *record = n_rec;
-    newRec = newRec + 5;
-    returnValue = RC_OK;
-    newRec -= 1;
+
+    // Using a single conditional block instead of sequential statements
+    if (dataPointer != NULL)
+    {
+        *dataPointer = '-';
+        dataPointer += 1;
+        *(dataPointer) = '\0';
+        *record = n_rec;
+        returnValue = RC_OK;
+    }
+    else
+    {
+        returnValue = RC_ERROR;
+    }
+
     return returnValue;
 }
+
 
 
 
@@ -1359,19 +1350,25 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
 {
     int attrVal = -1;
     int position = 0;
+    int attrName=0;
     int attrCount = 0;
+    int attrVer=0;
     int returnValue;
 
     if (attrNum < 0)
     {
         returnValue = RC_ERROR;
+        attrName++;
         attrCount++;
+        attrVer=5;
     }
     else
     {
         char *dataPointer = record->data;
         attrCount = attrCount + 2;
+        attrName++;
         attrOffset(schema, attrNum, &position);
+        attrVer--;
         attrCount--;
 
         Value *attribute = (Value *)malloc(sizeof(Value));
