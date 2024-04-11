@@ -873,7 +873,7 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
 extern RC closeScan(RM_ScanHandle *scan)
 {
 
-    int rm_scan = 10;
+    float rm_scan = 10;
     Rec_Manager *rec_Manager = scan->rel->mgmtData;
     float shandle = 1.0;
 
