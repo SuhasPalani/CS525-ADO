@@ -47,7 +47,7 @@ void copyPageFrames(PageFrame *dest, int index, PageFrame *src)
 }
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: writePageFrames()
 --> Description: This function copies the content from a page to a page frame.
 --> parameters used: BM_BufferPool *const bp,  PageFrame *page_f, int page_index
@@ -172,7 +172,7 @@ extern void LRU(BM_BufferPool *const bp, PageFrame *pf)
 }
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: LRU_K()
 --> parameters used: BM_BufferPool *const bp, PageFrame *pf
 -------------------------------------------------*/
@@ -301,7 +301,7 @@ extern RC initBufferPool(BM_BufferPool *const bp, const char *const pg_FName, co
 }
 
 /*-----------------------------------------------
--->Author: Rashmi Venkatesh Topannavar
+-->Author: Nishchal Gante Ravish
 --> Function: forceFlushPool()
 --> Description: --> This function writes all the dirty pages (modified pages whose dirtyBit = 1) to the disk.
 --> Parameters Used: BM_BufferPool *const bp
@@ -397,7 +397,7 @@ RestartLoop:
 }
 
 /*-----------------------------------------------
---> Author: Rashmi Venkatesh Topannavar
+--> Author: Nishchal Gante Ravish
 --> Function: forcePage()
 --> Description: --> This function writes the contents of the modified pages back to the page file on disk.
 --> Parameters Used: BM_BufferPool *const bp, BM_PageHandle *const pg
@@ -620,7 +620,7 @@ extern PageNumber *getFrameContents(BM_BufferPool *const bm)
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Nishchal Gante Ravish
 --> Function: getDirtyFlags()
 --> Description: --> The purpose of this function is to provide an array that conveys the state of dirty flags.
 				 --> If a page has been modified, the corresponding entry in the array is set to 'true,' otherwise, it is updated as 'false.'
@@ -680,7 +680,7 @@ extern bool *getDirtyFlags(BM_BufferPool *const bm)
 // }
 
 /*-----------------------------------------------
---> Author: Rashmi Venkatesh Topannavar
+--> Author: Nishchal Gante Ravish
 --> Function: getFixCounts()
 --> Description: --> This function will return an array containing the fix count of the page frame.
 --> Parameters Used: BM_BufferPool *const bm
