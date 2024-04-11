@@ -760,6 +760,8 @@ extern RC startScan(RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition)
     return RC_OK;
 }
 
+
+
 /*-----------------------------------------------
 -->Author: Nishchal Gante Ravish
 --> Function: next()
@@ -768,110 +770,274 @@ extern RC startScan(RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition)
 --> return type: Return code
 -------------------------------------------------*/
 
+
+
 extern RC next(RM_ScanHandle *scan, Record *rec)
+
+
 {
+
+
     Rec_Manager *scan_Manager = scan->mgmtData;
+
+
     int page_Count = 0;
+
+
     int slotCount;
+
+
     int recscan = 0;
+
+
 
     Rec_Manager *table_Manager = scan->rel->mgmtData;
 
+
+
     Value *output;
+
+
     int scan_Count = 1;
+
+
     int flagValue = true;
 
+
+
     Schema *schema = scan->rel->schema;
+
+
     page_Count--;
 
+
+
     while (scan_Manager->condition == NULL)
+
+
     {
+
+
         page_Count = 0;
+
+
         return RC_SCAN_CONDITION_NOT_FOUND;
     }
 
+
+
     output = (Value *)malloc(sizeof(Value));
 
+
+
     int tuple_Count = 0;
+
+
     slotCount = PAGE_SIZE / getRecordSize(schema);
 
+
+
     while (table_Manager->count_of_tuples == 0)
+
+
     {
+
+
         scan_Count = -1;
+
+
         return RC_RM_NO_MORE_TUPLES;
     }
 
+
+
     while (scan_Manager->count_for_scan <= table_Manager->count_of_tuples)
+
+
     {
+
+
         scan_Count--;
+
+
         // If all the tuples have been scanned, execute this block
+
+
         if (scan_Manager->count_for_scan <= 0)
+
+
         {
+
             if (flagValue)
+
+
             {
+
+
                 recordChecker();
+
+
                 scan_Manager->r_id.page = 1;
+
+
                 tuple_Count = page_Count;
+
             }
+
+
             scan_Manager->r_id.slot = 0;
+
+
             recordChecker();
         }
 
+
+
         else
         {
+
+
             scan_Manager->r_id.slot++;
 
+
+
             tuple_Count = page_Count;
+
+
             if (flagValue)
             {
+
+
                 if (scan_Manager->r_id.slot >= slotCount)
+
+
                 {
                     recordChecker();
+
+
                     scan_Manager->r_id.slot = 0;
+
+
                     scan_Manager->r_id.page++;
+
+
                     tuple_Count--;
                 }
+
+
                 page_Count++;
             }
+
+
             MAX_COUNT--;
         }
+
+
         pinPage(&table_Manager->buffer, &scan_Manager->pagefiles, scan_Manager->r_id.page);
+
+
         MAX_COUNT++;
+
+
         char *data = scan_Manager->pagefiles.data;
+
+
         recordChecker();
+
+
         data = data + (scan_Manager->r_id.slot * getRecordSize(schema));
+
+
         recscan++;
+
+
         rec->id.page = scan_Manager->r_id.page;
+
+
         rec->id.slot = scan_Manager->r_id.slot;
+
+
         recscan--;
+
+
         scan_Count = page_Count - 1;
+
+
         char *dataPointer = rec->data;
+
+
         recordChecker();
+
+
         page_Count--;
+
+
         *dataPointer = '-';
 
+
+
         memcpy(++dataPointer, data + 1, getRecordSize(schema) - 1);
+
+
         page_Count = -1;
+
+
         scan_Manager->count_for_scan++;
 
+
+
         evalExpr(rec, schema, scan_Manager->condition, &output);
+
+
         recordChecker();
+
+
         tuple_Count = tuple_Count - 1;
+
+
         while (output->v.boolV == TRUE)
+
+
         {
+
+
             unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
+
+
             scan_Count = scan_Count + 1;
+
+
             return RC_OK;
         }
+
+
     }
     recordChecker();
+
+
     unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
+
+
+
     scan_Manager->r_id.page = 1;
+
+
     tuple_Count--;
+
+
     scan_Manager->r_id.slot = 0;
+
+
     scan_Count = tuple_Count + 1;
+
+
     scan_Manager->count_for_scan = 0;
+
+
     recordChecker();
+
+
+    
 
     return RC_RM_NO_MORE_TUPLES;
 }
