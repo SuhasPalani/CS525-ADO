@@ -225,6 +225,9 @@ extern RC createTable(char *name, Schema *schema)
     return RC_ERROR;
 }
 
+
+
+
 /*-----------------------------------------------
 -->Author: Nishchal Gante Ravish
 --> Function: openTable()
@@ -233,10 +236,19 @@ extern RC createTable(char *name, Schema *schema)
 --> return type: Return Code
 -------------------------------------------------*/
 
+
+
+
 extern RC openTable(RM_TableData *rel, char *name)
+
+
 {
 
+
+
     int attributeCount, returnValue, i;
+
+
 
     SM_PageHandle pageHandle;
 
@@ -1061,6 +1073,8 @@ extern RC createRecord(Record **record, Schema *schema)
     return returnValue;
 }
 
+
+
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: attrOffset()
@@ -1069,10 +1083,17 @@ extern RC createRecord(Record **record, Schema *schema)
 --> return type: Return Code
 -------------------------------------------------*/
 
+
+
 RC attrOffset(Schema *schema, int attrNum, int *result)
 {
 
+
+
+
     *result = 1;
+
+
 
     if (attrNum < 0)
     {
