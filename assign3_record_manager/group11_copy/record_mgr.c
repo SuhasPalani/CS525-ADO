@@ -1037,7 +1037,7 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
     recordChecker();
 
 
-    
+
 
     return RC_RM_NO_MORE_TUPLES;
 }
@@ -1446,71 +1446,117 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
     return returnValue;
 }
 
+
+
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: setAttr()
---> Description: This function assigns a value to the attribute within the record based on the provided schema.
+--> Description: Used to assign a value to the attribute within the given record
 --> Parameters used: Record *record, Schema *schema, int attrNum, Value *value
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value)
-{
+
+
+extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
+
+
     int recordAttr = -1;
+
+
     int attrVal = 0;
+
+
     int result = RC_OK;
+
+
     int count = 0;
 
-    if (attrNum >= 0)
-    {
-        attrOffset(schema, attrNum, &attrVal);
-        char *pointer_d = record->data;
-        pointer_d += attrVal;
 
-        switch (schema->dataTypes[attrNum])
-        {
-        case DT_INT:
-            if (attrNum >= 0)
-            {
-                count = count + 1;
-                *(int *)pointer_d = value->v.intV;
-                pointer_d += sizeof(int);
-            }
-            break;
 
-        case DT_FLOAT:
-            if (attrNum >= 0)
-            {
-                recordChecker();
-                *(float *)pointer_d = value->v.floatV;
-                pointer_d += sizeof(float);
-            }
-            break;
+    if (attrNum < 0) {
 
-        case DT_STRING:
-            if (attrNum >= 0)
-            {
-                count = 3;
-                recordAttr++;
-                strncpy(pointer_d, value->v.stringV, schema->typeLength[attrNum]);
-                pointer_d += schema->typeLength[attrNum];
-            }
-            break;
 
-        case DT_BOOL:
-            if (attrNum >= 0)
-            {
-                count = count - 1;
-                *(bool *)pointer_d = value->v.boolV;
-                pointer_d += sizeof(bool);
-            }
-            break;
+        return result;
 
-        default:
-            recordChecker();
-            printf("Datatype not available\n");
-        }
+
     }
 
+    attrOffset(schema, attrNum, &attrVal);
+
+
+
+    char *pointer_d = record->data + attrVal;
+
+
+
+    switch (schema->dataTypes[attrNum]) {
+
+
+
+    case DT_INT:
+
+
+        *(int *)pointer_d = value->v.intV;
+
+
+        count++;
+
+
+        break;
+
+    case DT_FLOAT:
+
+
+        recordChecker();
+
+
+        *(float *)pointer_d = value->v.floatV;
+
+
+        break;
+
+    case DT_STRING:
+
+
+        strncpy(pointer_d, value->v.stringV, schema->typeLength[attrNum]);
+
+
+        count = 3;
+
+
+        recordAttr++;
+
+
+        break;
+
+    case DT_BOOL:
+
+
+        *(bool *)pointer_d = value->v.boolV;
+
+
+        count--;
+
+
+        break;
+
+    default:
+
+
+        recordChecker();
+
+
+        printf("Datatype not available\n");
+
+
+        break;
+    }
+
+
+
     return result;
+
+    
 }
+
