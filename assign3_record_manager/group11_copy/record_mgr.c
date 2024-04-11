@@ -1067,7 +1067,7 @@ extern RC freeSchema(Schema *schema)
 // ----------------------- DEALING WITH RECORDS AND ATTRIBUTE VALUES -------------------------------//
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Uday Venkatesha
 --> Function: createRecord()
 --> Description: This function creates a new record in the schema
 --> Parameters used: Record **newRecord, Schema *customSchema
@@ -1226,7 +1226,7 @@ extern RC freeRecord(Record *record)
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda, Ramyashree Raghunandan, Rashmi Venkatesh Topannavar
+-->Author: Uday Venkatesha
 --> Function: getAttr()
 --> Description: This function retrieves an attribute from the given record in the specified schema
 --> Parameters used: Record *record, Schema *schema, int attrNum, Value **attrValue
@@ -1326,7 +1326,7 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
 
 
 /*-----------------------------------------------
---> Author: Ramyashree Raghunandan
+--> Author: Nishchal Gante Ravish
 --> Function: setAttr()
 --> Description: This function assigns a value to the attribute within the record based on the provided schema.
 --> Parameters used: Record *record, Schema *schema, int attrNum, Value *value
