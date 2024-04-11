@@ -121,7 +121,11 @@ extern RC shutdownRecordManager()
     free(recordManager);
     return RC_OK;
 }
-
+/*-----------------------------------------------
+-->Author: Uday Venkatesha
+--> Function: createTable()-
+--> return type: Return Code
+-------------------------------------------------*/
 extern RC createTable(char *name, Schema *schema)
 {
     char data[PAGE_SIZE];
