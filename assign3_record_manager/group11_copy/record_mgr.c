@@ -38,6 +38,7 @@ Rec_Manager *table_Manager;
 // This function returns a free slot within a page
 int findFreeSlot(char *data, int recordSize)
 {
+    float sizedata=0;
     int index = -1, numberOfSlots;
     numberOfSlots = PAGE_SIZE / recordSize;
 
@@ -57,7 +58,7 @@ int findFreeSlot(char *data, int recordSize)
     default:
         return -1;
     }
-
+    sizedata++;
     return -1;
 }
 
@@ -87,11 +88,11 @@ extern RC initRecordManager(void *mgmtData)
 {
     // Initiliazing Storage Manager
     int return_value;
-    int i_dum=0;
+    int i_dum = 0;
     initStorageManager();
     i_dum += 1;
     return_value = RC_OK;
-    i_dum-=1;
+    i_dum -= 1;
     return return_value;
 }
 
@@ -109,7 +110,7 @@ extern RC shutdownRecordManager()
     int ret_value;
     int record = 1;
     ret_value = shutdownBufferPool(&recordManager->buffer);
-    int shutdown;
+    int shutdown = 0;
     if (ret_value == RC_ERROR)
     {
         shutdown = manager * record;
@@ -119,6 +120,7 @@ extern RC shutdownRecordManager()
     }
     shutdown--;
     free(recordManager);
+    shutdown++;
     return RC_OK;
 }
 /*-----------------------------------------------
@@ -223,6 +225,9 @@ extern RC createTable(char *name, Schema *schema)
     return RC_ERROR;
 }
 
+
+
+
 /*-----------------------------------------------
 -->Author: Nishchal Gante Ravish
 --> Function: openTable()
@@ -233,42 +238,41 @@ extern RC createTable(char *name, Schema *schema)
 
 
 
-extern RC openTable(RM_TableData *rel, char *name) {
+
+extern RC openTable(RM_TableData *rel, char *name)
+
+
+{
+
+
 
     int attributeCount, returnValue, i;
+
+
 
     SM_PageHandle pageHandle;
 
     // Assign a table name
 
-    rel->name = name; 
+    rel->name = name;
 
-
-    rel->mgmtData = recordManager; 
+    rel->mgmtData = recordManager;
 
     returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, 0);
 
-
-    if (returnValue != RC_OK) return returnValue;
-
-    
+    if (returnValue != RC_OK)
+        return returnValue;
 
     // Init table data
-    int tableData = 2; 
+    int tableData = 2;
 
+    pageHandle = (char *)recordManager->pagefiles.data;
 
-    pageHandle = (char *)recordManager->pagefiles.data; 
-
-
-    
     recordManager->count_of_tuples = *(int *)pageHandle;
-
 
     pageHandle += sizeof(int);
 
     recordManager->pages_free = *(int *)pageHandle;
-
-
 
     pageHandle += sizeof(int);
 
@@ -276,58 +280,40 @@ extern RC openTable(RM_TableData *rel, char *name) {
 
     pageHandle += sizeof(int);
 
+    tableData += attributeCount;
 
-    tableData += attributeCount; 
+    Schema *schema = (Schema *)malloc(sizeof(Schema));
 
-    Schema *schema = (Schema *)malloc(sizeof(Schema)); 
-
-
-    schema->numAttr = attributeCount; 
-
+    schema->numAttr = attributeCount;
 
     schema->attrNames = (char **)malloc(attributeCount * sizeof(char *));
 
-
     schema->dataTypes = (DataType *)malloc(attributeCount * sizeof(DataType));
-
 
     schema->typeLength = (int *)malloc(attributeCount * sizeof(int));
 
-
-
-
-    for (i = 0; i < attributeCount; ++i) {
-
+    for (i = 0; i < attributeCount; ++i)
+    {
 
         schema->attrNames[i] = (char *)malloc(SIZE_OF_ATTRIBUTE);
 
-
         strncpy(schema->attrNames[i], pageHandle, SIZE_OF_ATTRIBUTE);
-
 
         pageHandle += SIZE_OF_ATTRIBUTE;
 
-
         schema->dataTypes[i] = *(DataType *)pageHandle;
-
 
         pageHandle += sizeof(DataType);
 
-
         schema->typeLength[i] = *(int *)pageHandle;
-
 
         pageHandle += sizeof(int);
     }
 
-
-    rel->schema = schema; 
-
-
+    rel->schema = schema;
 
     returnValue = forcePage(&recordManager->buffer, &recordManager->pagefiles);
 
-    
     return (returnValue == RC_ERROR) ? returnValue : RC_OK;
 }
 
@@ -341,7 +327,7 @@ extern RC openTable(RM_TableData *rel, char *name) {
 
 extern RC closeTable(RM_TableData *rel)
 {
-    float relative;
+    float relative = 0;
     Rec_Manager *rMgr = (*rel).mgmtData;
     int result;
 
@@ -368,20 +354,19 @@ extern RC deleteTable(char *name)
 {
     int table_Count = 1;
     int return_value = destroyPageFile(name); // Assign directly from function
-    int i=10;
+    int i = 10;
 
     if (return_value == RC_ERROR)
     {
-        MAX_COUNT = table_Count; 
-        recordChecker(); 
-        i=i-2;
-        return return_value; 
+        MAX_COUNT = table_Count;
+        recordChecker();
+        i = i - 2;
+        return return_value;
     }
-    
+
     // If no error, proceed here
     return RC_OK; // Directly return RC_OK as no changes to return_value beyond this point
 }
-
 
 /*-----------------------------------------------
 -->Author: Nishchal Gante Ravish
@@ -391,23 +376,19 @@ extern RC deleteTable(char *name)
 --> return type: Integer
 -------------------------------------------------*/
 
+extern int getNumTuples(RM_TableData *rel)
+{
 
-extern int getNumTuples(RM_TableData *rel) {
-    
     Rec_Manager *recMgr = rel->mgmtData;
-    
-    
-    recordChecker(); 
 
-    int tuple_count = recMgr->count_of_tuples; 
+    recordChecker();
 
+    int tuple_count = recMgr->count_of_tuples;
 
-    recordChecker(); 
+    recordChecker();
 
- 
     return tuple_count;
 }
-
 
 // ******** RECORD FUNCTIONS ******** //
 
@@ -564,37 +545,42 @@ extern RC deleteRecord(RM_TableData *rel, RID id)
 
     char *data;
     int retValue;
-    int impVal=0;
+    int impVal = 0;
     int tableVal = 0;
 
     Rec_Manager *rMgr = (Rec_Manager *)rel->mgmtData;
-    impVal+=1;
+    impVal += 1;
     tableVal += 2;
     retValue = pinPage(&rMgr->buffer, &rMgr->pagefiles, id.page);
 
-        if (retValue == RC_ERROR) {
+    if (retValue == RC_ERROR)
+    {
         return RC_ERROR;
-    } else {
+    }
+    else
+    {
         rMgr->pages_free = id.page;
         data = rMgr->pagefiles.data;
         tableVal += 1;
-        impVal=5;
+        impVal = 5;
         data += (id.slot * getRecordSize(rel->schema));
         *data = '-';
-        tableVal == 0; // Assuming this is intentional to reset tableVal
+        tableVal = 0; // Assuming this is intentional to reset tableVal
         markDirty(&rMgr->buffer, &rMgr->pagefiles);
         tableVal++;
         impVal++;
         retValue = unpinPage(&rMgr->buffer, &rMgr->pagefiles);
         tableVal--;
 
-        if (retValue == RC_ERROR) {
+        if (retValue == RC_ERROR)
+        {
             return RC_ERROR;
-        } else {
+        }
+        else
+        {
             return RC_OK;
         }
     }
-
 }
 
 /*-----------------------------------------------
@@ -605,62 +591,48 @@ extern RC deleteRecord(RM_TableData *rel, RID id)
 --> return type: Return Code
 -------------------------------------------------*/
 
+extern RC updateRecord(RM_TableData *table, Record *updatedRecord)
+{
 
-
-extern RC updateRecord(RM_TableData *table, Record *updatedRecord) {
-    
     RC returnValue;
-
 
     Rec_Manager *recordManager = (Rec_Manager *)table->mgmtData;
 
-
-
     recordChecker();
-
-
 
     returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, updatedRecord->id.page);
 
-
-    if (returnValue != RC_OK) {
-
-
+    if (returnValue != RC_OK)
+    {
 
         return RC_ERROR;
     }
-
 
     char *recordPosition = recordManager->pagefiles.data;
 
     recordPosition += (updatedRecord->id.slot * getRecordSize(table->schema));
 
-
     *recordPosition = '+';
-
 
     memcpy(recordPosition + 1, updatedRecord->data + 1, getRecordSize(table->schema) - 1);
 
-
     returnValue = markDirty(&recordManager->buffer, &recordManager->pagefiles);
 
-
-    if (returnValue != RC_OK) {
+    if (returnValue != RC_OK)
+    {
         return RC_ERROR;
     }
 
-
     returnValue = unpinPage(&recordManager->buffer, &recordManager->pagefiles);
-
 
     return (returnValue == RC_ERROR) ? RC_ERROR : RC_OK;
 }
 
 /*-----------------------------------------------
--->Author: Arpitha Hebri Ravi Vokuda
+-->Author: Suhas Palani
 --> Function: getRecord()
 --> Description: The record is fetched and saved in rec after the getRecord function fetches it from the table using the supplied Record ID.
---> Parameters used: RM_TableData *table, RID recordID, Record *record
+--> Parameters used: RM_TableData *rel, RID id, Record *record
 --> return type: Return Code
 -------------------------------------------------*/
 
@@ -763,10 +735,9 @@ extern RC startScan(RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition)
 
     recordChecker();
     scanner--;
-    
 
     scan_Manager->r_id.page = 1;
-    scan_status+=1;
+    scan_status += 1;
     scan_Manager->r_id.slot = 0;
 
     printf("Initializing scan manager...\n");
@@ -777,126 +748,299 @@ extern RC startScan(RM_TableData *r, RM_ScanHandle *s_handle, Expr *condition)
     scan_Manager->condition = condition;
 
     table_Manager = r->mgmtData;
-    scan_status+=1;
+    scan_status += 1;
     recordChecker();
 
     table_Manager->count_of_tuples = SIZE_OF_ATTRIBUTE;
 
     s_handle->rel = r;
-    scan_status+=1;
+    scan_status += 1;
     scanCount++;
 
     return RC_OK;
 }
 
 
-extern RC next (RM_ScanHandle *scan, Record *rec)
-{	
-	Rec_Manager *scan_Manager = scan->mgmtData;
-	int page_Count = 0;
-	int slotCount;
-	
-	Rec_Manager *table_Manager = scan->rel->mgmtData;
-	
-	Value *output;
-	int scan_Count = 1;
-	int flagValue = true;
-	
-   	 Schema *schema = scan->rel->schema;
-	 page_Count--;
 
-	while (scan_Manager->condition == NULL)
-	{
-		page_Count = 0;
-		return RC_SCAN_CONDITION_NOT_FOUND;
-	}
-
-	output = (Value *) malloc(sizeof(Value));
-	
-	int tuple_Count = 0;
-	slotCount = PAGE_SIZE / getRecordSize(schema);
+/*-----------------------------------------------
+-->Author: Nishchal Gante Ravish
+--> Function: next()
+--> Description: This function retrieves the next tuple that satisfies the specified test expression.
+--> Parameters used: RM_ScanHandle *scan, Record *rec
+--> return type: Return code
+-------------------------------------------------*/
 
 
-	while (table_Manager->count_of_tuples == 0)
-	{
-		scan_Count = -1;
-		return RC_RM_NO_MORE_TUPLES;
-	}
 
-	while(scan_Manager->count_for_scan <= table_Manager->count_of_tuples)
-	{  
-		scan_Count--;
-		// If all the tuples have been scanned, execute this block
-		if (scan_Manager->count_for_scan <= 0)
-		{
-			if(flagValue){
-				recordChecker();
-				scan_Manager->r_id.page = 1;
-				tuple_Count = page_Count;
-			}
-			scan_Manager->r_id.slot = 0;
-			recordChecker();
-		}
-		
-		else
-		{
-			scan_Manager->r_id.slot++;
-			
-			tuple_Count = page_Count;
-			if(flagValue){
-				if(scan_Manager->r_id.slot >= slotCount)
-				{
-					recordChecker();
-					scan_Manager->r_id.slot = 0;
-					scan_Manager->r_id.page++;
-					tuple_Count--;
-				}
-				page_Count++;
+extern RC next(RM_ScanHandle *scan, Record *rec)
 
-			}
+
+{
+
+
+    Rec_Manager *scan_Manager = scan->mgmtData;
+
+
+    int page_Count = 0;
+
+
+    int slotCount;
+
+
+    int recscan = 0;
+
+
+
+    Rec_Manager *table_Manager = scan->rel->mgmtData;
+
+
+
+    Value *output;
+
+
+    int scan_Count = 1;
+
+
+    int flagValue = true;
+
+
+
+    Schema *schema = scan->rel->schema;
+
+
+    page_Count--;
+
+
+
+    while (scan_Manager->condition == NULL)
+
+
+    {
+
+
+        page_Count = 0;
+
+
+        return RC_SCAN_CONDITION_NOT_FOUND;
+    }
+
+
+
+    output = (Value *)malloc(sizeof(Value));
+
+
+
+    int tuple_Count = 0;
+
+
+    slotCount = PAGE_SIZE / getRecordSize(schema);
+
+
+
+    while (table_Manager->count_of_tuples == 0)
+
+
+    {
+
+
+        scan_Count = -1;
+
+
+        return RC_RM_NO_MORE_TUPLES;
+    }
+
+
+
+    while (scan_Manager->count_for_scan <= table_Manager->count_of_tuples)
+
+
+    {
+
+
+        scan_Count--;
+
+
+        // If all the tuples have been scanned, execute this block
+
+
+        if (scan_Manager->count_for_scan <= 0)
+
+
+        {
+
+            if (flagValue)
+
+
+            {
+
+
+                recordChecker();
+
+
+                scan_Manager->r_id.page = 1;
+
+
+                tuple_Count = page_Count;
+
+            }
+
+
+            scan_Manager->r_id.slot = 0;
+
+
+            recordChecker();
+        }
+
+
+
+        else
+        {
+
+
+            scan_Manager->r_id.slot++;
+
+
+
+            tuple_Count = page_Count;
+
+
+            if (flagValue)
+            {
+
+
+                if (scan_Manager->r_id.slot >= slotCount)
+
+
+                {
+                    recordChecker();
+
+
+                    scan_Manager->r_id.slot = 0;
+
+
+                    scan_Manager->r_id.page++;
+
+
+                    tuple_Count--;
+                }
+
+
+                page_Count++;
+            }
+
+
             MAX_COUNT--;
-		}
-		pinPage(&table_Manager->buffer, &scan_Manager->pagefiles, scan_Manager->r_id.page);
+        }
+
+
+        pinPage(&table_Manager->buffer, &scan_Manager->pagefiles, scan_Manager->r_id.page);
+
+
         MAX_COUNT++;
-		char *data = scan_Manager->pagefiles.data;
-		recordChecker();
-		data = data + (scan_Manager->r_id.slot * getRecordSize(schema));
-        printf("");
-		rec->id.page = scan_Manager->r_id.page;
-		rec->id.slot = scan_Manager->r_id.slot;
-        printf("");
-		scan_Count = page_Count-1;
-		char *dataPointer = rec->data;
-		recordChecker();
-		page_Count --;
-		*dataPointer = '-';
-		
-		memcpy(++dataPointer, data + 1, getRecordSize(schema) - 1);
-		page_Count = -1;
-		scan_Manager->count_for_scan++;
-		
-		evalExpr(rec, schema, scan_Manager->condition, &output); 
-		recordChecker();
-		tuple_Count = tuple_Count-1;
-		while (output->v.boolV == TRUE)
-		{
-			unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);		
-			scan_Count = scan_Count+1;
-			return RC_OK;
-		}
-	}
-	recordChecker();
-	unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
-	scan_Manager->r_id.page = 1;
-	tuple_Count--;
-	scan_Manager->r_id.slot = 0;
-	scan_Count = tuple_Count +1;
-	scan_Manager->count_for_scan = 0;
-	recordChecker();
 
-	return RC_RM_NO_MORE_TUPLES;
+
+        char *data = scan_Manager->pagefiles.data;
+
+
+        recordChecker();
+
+
+        data = data + (scan_Manager->r_id.slot * getRecordSize(schema));
+
+
+        recscan++;
+
+
+        rec->id.page = scan_Manager->r_id.page;
+
+
+        rec->id.slot = scan_Manager->r_id.slot;
+
+
+        recscan--;
+
+
+        scan_Count = page_Count - 1;
+
+
+        char *dataPointer = rec->data;
+
+
+        recordChecker();
+
+
+        page_Count--;
+
+
+        *dataPointer = '-';
+
+
+
+        memcpy(++dataPointer, data + 1, getRecordSize(schema) - 1);
+
+
+        page_Count = -1;
+
+
+        scan_Manager->count_for_scan++;
+
+
+
+        evalExpr(rec, schema, scan_Manager->condition, &output);
+
+
+        recordChecker();
+
+
+        tuple_Count = tuple_Count - 1;
+
+
+        while (output->v.boolV == TRUE)
+
+
+        {
+
+
+            unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
+
+
+            scan_Count = scan_Count + 1;
+
+
+            return RC_OK;
+        }
+
+
+    }
+    recordChecker();
+
+
+    unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
+
+
+
+    scan_Manager->r_id.page = 1;
+
+
+    tuple_Count--;
+
+
+    scan_Manager->r_id.slot = 0;
+
+
+    scan_Count = tuple_Count + 1;
+
+
+    scan_Manager->count_for_scan = 0;
+
+
+    recordChecker();
+
+
+
+
+    return RC_RM_NO_MORE_TUPLES;
 }
-
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -909,7 +1053,7 @@ extern RC next (RM_ScanHandle *scan, Record *rec)
 extern RC closeScan(RM_ScanHandle *scan)
 {
 
-    int rm_scan = 10;
+    float rm_scan = 10;
     Rec_Manager *rec_Manager = scan->rel->mgmtData;
     float shandle = 1.0;
 
@@ -963,12 +1107,12 @@ extern int getRecordSize(Schema *customSchema)
     if (customSchema == NULL || customSchema->numAttr <= 0)
     {
         printf("Invalid schema or no attributes found.\n");
-        return -1; 
+        return -1;
     }
 
     do
     {
-        int currentDataType = customSchema->dataTypes[currentIndex - 1]; 
+        int currentDataType = customSchema->dataTypes[currentIndex - 1];
         if (currentDataType == DT_INT)
             totalSize += sizeof(int);
         else if (currentDataType == DT_FLOAT)
@@ -983,10 +1127,9 @@ extern int getRecordSize(Schema *customSchema)
         currentIndex++;
     } while (currentIndex <= customSchema->numAttr);
 
-    totalSize++; 
+    totalSize++;
     return totalSize;
 }
-
 
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
@@ -996,39 +1139,32 @@ extern int getRecordSize(Schema *customSchema)
 --> return type: Return Code
 -------------------------------------------------*/
 
+extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys)
+{
 
-
-extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys) {
-
-
-    if (keySize <= 0) {
-
+    if (keySize <= 0)
+    {
 
         return NULL;
     }
 
     Schema *schema = (Schema *)calloc(1, sizeof(Schema));
 
-
-    if (!schema) {
+    if (!schema)
+    {
 
         return NULL;
     }
 
     schema->numAttr = numAttr;
 
-
     schema->attrNames = attrNames;
-
 
     schema->dataTypes = dataTypes;
 
-
     schema->typeLength = typeLength;
 
-
     schema->keySize = keySize;
-
 
     schema->keyAttrs = keys;
 
@@ -1036,7 +1172,6 @@ extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, 
 
     return schema;
 }
-
 
 /*-----------------------------------------------
 -->Author: Suhas palani
@@ -1095,7 +1230,7 @@ extern RC createRecord(Record **record, Schema *schema)
     newRec += 4;
     // Append '\0' which means NULL in C to the record after tombstone.
     *(dataPointer) = '\0';
-    newRec == 1;
+    newRec = 1;
     // Set the newly created record to 'record' which is passed as an argument
     *record = n_rec;
     newRec = newRec + 5;
@@ -1103,6 +1238,8 @@ extern RC createRecord(Record **record, Schema *schema)
     newRec -= 1;
     return returnValue;
 }
+
+
 
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
@@ -1112,80 +1249,65 @@ extern RC createRecord(Record **record, Schema *schema)
 --> return type: Return Code
 -------------------------------------------------*/
 
-RC attrOffset(Schema *schema, int attrNum, int *result) {
+
+
+RC attrOffset(Schema *schema, int attrNum, int *result)
+{
+
+
 
 
     *result = 1;
-    
 
-    if (attrNum < 0) {
 
+
+    if (attrNum < 0)
+    {
 
         return RC_RM_UNKOWN_DATATYPE;
-
-
     }
 
-    for (int k = 0; k < attrNum; ++k) {
+    for (int k = 0; k < attrNum; ++k)
+    {
 
+        switch (schema->dataTypes[k])
+        {
 
-        switch (schema->dataTypes[k]) {
+        case DT_STRING:
 
+            *result += schema->typeLength[k];
 
-            case DT_STRING:
+            break;
 
+        case DT_INT:
 
-                *result += schema->typeLength[k];
+            *result += sizeof(int);
 
+            break;
 
-                break;
+        case DT_BOOL:
 
+            *result += sizeof(bool);
 
-            case DT_INT:
+            break;
 
+        case DT_FLOAT:
 
-                *result += sizeof(int);
+            *result += sizeof(float);
 
+            break;
 
-                break;
+        default:
 
+            printf("Incorrect DataType\n");
 
-            case DT_BOOL:
-
-
-                *result += sizeof(bool);
-
-
-                break;
-
-
-            case DT_FLOAT:
-
-
-                *result += sizeof(float);
-
-
-                break;
-
-
-            default:
-
-
-                printf("Incorrect DataType\n");
-
-
-                return RC_RM_UNKOWN_DATATYPE;
-
-
+            return RC_RM_UNKOWN_DATATYPE;
         }
         recordChecker();
     }
 
-
-
     return RC_OK;
 }
-
 
 /*-----------------------------------------------
 -->Author: Suhas Palani
@@ -1256,7 +1378,7 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
 
         dataPointer += position;
         attrCount++;
-
+        attrVal--;
         if (position != 0)
         {
             schema->dataTypes[attrNum] = (attrNum != 1) ? schema->dataTypes[attrNum] : 1;
@@ -1325,65 +1447,115 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
 }
 
 
+
 /*-----------------------------------------------
 --> Author: Nishchal Gante Ravish
 --> Function: setAttr()
---> Description: This function assigns a value to the attribute within the record based on the provided schema.
+--> Description: Used to assign a value to the attribute within the given record
 --> Parameters used: Record *record, Schema *schema, int attrNum, Value *value
 --> return type: Return Code
 -------------------------------------------------*/
 
-extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value)
-{
-    int recordAttr = -1;
-    int attrVal = 0;
-    int result = RC_OK;
-    int count=0;
 
-    if (attrNum >= 0) {
-        attrOffset(schema, attrNum, &attrVal);
-        char *pointer_d = record->data;
-        pointer_d += attrVal;
 
-        switch (schema->dataTypes[attrNum]) {
-            case DT_INT:
-                if (attrNum >= 0) {
-                    count=count+1;
-                    *(int *)pointer_d = value->v.intV;
-                    pointer_d += sizeof(int);
-                }
-                break;
+extern RC setAttr(Record *record, Schema *schema, int attrNum, Value *value) {
 
-            case DT_FLOAT:
-                if (attrNum >= 0) {
-                    recordChecker();
-                    *(float *)pointer_d = value->v.floatV;
-                    pointer_d += sizeof(float);
-                }
-                break;
 
-            case DT_STRING:
-                if (attrNum >= 0) {
-                    count=3;
-                    strncpy(pointer_d, value->v.stringV, schema->typeLength[attrNum]);
-                    pointer_d += schema->typeLength[attrNum];
-                }
-                break;
+    int rattr = -1;
 
-            case DT_BOOL:
-                if (attrNum >= 0) {
-                    count=count-1;
-                    *(bool *)pointer_d = value->v.boolV;
-                    pointer_d += sizeof(bool);
-                }
-                break;
 
-            default:
-                recordChecker();
-                printf("Datatype not available\n");
-        }
+    int atval = 0;
+
+
+    int rslt = RC_OK;
+
+
+    int val_c = 0;
+
+
+
+    if (attrNum < 0) {
+
+
+        return rslt;
+
+
     }
 
-    return result;
-}
+    attrOffset(schema, attrNum, &atval);
 
+
+
+    char *pointer_d = record->data + atval;
+
+
+
+    switch (schema->dataTypes[attrNum]) {
+
+
+
+    case DT_INT:
+
+
+        *(int *)pointer_d = value->v.intV;
+
+
+        val_c++;
+
+
+        break;
+
+    case DT_FLOAT:
+
+
+        recordChecker();
+
+
+        *(float *)pointer_d = value->v.floatV;
+
+
+        break;
+
+    case DT_STRING:
+
+
+        strncpy(pointer_d, value->v.stringV, schema->typeLength[attrNum]);
+
+
+        val_c = 3;
+
+
+        rattr++;
+
+
+        break;
+
+    case DT_BOOL:
+
+
+        *(bool *)pointer_d = value->v.boolV;
+
+
+        val_c--;
+
+
+        break;
+
+    default:
+
+
+        recordChecker();
+
+
+        printf("Datatype not available\n");
+
+
+        break;
+    }
+
+
+
+    return rslt;
+
+
+}
