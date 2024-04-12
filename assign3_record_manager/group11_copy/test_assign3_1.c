@@ -88,7 +88,7 @@ main (void)
 	return 0;
 }
 
-// ******************** 
+// ************************************************************ 
 void
 testRecords (void)
 {
@@ -127,7 +127,7 @@ testRecords (void)
 	TEST_DONE();
 }
 
-// ******************** 
+// ************************************************************ 
 void
 testCreateTableAndInsert (void)
 {
@@ -261,13 +261,13 @@ testMultipleScans(void)
 
 	free(rids);
 	free(table);
-// ** Added Summer 2021
+// ****** Added Summer 2021
     freeRecord(r);
     free(sc1);
     free(sc2);
     freeExpr(se1);
     freeSchema(schema);
-// ***
+// *******
 	TEST_DONE();
 }
 
@@ -362,11 +362,11 @@ testUpdateTable (void)
 	TEST_CHECK(shutdownRecordManager());
 
 	free(table);
-// *** Added Summer 2021
+// ***** Added Summer 2021
     free(rids);
     freeRecord(r);
     freeSchema(schema);
- // ***
+ // *****
 	TEST_DONE();
 }
 
@@ -438,10 +438,10 @@ testInsertManyRecords(void)
 
 	freeRecord(r);
 	free(table);
-// *** Added Summer 2021
+// ***** Added Summer 2021
     free(rids);
     freeSchema(schema);
-// ***
+// *****
 	TEST_DONE();
 }
 
@@ -526,10 +526,10 @@ void testScans (void)
 
 	free(table);
 	free(sc);
-// *** Added Summer 2021
+// ***** Added Summer 2021
     free(rids);
     freeSchema(schema);
-// ***
+// *****
 	freeExpr(sel);
 	TEST_DONE();
 }
