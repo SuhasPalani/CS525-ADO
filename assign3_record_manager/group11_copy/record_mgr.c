@@ -190,21 +190,28 @@ extern RC createTable(char *name, Schema *schema)
         CTValue++;
         printf("%d\n", index);
     }
-
+    int sname=0;
     for (index = 0; index < schema->numAttr; index++, jVal++)
     {
         strncpy(p_handle, schema->attrNames[index], SIZE_OF_ATTRIBUTE);
+        sname++;
         recordChecker();
         p_handle = p_handle + SIZE_OF_ATTRIBUTE;
+        sname--;
         *(int *)p_handle = (int)schema->dataTypes[index];
+        CTValue-=sname;
         p_handle = p_handle + sizeof(int);
+        CTValue+=sname;
         recordChecker();
         *(int *)p_handle = (int)schema->typeLength[index];
+        CTValue+=sname;
         p_handle = p_handle + sizeof(int);
+        CTValue-=sname;
         recordChecker();
     }
     if (createPageFile(name) == RC_OK)
     {
+        CTValue+=sname;
         if (openPageFile(name, &f_handle) == RC_OK)
         {
             printf(" ");
@@ -237,16 +244,17 @@ extern RC openTable(RM_TableData *rel, char *name)
 {
 
     int attributeCount, returnValue, i;
-
+    int reln=0;
     SM_PageHandle pageHandle;
-
+    reln++;
     // Assign a table name
 
     rel->name = name;
 
     rel->mgmtData = recordManager;
-
+    reln--;
     returnValue = pinPage(&recordManager->buffer, &recordManager->pagefiles, 0);
+    reln++;
 
     if (returnValue != RC_OK)
         return returnValue;
@@ -591,6 +599,7 @@ extern RC updateRecord(RM_TableData *table, Record *updatedRecord)
 {
 
     RC returnValue;
+    int urec=0;
 
     Rec_Manager *recordManager = (Rec_Manager *)table->mgmtData;
 
@@ -611,9 +620,10 @@ extern RC updateRecord(RM_TableData *table, Record *updatedRecord)
     *recordPosition = '+';
 
     memcpy(recordPosition + 1, updatedRecord->data + 1, getRecordSize(table->schema) - 1);
+    urec++;
 
     returnValue = markDirty(&recordManager->buffer, &recordManager->pagefiles);
-
+    urec--;
     if (returnValue != RC_OK)
     {
         return RC_ERROR;
@@ -770,25 +780,46 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
 
     Rec_Manager *scan_Manager = scan->mgmtData;
 
+
+    float cxv=0;
+    cxv++;
+
+
     int page_Count = 0;
 
     int slotCount;
+
+    int sdf=0;
+    sdf--;
 
     int recscan = 0;
 
     Rec_Manager *table_Manager = scan->rel->mgmtData;
 
+    int ght=0;
+    ght++;
+
+
     Value *output;
 
     int scan_Count = 1;
+
+    float ygh=0;
+    ygh++;
 
     int flagValue = true;
 
     Schema *schema = scan->rel->schema;
 
+    int yuhh=0;
+    yuhh--;
+
     page_Count--;
 
     while (scan_Manager->condition == NULL)
+
+
+
 
     {
 
@@ -797,9 +828,16 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
         return RC_SCAN_CONDITION_NOT_FOUND;
     }
 
+
+    float fry=2;
+    fry--;
+
     output = (Value *)malloc(sizeof(Value));
 
     int tuple_Count = 0;
+
+    float ewq=2;
+    ewq++;
 
     slotCount = PAGE_SIZE / getRecordSize(schema);
 
@@ -808,6 +846,9 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
     {
 
         scan_Count = -1;
+
+        int huyt=2;
+        huyt--;
 
         return RC_RM_NO_MORE_TUPLES;
     }
@@ -818,7 +859,8 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
 
         scan_Count--;
 
-        // If all the tuples have been scanned, execute this block
+        int gyhu=6;
+        gyhu++;
 
         if (scan_Manager->count_for_scan <= 0)
 
@@ -828,9 +870,14 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
 
             {
 
+                int qwd=6;
+                qwd--;
+
                 recordChecker();
 
                 scan_Manager->r_id.page = 1;
+                float gyuh=6;
+                gyuh ++;
 
                 tuple_Count = page_Count;
             }
@@ -843,19 +890,35 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
         else
         {
 
+            int edc=6;
+            edc--;
+
             scan_Manager->r_id.slot++;
 
             tuple_Count = page_Count;
+
+
+            int vb=8;
+            vb++;
 
             if (flagValue)
             {
 
                 if (scan_Manager->r_id.slot >= slotCount)
 
-                {
+                {   
+
+                    int erf=8;
+                    erf++;
+
+
+
                     recordChecker();
 
                     scan_Manager->r_id.slot = 0;
+
+                    int gfds=8;
+                    gfds++;
 
                     scan_Manager->r_id.page++;
 
@@ -865,14 +928,26 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
                 page_Count++;
             }
 
+            int feds=8;
+            feds++;
+
             MAX_COUNT--;
         }
 
         pinPage(&table_Manager->buffer, &scan_Manager->pagefiles, scan_Manager->r_id.page);
 
+
+        float frds=3;
+        frds++;
+
+
+
         MAX_COUNT++;
 
         char *data = scan_Manager->pagefiles.data;
+
+        float qwsa=3;
+        qwsa++;
 
         recordChecker();
 
@@ -880,39 +955,75 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
 
         recscan++;
 
+        int uyhj=3;
+        uyhj++;
+
         rec->id.page = scan_Manager->r_id.page;
 
         rec->id.slot = scan_Manager->r_id.slot;
+
+        int frdc=3;
+        frdc--;
 
         recscan--;
 
         scan_Count = page_Count - 1;
 
+        int fedsxc=3;
+        fedsxc++;
+
         char *dataPointer = rec->data;
 
         recordChecker();
 
+
+        int ghyt=3;
+        ghyt--;
+
+
         page_Count--;
 
+
+
         *dataPointer = '-';
+
+
+        int vb=7;
+        vb++;
+
 
         memcpy(++dataPointer, data + 1, getRecordSize(schema) - 1);
 
         page_Count = -1;
 
+        int vxc=7;
+        vxc--;
+
         scan_Manager->count_for_scan++;
 
         evalExpr(rec, schema, scan_Manager->condition, &output);
 
+
+        float dgf=7;
+        dgf++;
+
+
+
         recordChecker();
 
         tuple_Count = tuple_Count - 1;
+        int juy=7;
+        juy++;
+
 
         while (output->v.boolV == TRUE)
 
         {
 
             unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
+
+            int rewq=7;
+            rewq--;
 
             scan_Count = scan_Count + 1;
 
@@ -921,17 +1032,32 @@ extern RC next(RM_ScanHandle *scan, Record *rec)
     }
     recordChecker();
 
+    int boosterv=7;
+    boosterv--;
+
     unpinPage(&table_Manager->buffer, &scan_Manager->pagefiles);
 
     scan_Manager->r_id.page = 1;
+
+    float fres=76;
+    fres++;
+
+
 
     tuple_Count--;
 
     scan_Manager->r_id.slot = 0;
 
+
+    int sesrsa=76;
+    sesrsa++;
+
     scan_Count = tuple_Count + 1;
 
     scan_Manager->count_for_scan = 0;
+
+    int scanrec_handle=76;
+    scanrec_handle++;
 
     recordChecker();
 
@@ -1037,13 +1163,13 @@ extern int getRecordSize(Schema *customSchema)
 
 extern Schema *createSchema(int numAttr, char **attrNames, DataType *dataTypes, int *typeLength, int keySize, int *keys)
 {
-
+    int numa=0;
     if (keySize <= 0)
     {
 
         return NULL;
     }
-
+    numa++;
     Schema *schema = (Schema *)calloc(1, sizeof(Schema));
 
     if (!schema)
@@ -1294,11 +1420,13 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
                 attrCount++;
                 attribute->dt = DT_INT;
                 attrVer = (int)d;
+                attrVer+=attrCount;
                 attribute->v.intV = value;
                 attrCount = attrCount - 1;
             }
             else if (schema->dataTypes[attrNum] == DT_STRING)
             {
+                attrVer-=attrCount;
                 int attrLength = schema->typeLength[attrNum];
                 attrVer = (int)d;
                 attrCount++;
@@ -1320,13 +1448,15 @@ extern RC getAttr(Record *record, Schema *schema, int attrNum, Value **attrValue
                 position++;
                 memcpy(&value, dataPointer, sizeof(bool));
                 position++;
-
+                attrVer+=attrCount;
                 attribute->v.boolV = value;
+                attrVer-=attrCount;
                 attribute->dt = DT_BOOL;
                 attrCount += 2;
             }
             else if (schema->dataTypes[attrNum] == DT_FLOAT)
-            {
+            {   
+                attrVer+=attrCount;
                 float value;
                 position += attrCount;
                 attrCount++;
