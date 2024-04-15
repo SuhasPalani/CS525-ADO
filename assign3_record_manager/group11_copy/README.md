@@ -56,8 +56,8 @@ Values of a data type are represented using the `Value` struct. The binary repre
 
 ## Functions by Authors
 - Suhas Palani-findFreeSlot, shutdownRecordManager, closeTable, insertRecord, getRecord, closeScan, freeSchema, freeRecord
-- Nishchal Gante Ravish-#write here
-- Uday Venkatesh- #write here
+- Nishchal Gante Ravish-cleanupAndReturnOK, openTable, getNumTuples, updateRecord, next, *createSchema, attrOffset, setAttr
+- Uday Venkatesh- getAttr, createRecord, getRecordSize, startScan, deleteRecord, deleteTable, createTable, initRecordManager
 
 ## Compiling and Running the Project
 
