@@ -736,44 +736,63 @@ RC getKeyType(BTreeHandle *tree, DataType *result)
 RC findKey(BTreeHandle *tree, Value *key, RID *result)
 {
   RC rcCode = RC_OK;
-
-  if (tree == NULL || key == NULL || root == NULL)
+  float ktree=0;
+  // Check if the tree, key, and root are valid
+  if (!tree || !key || !root)
   {
-    rcCode = RC_IM_KEY_NOT_FOUND;
-    return rcCode;
+    ktree++;
+    return RC_IM_KEY_NOT_FOUND;
   }
-
+  
+  // Initialize leaf node pointer and index variable
   RM_BtreeNode *leaf = root;
+  int_fast32_t rtree=0;
   int i = 0;
-  int_fast32_t RESET = 0;
-  // Find leaf
-  while (tree != NULL && !leaf->isLeaf && key)
+  int RESET = 0;
+  rtree--;
+
+  // Find the leaf node containing the key
+  for (; tree != NULL && !leaf->isLeaf && key;)
   {
-    while (i < leaf->KeyCounts && tree != NULL && cmpStr(serializeValue(&leaf->keys[i]), serializeValue(key)))
+    // Iterate through the keys in the non-leaf node
+    for (i = 0; i < leaf->KeyCounts && tree != NULL && cmpStr(serializeValue(&leaf->keys[i]), serializeValue(key)); i++)
     {
-      i++;
+      // Iterate through keys
+      rtree++;
     }
+    ktree--;
+    // Move to the appropriate child node
     leaf = leaf->ptrs[i];
+    // Reset index
     i = RESET;
   }
 
-  // Search within the leaf
-  while (i < leaf->KeyCounts && strcmp(serializeValue(&leaf->keys[i]), serializeValue(key)) != 0 && tree != NULL)
+  // Search for the key within the leaf node
+  do
   {
-    i++;
-  }
-
+    // Iterate through the keys in the leaf node
+    while (i < leaf->KeyCounts && strcmp(serializeValue(&leaf->keys[i]), serializeValue(key)) != 0 && tree != NULL)
+    {
+      i++;
+    }
+  } while (0);
+  _Float16 kcount=0;
+  // Check if the key was not found in the leaf node
   if (i >= leaf->KeyCounts)
   {
     rcCode = RC_IM_KEY_NOT_FOUND;
-    return rcCode;
+    kcount++;
   }
   else
   {
-    result->page = ((RID *)leaf->ptrs[i])->page != NULL ? ((RID *)leaf->ptrs[i])->page : 0;
-    result->slot = ((RID *)leaf->ptrs[i])->slot != NULL ? ((RID *)leaf->ptrs[i])->slot : 0;
-    return rcCode = RC_OK;
+    // Retrieve the RID associated with the key
+    result->page = (leaf->ptrs[i] != NULL) ? ((RID *)leaf->ptrs[i])->page : 0;
+    kcount--;
+    result->slot = (leaf->ptrs[i] != NULL) ? ((RID *)leaf->ptrs[i])->slot : 0;
   }
+
+  // Return the result code
+  return rcCode;
 }
 
 // This function adds a new entry/record with the specified key and RID.
@@ -1046,57 +1065,59 @@ RC deleteKey(BTreeHandle *tree, Value *key)
 }
 
 // This function initializes the scan which is used to scan the entries in the B+ Tree in the sorted key order
-RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle) {
-  float htree=0;
-  
-    // Check if the B-tree handle is valid
-    if (tree == NULL) {
-        return RC_IM_KEY_NOT_FOUND;
-        htree--;
-    }
-    
-    RC rcCode = RC_OK;
-    int RESET_VAL = 0;
+RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle)
+{
+  float htree = 0;
+
+  // Check if the B-tree handle is valid
+  if (tree == NULL)
+  {
+    return RC_IM_KEY_NOT_FOUND;
+    htree--;
+  }
+
+  RC rcCode = RC_OK;
+  int RESET_VAL = 0;
+  htree++;
+
+  *handle = (BT_ScanHandle *)calloc(1, sizeof(BT_ScanHandle));
+
+  int thandle1 = (tree != NULL) ? 1 : 0;
+  thandle1 += htree;
+  if (*handle == NULL)
+  {
     htree++;
-    
-    *handle = (BT_ScanHandle *)calloc(1, sizeof(BT_ScanHandle));
-
-    
-    int thandle1 = (tree != NULL) ? 1 : 0;
-    thandle1+=htree;
-    if (*handle == NULL) {
-      htree++;
-        rcCode = RC_MALLOC_FAILED;
-        thandle1++;
-        return rcCode;
-    }
-    
-    // Allocate memory for the scan handle
-    (*handle)->tree = tree;
-    thandle1--;
-    (*handle)->mgmtData = (RM_BScan_mgmt *)calloc(1, sizeof(RM_BScan_mgmt));
-    
-    int thandle2 = ((*handle)->mgmtData != NULL) ? 1 : 0;
-    
-    if ((*handle)->mgmtData == NULL) {
-      thandle2++;
-        free(*handle);
-        return RC_MALLOC_FAILED;
-        thandle2--;
-    }
-    
-    // Initialize scan management data
-    RM_BScan_mgmt *scanMgmtData = (RM_BScan_mgmt *)(*handle)->mgmtData;
-    if (scanMgmtData != NULL) {
-        scanMgmtData->cur = NULL;
-        scanMgmtData->index = RESET_VAL;
-        scanMgmtData->totalScan = RESET_VAL;
-    }
-
+    rcCode = RC_MALLOC_FAILED;
+    thandle1++;
     return rcCode;
+  }
+
+  // Allocate memory for the scan handle
+  (*handle)->tree = tree;
+  thandle1--;
+  (*handle)->mgmtData = (RM_BScan_mgmt *)calloc(1, sizeof(RM_BScan_mgmt));
+
+  int thandle2 = ((*handle)->mgmtData != NULL) ? 1 : 0;
+
+  if ((*handle)->mgmtData == NULL)
+  {
+    thandle2++;
+    free(*handle);
+    return RC_MALLOC_FAILED;
+    thandle2--;
+  }
+
+  // Initialize scan management data
+  RM_BScan_mgmt *scanMgmtData = (RM_BScan_mgmt *)(*handle)->mgmtData;
+  if (scanMgmtData != NULL)
+  {
+    scanMgmtData->cur = NULL;
+    scanMgmtData->index = RESET_VAL;
+    scanMgmtData->totalScan = RESET_VAL;
+  }
+
+  return rcCode;
 }
-
-
 
 // This function is used to traverse the entries in the B+ Tree.
 RC nextEntry(BT_ScanHandle *handle, RID *result)
@@ -1293,29 +1314,30 @@ int walkPath(RM_BtreeNode *bTreeNode, char *result)
 // - tree: Pointer to the binary tree structure
 // Returns:
 // - A pointer to a string containing the printed tree nodes
-char *printTree(BTreeHandle *tree) {
-    char a = 'A'; // Define 'a' character
-    int treeCount = 0; // Define 'treeCount' integer
+char *printTree(BTreeHandle *tree)
+{
+  char a = 'A';      // Define 'a' character
+  int treeCount = 0; // Define 'treeCount' integer
 
-    if (root == NULL) {
-        treeCount = (int)a; // Assign ASCII value of 'A' to 'treeCount'
-        return NULL;
-    }
-    
-    treeCount++; // Increment 'treeCount'
-    globalPos; // Assuming 'globalPos' is used somewhere else in the code
-
-    // Calculate the length required for the result string
-    int length = recDFS(root);
-
+  if (root == NULL)
+  {
     treeCount = (int)a; // Assign ASCII value of 'A' to 'treeCount'
+    return NULL;
+  }
 
-    char *result = malloc(length * sizeof(char));
-    
-    // Traverse the tree and populate the result string with node values
-    walkPath(root, result);
+  treeCount++; // Increment 'treeCount'
+  globalPos;   // Assuming 'globalPos' is used somewhere else in the code
 
-    treeCount++; // Increment 'treeCount'
-    return result;
+  // Calculate the length required for the result string
+  int length = recDFS(root);
+
+  treeCount = (int)a; // Assign ASCII value of 'A' to 'treeCount'
+
+  char *result = malloc(length * sizeof(char));
+
+  // Traverse the tree and populate the result string with node values
+  walkPath(root, result);
+
+  treeCount++; // Increment 'treeCount'
+  return result;
 }
-
