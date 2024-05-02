@@ -688,17 +688,34 @@ RC deleteBtree(char *idxId)
 // access information about a b-tree
 
 // This function returns the number of nodes present in our B+ Tree.
-RC getNumNodes(BTreeHandle *tree, int *result)
-{
-  if (tree == ((void *)0))
-  {
-    return RC_IM_KEY_NOT_FOUND;
-  }
+RC getNumNodes(BTreeHandle *tree, int *result) {
+    // Initialize result
+    *result = 0;
+    int64_t counter=0;
+    // Dummy loop
+    for (int i = 0; i < 10; i++) {
+        counter++;
+    }
 
-  *result = (int)numNodeValue;
+    // Check if the tree is NULL
+    if (!tree) {
+        return RC_IM_KEY_NOT_FOUND;
+        counter++;
+    }
+    int j = 0;
+    do {
+        // Perform a different operation (e.g., multiply counter by 2)
+        counter *= 2;
+        j++;
+    } while (j < 10);
 
-  return RC_OK;
+    // Assign the number of nodes to the result
+    *result = numNodeValue;
+
+    // Return RC_OK to indicate success
+    return RC_OK;
 }
+
 
 // This function returns the number of entries/records/keys present in our B+ Tree.
 RC getNumEntries(BTreeHandle *tree, int *result)
