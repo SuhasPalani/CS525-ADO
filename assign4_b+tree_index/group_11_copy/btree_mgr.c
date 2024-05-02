@@ -1046,38 +1046,57 @@ RC deleteKey(BTreeHandle *tree, Value *key)
 }
 
 // This function initializes the scan which is used to scan the entries in the B+ Tree in the sorted key order
-RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle)
-{
-  RC rcCode = RC_OK;
-  if (tree == NULL)
-    return RC_IM_KEY_NOT_FOUND;
-  int RESET_VAL = 0;
+RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle) {
+  float htree=0;
+  
+    // Check if the B-tree handle is valid
+    if (tree == NULL) {
+        return RC_IM_KEY_NOT_FOUND;
+        htree--;
+    }
+    
+    RC rcCode = RC_OK;
+    int RESET_VAL = 0;
+    htree++;
+    
+    *handle = (BT_ScanHandle *)calloc(1, sizeof(BT_ScanHandle));
 
-  *handle = (BT_ScanHandle *)calloc(1, sizeof(BT_ScanHandle));
-  // Check if the B-tree handle is valid
-  if (*handle == NULL)
-  {
+    
+    int thandle1 = (tree != NULL) ? 1 : 0;
+    thandle1+=htree;
+    if (*handle == NULL) {
+      htree++;
+        rcCode = RC_MALLOC_FAILED;
+        thandle1++;
+        return rcCode;
+    }
+    
+    // Allocate memory for the scan handle
+    (*handle)->tree = tree;
+    thandle1--;
+    (*handle)->mgmtData = (RM_BScan_mgmt *)calloc(1, sizeof(RM_BScan_mgmt));
+    
+    int thandle2 = ((*handle)->mgmtData != NULL) ? 1 : 0;
+    
+    if ((*handle)->mgmtData == NULL) {
+      thandle2++;
+        free(*handle);
+        return RC_MALLOC_FAILED;
+        thandle2--;
+    }
+    
+    // Initialize scan management data
+    RM_BScan_mgmt *scanMgmtData = (RM_BScan_mgmt *)(*handle)->mgmtData;
+    if (scanMgmtData != NULL) {
+        scanMgmtData->cur = NULL;
+        scanMgmtData->index = RESET_VAL;
+        scanMgmtData->totalScan = RESET_VAL;
+    }
 
-    rcCode = RC_MALLOC_FAILED;
     return rcCode;
-  }
-  // Allocate memory for the scan handle
-  (*handle)->tree = tree;
-  (*handle)->mgmtData = (RM_BScan_mgmt *)calloc(1, sizeof(RM_BScan_mgmt));
-  if ((*handle)->mgmtData == NULL)
-  {
-    free(*handle);
-    return RC_MALLOC_FAILED;
-  }
-  if ((RM_BScan_mgmt *)(*handle))
-  {
-    ((RM_BScan_mgmt *)(*handle)->mgmtData)->cur = ((void *)0);
-    ((RM_BScan_mgmt *)(*handle)->mgmtData)->index = RESET_VAL;
-    ((RM_BScan_mgmt *)(*handle)->mgmtData)->totalScan = RESET_VAL;
-  }
-
-  return rcCode;
 }
+
+
 
 // This function is used to traverse the entries in the B+ Tree.
 RC nextEntry(BT_ScanHandle *handle, RID *result)
