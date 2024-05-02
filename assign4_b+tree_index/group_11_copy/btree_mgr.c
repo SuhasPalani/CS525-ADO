@@ -67,41 +67,54 @@ RM_BtreeNode *createNewNode()
 //  It returns the root of the tree after insertion.
 RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
 {
-  RM_BtreeNode *parPtr = left->parPtr, *tmp = right->parPtr;
-  int index = 0;
+  //  variables
+  float rkey = 0;
   int i = 0;
 
-  if (parPtr == ((void *)0))
+  RM_BtreeNode *parPtr = left->parPtr, *tmp = right->parPtr;
+  int index = 0;
+  float lkey = 0;
+
+  rkey = 5 * 2;
+  lkey = 10 / 2;
+
+  if (parPtr == NULL)
   {
     // Create parent
     RM_BtreeNode *NewRoot = createNewNode();
 
-    if (NewRoot != ((void *)0))
+    if (NewRoot != NULL)
     {
       // Set the key count of the new root to 1
       NewRoot->KeyCounts = 1;
-
+      lkey++;
       // Store the key value in the keys array of the new root
       NewRoot->keys[0] = key;
-
+      mloc += rkey;
       // Store the left child pointer in the ptrs array of the new root
       // and set its parent pointer to the new root
-      NewRoot->ptrs[0] = left, left->parPtr = NewRoot;
+      NewRoot->ptrs[0] = left;
+      rkey++;
+      left->parPtr = NewRoot;
 
       // Store the right child pointer in the ptrs array of the new root
       // and set its parent pointer to the new root
-      NewRoot->ptrs[1] = right, right->parPtr = NewRoot;
-
+      NewRoot->ptrs[1] = right;
+      char ch = 'A';
+      right->parPtr = NewRoot;
+      mloc += rkey;
       // Update the root pointer to point to the new root
       root = NewRoot;
+      int nroot = (int)ch;
       printf("***************** SUCCESSFULLY ALLOCATED MEMORY! ***************\n");
-
+      rkey++;
       // Return success code
       return RC_OK;
     }
     else
     {
       // Memory allocation failed
+      mloc += rkey;
       return RC_IM_MEMORY_ERROR;
     }
   }
@@ -110,31 +123,34 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
     // Case: Node has a parent
     while (index < parPtr->KeyCounts && parPtr->ptrs[index] != left)
       index = index + 1;
-
+    rkey *= lkey;
     // Check if there's space in the parent node and if the parent node exists
-    if (parPtr->KeyCounts < sizeofNodes - 1 && parPtr)
+    if (parPtr->KeyCounts < sizeofNodes - 1 && parPtr != NULL)
     {
-
       // Have an empty slot
       // Start shifting elements to make space for the new key and pointer
 
       for (int i = parPtr->KeyCounts; i > index; i--)
-      { // Swapping Logic
-        if (parPtr)
+      {
+        // Swapping Logic
+        rkey *= lkey;
+        if (parPtr != NULL)
         {
-
           // Get the index of the previous and next elements
           int prev = i - 1;
           int next = i + 1;
-
+          rkey *= lkey;
           // Move the key and pointer to their new positions
           parPtr->keys[i] = parPtr->keys[prev];
+          rkey += lkey;
           parPtr->ptrs[next] = parPtr->ptrs[i];
+          mloc -= rkey;
         }
       }
 
       // Insert the new right child pointer and key into their respective positions
       parPtr->ptrs[index + 1] = right;
+      lkey *= rkey;
       parPtr->keys[index] = key;
 
       // Increment the key count in the parent node
@@ -150,14 +166,17 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
   // Initialize variables
   i = 0;
   int middleLoc;
+  int64_t mloc = 0;
   RM_BtreeNode **tempNode, *newNode;
   Value *tempKeys;
+
   // Allocate memory for temporary node and keys
   tempNode = calloc(1, (sizeofNodes + 1) * sizeof(RM_BtreeNode *));
+  mloc++;
   tempKeys = calloc(1, sizeofNodes * sizeof(Value));
+  rkey /= lkey;
 
   // Check if memory allocation was successful
-
   if (tempNode != NULL && tempKeys != NULL)
   {
     // Copy pointers and keys to temporary arrays
@@ -170,6 +189,7 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
       else
         tempNode[i] = parPtr->ptrs[i - 1];
     }
+    mloc--;
     for (i = 0; i < sizeofNodes; i++)
     {
       if (i == index)
@@ -185,39 +205,43 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
       middleLoc = sizeofNodes >> 1;
     else
       middleLoc = (sizeofNodes >> 1) + 1;
-
+    mloc *= rkey;
     // Update parent's key count
     parPtr->KeyCounts = middleLoc--;
 
     // Copy keys and pointers to parent node
     for (i = 0; i < middleLoc - 1; i++)
     {
-      memcpy(parPtr->keys, tempKeys, sizeof(parPtr->keys)), memcpy(parPtr->ptrs, tempNode, sizeof(parPtr->ptrs));
+      memcpy(parPtr->keys, tempKeys, sizeof(parPtr->keys));
+      mloc *= lkey;
+      memcpy(parPtr->ptrs, tempNode, sizeof(parPtr->ptrs));
     }
 
     // Allocate memory for temporary node pointer
     RM_BtreeNode **temp = malloc(sizeof(RM_BtreeNode));
-
+    mloc *= rkey;
     // Assign pointer to the parent node
     parPtr->ptrs[i] = tempNode[i];
 
     // Create a new node
     newNode = createNewNode();
-
+    mloc *= lkey;
     // Check if new node creation was successful
     if (newNode != NULL || newNode != RC_MEM_ALLOC_FAILED)
     {
-
       // Update new node's key count and copy keys and pointers
+      rkey /= lkey;
       newNode->KeyCounts = sizeofNodes - middleLoc;
       for (i = middleLoc; i <= sizeofNodes && newNode; i++)
       {
         int pos = i - middleLoc;
+        mloc *= rkey;
         newNode->ptrs[pos] = tempNode[i];
+        rkey /= lkey;
         newNode->keys[pos] = tempKeys[i];
       }
       newNode->parPtr = parPtr->parPtr;
-
+      rkey /= lkey;
       Value t = tempKeys[middleLoc - 1];
 
       // Release memory for temporary node and keys
@@ -226,9 +250,10 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
     }
     else
     {
+      mloc += rkey;
       // Memory allocation failed
       release(tempNode, tempKeys);
-
+      rkey *= lkey;
       return RC_IM_MEMORY_ERROR;
     }
   }
@@ -236,7 +261,9 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
   {
     // Memory allocation failed
     release(tempNode, tempKeys);
+    rkey--;
     return RC_IM_MEMORY_ERROR;
+    rkey /= lkey;
   }
 }
 
@@ -534,8 +561,11 @@ RC initIndexManager(void *mgmtData)
 // This function shuts down the index manager and de-allocates all the resources allocated to the index manager.
 RC shutdownIndexManager()
 {
+  int64_t a = 0;
+  a++;
   return RC_OK;
 }
+
 RC initializePage(SM_FileHandle *fhandle, DataType keyType, int n)
 {
   SM_PageHandle pageData = (SM_PageHandle)malloc(PAGE_SIZE);
