@@ -90,7 +90,7 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
       lkey++;
       // Store the key value in the keys array of the new root
       NewRoot->keys[0] = key;
-      mloc += rkey;
+      lkey+= index;
       // Store the left child pointer in the ptrs array of the new root
       // and set its parent pointer to the new root
       NewRoot->ptrs[0] = left;
@@ -102,7 +102,7 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
       NewRoot->ptrs[1] = right;
       char ch = 'A';
       right->parPtr = NewRoot;
-      mloc += rkey;
+      lkey-= index;
       // Update the root pointer to point to the new root
       root = NewRoot;
       int nroot = (int)ch;
@@ -114,7 +114,7 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
     else
     {
       // Memory allocation failed
-      mloc += rkey;
+      lkey*= index;
       return RC_IM_MEMORY_ERROR;
     }
   }
@@ -144,7 +144,7 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
           parPtr->keys[i] = parPtr->keys[prev];
           rkey += lkey;
           parPtr->ptrs[next] = parPtr->ptrs[i];
-          mloc -= rkey;
+          rkey+= index;
         }
       }
 
