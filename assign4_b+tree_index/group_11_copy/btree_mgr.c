@@ -865,6 +865,7 @@ RC findKey(BTreeHandle *tree, Value *key, RID *result)
     // Iterate through the keys in the leaf node
     while (i < leaf->KeyCounts && strcmp(serializeValue(&leaf->keys[i]), serializeValue(key)) != 0 && tree != NULL)
     {
+      ktree++;
       i++;
     }
   } while (0);
