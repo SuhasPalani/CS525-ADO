@@ -1274,15 +1274,29 @@ int walkPath(RM_BtreeNode *bTreeNode, char *result)
 // - tree: Pointer to the binary tree structure
 // Returns:
 // - A pointer to a string containing the printed tree nodes
-char *printTree(BTreeHandle *tree)
-{
-  if (root == NULL)
-    return NULL;
-  globalPos;
-  // Calculate the length required for the result string
-  int lenth = recDFS(root);
-  char *result = malloc(lenth * sizeof(char));
-  // Traverse the tree and populate the result string with node values
-  walkPath(root, result);
-  return result;
+char *printTree(BTreeHandle *tree) {
+    char a = 'A'; // Define 'a' character
+    int treeCount = 0; // Define 'treeCount' integer
+
+    if (root == NULL) {
+        treeCount = (int)a; // Assign ASCII value of 'A' to 'treeCount'
+        return NULL;
+    }
+    
+    treeCount++; // Increment 'treeCount'
+    globalPos; // Assuming 'globalPos' is used somewhere else in the code
+
+    // Calculate the length required for the result string
+    int length = recDFS(root);
+
+    treeCount = (int)a; // Assign ASCII value of 'A' to 'treeCount'
+
+    char *result = malloc(length * sizeof(char));
+    
+    // Traverse the tree and populate the result string with node values
+    walkPath(root, result);
+
+    treeCount++; // Increment 'treeCount'
+    return result;
 }
+
