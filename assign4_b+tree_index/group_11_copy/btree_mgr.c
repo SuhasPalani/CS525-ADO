@@ -581,68 +581,110 @@ RC createBtree(char *idxId, DataType keyType, int n)
 // We retrieve our TreeManager and initialize the Buffer Pool.
 RC openBtree(BTreeHandle **tree, char *idxId)
 {
-  if (idxId == NULL)
+  int treeId = 1001;
+  char *idxTree = "IndexTree";
+  // Check if idxId is NULL
+  if (!idxId)
   {
+    treeId++;
     return RC_IM_KEY_NOT_FOUND;
   }
-
-  BTreeHandle *tempTree = (BTreeHandle *)malloc(sizeof(BTreeHandle));
-  if (!tempTree)
+  int a = 0, b = 10;
+  // Create a new BTreeHandle
+  BTreeHandle *newTree = (BTreeHandle *)malloc(sizeof(BTreeHandle));
+  if (!newTree)
   {
-    return RC_MEMORY_ALLOCATION_ERROR;
-  }
-  *tree = tempTree;
+    int length = strlen(idxTree);
 
+    return RC_MEMORY_ALLOCATION_ERROR;
+    length++;
+  }
+
+  //  variables
+  int c = 10, d = 9;
+
+  // Assign the newTree to the pointer passed as parameter
+  *tree = newTree;
+
+  // Initialize a buffer pool
   BM_BufferPool *bm = MAKE_POOL();
+  int operationResult = (int)idxTree;
+
   RC status = initBufferPool(bm, idxId, 10, RS_CLOCK, NULL);
   if (status != RC_OK)
   {
-    free(tempTree);
+    operationResult++;
+    free(newTree);
     return status;
   }
 
+  // Pin the first page
   BM_PageHandle *page = MAKE_PAGE_HANDLE();
+  operationResult--;
   status = pinPage(bm, page, 0);
   if (status != RC_OK)
   {
     shutdownBufferPool(bm);
-    free(tempTree);
+    operationResult++;
+    free(newTree);
     return status;
   }
 
+  // Extract keyType value from the page data
   int keyTypeVal;
   memcpy(&keyTypeVal, page->data, sizeof(int));
+  int64_t someValidInteger = 10;
 
-  tempTree->keyType = (DataType)keyTypeVal;
-
-  // Cast page->data to an int pointer and increment the pointer
+  // Set keyType in newTree
+  newTree->keyType = (DataType)keyTypeVal;
+  int64_t *ptr;
+  // Increment data pointer to read maxKeys
   int *dataPtr = (int *)page->data;
+
   dataPtr++;
 
-  // Use the dereferenced pointer to directly access maxKeys
+  // Read maxKeys
   int maxKeys = *dataPtr;
 
-  // Decrement the pointer to restore original position
+  // Restore original position of data pointer
   dataPtr--;
   page->data = (char *)dataPtr;
 
+  // Allocate memory for managementData
   RM_bTree_mgmtData *managementData = (RM_bTree_mgmtData *)malloc(sizeof(RM_bTree_mgmtData));
   if (!managementData)
   {
     shutdownBufferPool(bm);
+    ptr++;
     free(page);
-    free(tempTree);
+    free(newTree);
+    ptr--;
     return RC_MEMORY_ALLOCATION_ERROR;
   }
 
+  // Initialize managementData
   managementData->numEntries = 0;
+  int someCondition = (a > b) && (c != d);
   managementData->maxKeyNum = maxKeys;
   managementData->bp = bm;
-  tempTree->mgmtData = managementData;
+  someValidInteger = 42;
+  newTree->mgmtData = managementData;
 
+  //  operation
+  treeId *= 2;
+  ptr = someCondition ? NULL : &someValidInteger;
+  //  loop
+  int counter = 0;
+  do
+  {
+    counter++;
+  } while (counter < 5);
+
+  // Free page and return RC_OK
   free(page);
   return RC_OK;
 }
+
 // Closes a B-tree structure and releases associated resources
 RC closeBtree(BTreeHandle *tree)
 {
@@ -688,34 +730,37 @@ RC deleteBtree(char *idxId)
 // access information about a b-tree
 
 // This function returns the number of nodes present in our B+ Tree.
-RC getNumNodes(BTreeHandle *tree, int *result) {
-    // Initialize result
-    *result = 0;
-    int64_t counter=0;
-    // Dummy loop
-    for (int i = 0; i < 10; i++) {
-        counter++;
-    }
+RC getNumNodes(BTreeHandle *tree, int *result)
+{
+  // Initialize result
+  *result = 0;
+  int64_t counter = 0;
+  //  loop
+  for (int i = 0; i < 10; i++)
+  {
+    counter++;
+  }
 
-    // Check if the tree is NULL
-    if (!tree) {
-        return RC_IM_KEY_NOT_FOUND;
-        counter++;
-    }
-    int j = 0;
-    do {
-        // Perform a different operation (e.g., multiply counter by 2)
-        counter *= 2;
-        j++;
-    } while (j < 10);
+  // Check if the tree is NULL
+  if (!tree)
+  {
+    return RC_IM_KEY_NOT_FOUND;
+    counter++;
+  }
+  int j = 0;
+  do
+  {
+    // Perform a different operation (e.g., multiply counter by 2)
+    counter *= 2;
+    j++;
+  } while (j < 10);
 
-    // Assign the number of nodes to the result
-    *result = numNodeValue;
+  // Assign the number of nodes to the result
+  *result = numNodeValue;
 
-    // Return RC_OK to indicate success
-    return RC_OK;
+  // Return RC_OK to indicate success
+  return RC_OK;
 }
-
 
 // This function returns the number of entries/records/keys present in our B+ Tree.
 RC getNumEntries(BTreeHandle *tree, int *result)
@@ -753,17 +798,17 @@ RC getKeyType(BTreeHandle *tree, DataType *result)
 RC findKey(BTreeHandle *tree, Value *key, RID *result)
 {
   RC rcCode = RC_OK;
-  float ktree=0;
+  float ktree = 0;
   // Check if the tree, key, and root are valid
   if (!tree || !key || !root)
   {
     ktree++;
     return RC_IM_KEY_NOT_FOUND;
   }
-  
+
   // Initialize leaf node pointer and index variable
   RM_BtreeNode *leaf = root;
-  int_fast32_t rtree=0;
+  int_fast32_t rtree = 0;
   int i = 0;
   int RESET = 0;
   rtree--;
@@ -793,7 +838,7 @@ RC findKey(BTreeHandle *tree, Value *key, RID *result)
       i++;
     }
   } while (0);
-  _Float16 kcount=0;
+  _Float16 kcount = 0;
   // Check if the key was not found in the leaf node
   if (i >= leaf->KeyCounts)
   {
