@@ -1065,6 +1065,7 @@ RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle) {
     int thandle1 = (tree != NULL) ? 1 : 0;
     thandle1+=htree;
     if (*handle == NULL) {
+      htree++;
         rcCode = RC_MALLOC_FAILED;
         thandle1++;
         return rcCode;
