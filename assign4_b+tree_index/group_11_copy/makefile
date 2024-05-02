@@ -9,7 +9,7 @@ test_assign1: test_assign4_1.c storage_mgr.c dberror.c buffer_mgr.c buffer_mgr_s
 
 .PHONY: clean
 clean:
-	rm -f test_assign1 *.o result.txt 
+	rm -f test_assign1 *.o result.txt testidx
 
 run:
 	./test_assign1
