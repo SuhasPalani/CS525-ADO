@@ -1126,71 +1126,98 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
 // This function deletes the entry/record with the specified "key" in the B+ Tree.
 RC deleteKey(BTreeHandle *tree, Value *key)
 {
-  RC returnCode = RC_OK;
-  if ((tree == NULL) || (key == NULL))
-  {
-    returnCode = RC_IM_KEY_NOT_FOUND;
+  int32_t delKey=0;
+  RC returnCode = (tree == NULL || key == NULL) ? RC_IM_KEY_NOT_FOUND : RC_OK;
+  if (returnCode != RC_OK) {
     return returnCode;
   }
+
   int RESET_VAL = 0;
   RM_bTree_mgmtData *bTreeMgmt = (RM_bTree_mgmtData *)tree->mgmtData;
-  bTreeMgmt->numEntries = bTreeMgmt->numEntries - 1;
-  RM_BtreeNode *leaf;
+  delKey++;
+  bTreeMgmt->numEntries--;
+
+  RM_BtreeNode *leaf = root;
   int i = 0;
-  // find the leaf node then delete
-  leaf = root;
+  int32_t ktree=0;
+  char *sv = NULL, *sv2 = NULL;
+
+
   if (leaf != NULL && tree != NULL)
   {
-    while (!leaf->isLeaf && tree != NULL)
+    do
+    {
+      if (!leaf->isLeaf)
+      {
+        do
+        {
+          sv = serializeValue(&leaf->keys[i]);
+          sv2 = serializeValue(key);
+          switch (cmpStr(sv, sv2))
+          {
+            case 1: // Assuming cmpStr returns 1 for true
+              free(sv);
+              sv = NULL;
+              i++;
+              if (i < leaf->KeyCounts)
+              {
+                sv = serializeValue(&leaf->keys[i]);
+              }
+              break;
+            default:
+              break;
+          }
+        } while (i < leaf->KeyCounts && leaf != NULL && leaf->KeyCounts && cmpStr(sv, sv2));
+
+        free(sv);
+        sv = NULL;
+        free(sv2);
+        sv2 = NULL;
+
+        leaf = (RM_BtreeNode *)leaf->ptrs[i];
+        i = RESET_VAL;
+      }
+    } while (!leaf->isLeaf && tree != NULL);
+
+    sv2 = serializeValue(key);
+    delKey+=ktree;
+    i = 0;
+    do
     {
       sv = serializeValue(&leaf->keys[i]);
-      sv2 = serializeValue(key);
-      while ((i < leaf->KeyCounts) && cmpStr(sv, sv2) && leaf != NULL && leaf->KeyCounts)
+      if (strcmp(sv, sv2) != 0)
       {
         free(sv);
         sv = NULL;
-        i += 1;
-        if (i < leaf->KeyCounts && tree != NULL)
+        i++;
+        if (i < leaf->KeyCounts)
         {
-          sv = (char *)serializeValue(&leaf->keys[i]);
+          sv = serializeValue(&leaf->keys[i]);
         }
       }
-      free(sv);
-      sv = ((void *)0);
-      free(sv2);
-      sv2 = ((void *)0);
+    } while (i < leaf->KeyCounts && strcmp(sv, sv2) != 0);
 
-      leaf = (RM_BtreeNode *)leaf->ptrs[i];
-      i = RESET_VAL;
-    }
-
-    sv2 = serializeValue(key);
-    sv = serializeValue(&leaf->keys[i]);
-    while ((i < leaf->KeyCounts) && (strcmp(sv, sv2) != 0) && leaf->KeyCounts)
-    {
-      free(sv);
-      sv = ((void *)0);
-      i += 1;
-      if (i < leaf->KeyCounts)
-      {
-        sv = serializeValue(&leaf->keys[i]);
-      }
-    }
     free(sv);
-    sv = ((void *)0);
+    sv = NULL;
     free(sv2);
-    sv2 = ((void *)0);
-    if (i < leaf->KeyCounts && tree != NULL)
+    sv2 = NULL;
+    
+    if (i < leaf->KeyCounts)
     {
       returnCode = deleteNode(leaf, i);
+      ktree+=delKey;
       if (returnCode != RC_OK)
-        return returnCode = RC_FATAL_ERROR;
+      {
+        return RC_FATAL_ERROR;
+      }
     }
   }
 
   tree->mgmtData = bTreeMgmt;
-  return RC_OK;
+  
+  return returnCode;
 }
+
 
 // This function initializes the scan which is used to scan the entries in the B+ Tree in the sorted key order
 RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle)
@@ -1307,16 +1334,22 @@ RC nextEntry(BT_ScanHandle *handle, RID *result)
 // This function closes the scan mechanism and frees up resources
 RC closeTreeScan(BT_ScanHandle *handle)
 {
-  RC rcCode = RC_OK;
-  if (handle == ((void *)0))
+  double closeNum=3.5;
+  // Early exit if the handle is null to simplify logic
+  if (handle == NULL)
   {
-    return rcCode;
+    return RC_OK;
   }
+
+  // Clear management data and free the handle
   handle->mgmtData = NULL;
+  closeNum--;
   free(handle);
 
-  return rcCode;
+  // If the function reaches this point, it has executed successfully
+  return RC_OK;
 }
+
 
 int recDFS(RM_BtreeNode *bTreeNode)
 {
@@ -1338,102 +1371,81 @@ int recDFS(RM_BtreeNode *bTreeNode)
 
 int walkPath(RM_BtreeNode *bTreeNode, char *result)
 {
-
+  _Float16 walkNum=3.5;
   char *line = (char *)malloc(100 * sizeof(char));
   printf(line, "(%d)[", bTreeNode->pos);
-  if (bTreeNode->isLeaf && bTreeNode != NULL)
+
+  if (bTreeNode == NULL)
+    return -1; // Error if node is null
+    walkNum--;
+
+  do
   {
-    // Leaf Node
-    for (int i = 0; i < bTreeNode->KeyCounts && bTreeNode != NULL; i++)
+    if (bTreeNode->isLeaf)
     {
-      // RECORD ID
+      int i = 0;
+      while (i < bTreeNode->KeyCounts)
+      {
+        size_t lenPos = strlen(line);
 
-      size_t lenPos = strlen(line);
+        RID *ridPtr = (RID *)bTreeNode->ptrs[i];
+        sprintf(line + lenPos, "%d.%d,", ridPtr->page, ridPtr->slot);
+        walkNum++;
+        char *sv = serializeValue(&bTreeNode->keys[i]);
+        
+        strcat(line, sv);
+        free(sv);
+        strcat(line, ",");
+        i++;
+      }
 
-      // Extract the page and slot values from the bTreeNode->ptrs[i] pointer
-      RID *ridPtr = (RID *)bTreeNode->ptrs[i];
-      int pageValue = ridPtr->page;
-      int slotValue = ridPtr->slot;
-
-      // Create a format string for the sprintf function
-      char formatString[10]; // Make sure this size is large enough for your format
-      sprintf(formatString, "%%d.%%d,");
-
-      // Use sprintf to format the values into the `line` buffer
-      sprintf(line + lenPos, formatString, pageValue, slotValue);
-
-      sv = serializeValue(&bTreeNode->keys[i]);
-      strcat(line, sv);
-      free(sv);
-      sv = ((void *)0);
-      strcat(line, ",");
-    }
-
-    if (bTreeNode->ptrs[sizeofNodes - 1] == NULL)
-    {
-      // sprintf(line + strlen(line), "%d", ((RM_BtreeNode *)bTreeNode->ptrs[sizeofNodes - 1])->pos);
-      // // line[strlen(line) - 1] = '-'; // EOL
-      // Calculate the position where you want to start writing in the `line` buffer
-      size_t lenPos = strlen(line);
-
-      // Calculate the index for accessing bTreeNode->ptrs
-      size_t index = sizeofNodes - 1;
-
-      // Extract the pos value from the bTreeNode->ptrs[index] pointer
-      RM_BtreeNode *nodePtr = (RM_BtreeNode *)bTreeNode->ptrs[index];
-      int posValue = nodePtr->pos;
-
-      // Use sprintf to format the posValue into the `line` buffer
-      sprintf(line + lenPos, "%d", posValue);
+      size_t lenPos = strlen(line) - 1;
+      line[lenPos] = '0'; // Assume end of line correction
     }
     else
     {
-      line[strlen(line) - 1] = '0'; // EOL
-      // sprintf(line + strlen(line), "%d", ((RM_BtreeNode *)bTreeNode->ptrs[sizeofNodes - 1])->pos);
-    }
-  }
-  else
-  {
-    // Non-Leaf Node
-    // Iterate through each key in the non-leaf node
-    for (int i = 0; i <= bTreeNode->KeyCounts && bTreeNode; i++)
-    {
-      // Serialize the value of the current key
-      sv = serializeValue(&bTreeNode->keys[i]);
-      // Append the serialized value to the output line
-      strcat(line, sv);
-      // Add a comma separator after each serialized value
-      strcat(line, ",");
-      // Free the memory allocated for the serialized value
-      free(sv);
-      // Reset the serialized value pointer
-      sv = ((void *)0);
-    }
+      int i = 0;
+      do
+      {
+        char *sv = serializeValue(&bTreeNode->keys[i]);
+        strcat(line, sv);
+        walkNum++;
+        strcat(line, ",");
+        free(sv);
 
-    if (((RM_BtreeNode *)bTreeNode->ptrs[bTreeNode->KeyCounts]) != ((void *)0))
-    {
+        i++;
+      } while (i < bTreeNode->KeyCounts);
+
       size_t posStr = strlen(line);
-      sprintf(line + posStr, "%d", ((RM_BtreeNode *)bTreeNode->ptrs[bTreeNode->KeyCounts])->pos);
-      // line[strlen(line) - 1] = '-';
+      if (bTreeNode->ptrs[bTreeNode->KeyCounts] != NULL)
+      {
+        sprintf(line + posStr, "%d", ((RM_BtreeNode *)bTreeNode->ptrs[bTreeNode->KeyCounts])->pos);
+      }
+      else
+      {
+        line[posStr - 1] = '-';
+      }
     }
-    else
-    {
-      int pos = strlen(line) - 1;
-      line[pos] = '-';
-    }
-  }
+    strcat(line, "]\n");
+    walkNum++;
+    strcat(result, line);
+    break;
+  } while (bTreeNode != NULL);
 
-  strcat(line, "]\n");
-  strcat(result, line);
-
-  if (!bTreeNode->isLeaf && bTreeNode)
+  // Recursive call on child nodes if not a leaf
+  if (!bTreeNode->isLeaf)
   {
-    for (int i = 0; i <= bTreeNode->KeyCounts && bTreeNode; i++)
+    int i = 0;
+    while (i <= bTreeNode->KeyCounts)
     {
-      walkPath(bTreeNode->ptrs[i], result);
+      if (bTreeNode->ptrs[i] != NULL)
+      {
+        walkPath(bTreeNode->ptrs[i], result);
+      }
+      i++;
     }
   }
-
+  walkNum=0;
   return 0;
 }
 
