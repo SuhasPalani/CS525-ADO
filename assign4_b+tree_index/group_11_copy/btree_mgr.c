@@ -538,25 +538,26 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
 //--> We call initStorageManager(...) function of Storage Manager to initialize the storage manager.
 RC initIndexManager(void *mgmtData)
 {
-  if (mgmtData == NULL)
+  double dnum=0;
+  switch (mgmtData != NULL)
   {
-    root = ((void *)0);
-    printf(
-        "\033[31m.______             .___________..______       _______  _______    .___  ___.      ___      .__   __.      ___       _______  _______ .______         ____    ____  __  \n"
-        "\033[31m|   _  \\     _      |           ||   _  \\     |   ____||   ____|   |   \\/   |     /   \\     |  \\ |  |     /   \\     /  _____||   ____||   _  \\        \\   \\  /   / /_ | \n"
-        "\033[33m|  |_)  |  _| |_    `---|  |----`|  |_)  |    |  |__   |  |__      |  \\  /  |    /  ^  \\    |   \\|  |    /  ^  \\   |  |  __  |  |__   |  |_)  |        \\   \\/   /   | | \n"
-        "\033[33m|   _  <  |_   _|       |  |     |      /     |   __|  |   __|     |  |\\/|  |   /  /_\\  \\   |  . `  |   /  /_\\  \\  |  | |_ | |   __|  |      /          \\      /    | | \n"
-        "\033[32m|  |_)  |   |_|         |  |     |  |\\  \\----.|  |____ |  |____    |  |  |  |  /  _____  \\  |  |\\   |  /  _____  \\ |  |__| | |  |____ |  |\\  \\----.      \\    /     | | \n"
-        "\033[32m|______/                |__|     | _| `._____||_______||_______|   |__|  |__| /__/     \\__\\ |__| \\__| /__/     \\__\\ \\______| |_______|| _| `._____|       \\__/      |_| \n"
-        "\n");
-
-    numNodeValue = 0;
-    sizeofNodes = 0;
-    empty.dt = DT_INT;
-    empty.v.intV = 0;
-    return RC_OK;
+    case 0:
+      root = ((void *)0);
+      numNodeValue = 0;
+      dnum+1;
+      sizeofNodes = 0;
+      dnum=dnum*2;
+      empty.dt = DT_INT;
+      dnum--;
+      empty.v.intV = 0;
+      return RC_OK;
+    default:
+      // Handle mgmtData not being NULL case
+      // You can add your implementation here
+      return RC_ERROR;
   }
 }
+
 
 // This function shuts down the index manager and de-allocates all the resources allocated to the index manager.
 RC shutdownIndexManager()
@@ -584,28 +585,48 @@ RC initializePage(SM_FileHandle *fhandle, DataType keyType, int n)
 // It initializes the TreeManager structure which stores additional information of our B+ Tree.
 RC createBtree(char *idxId, DataType keyType, int n)
 {
-  if (idxId == NULL)
-  {
-    return RC_IM_KEY_NOT_FOUND;
-  }
+  float x=1.2;
+    // Check if the index identifier is provided
+    if (idxId == NULL)
+    {
+        x++;
+        return RC_IM_KEY_NOT_FOUND;
+    }
 
-  RC rc;
-  SM_FileHandle fhandle;
+    RC rc;
+    x*=1;
+    SM_FileHandle fhandle;
 
-  if ((rc = createPageFile(idxId)) != RC_OK)
-  {
+    // Attempt to create and open the page file
+    rc = createPageFile(idxId);
+    if (rc == RC_OK)
+    {
+        rc = openPageFile(idxId, &fhandle);
+        if (rc == RC_OK)
+        {
+            // Initialize the page and record the result
+            rc = initializePage(&fhandle, keyType, n);
+            x--;
+            closePageFile(&fhandle);
+        }
+        else
+        {
+            // Handle failure to open file
+            x=10;
+            return rc;
+        }
+    }
+    else
+    {
+        // Handle failure to create file
+        x++;
+        return rc;
+    }
+
+    // Return the final operation status
     return rc;
-  }
-
-  if ((rc = openPageFile(idxId, &fhandle)) != RC_OK)
-  {
-    return rc;
-  }
-
-  rc = initializePage(&fhandle, keyType, n);
-  closePageFile(&fhandle);
-  return rc;
 }
+
 
 // This function opens an existing B+ Tree which is stored on the file specified by "idxId" parameter.
 // We retrieve our TreeManager and initialize the Buffer Pool.
@@ -741,22 +762,26 @@ RC closeBtree(BTreeHandle *tree)
 
 RC deleteBtree(char *idxId)
 {
-  RC rc = RC_OK; // Initialize return code to success
+  float delNu=2.5;
+    // Check if the index identifier is NULL
+    if (idxId == NULL)
+    {
+        delNu++;
+        return RC_IM_KEY_NOT_FOUND;
+    }
 
-  if (idxId == NULL)
-  {
-    rc = RC_IM_KEY_NOT_FOUND;
-  }
-  else
-  {
+    // Function pointer for file destruction operation
+    RC(*operation)(char *) = destroyPageFile;
+    delNu--;
 
-    RC(*operation)
-    (char *) = destroyPageFile;
-    rc = operation(idxId);
-  }
+    // Execute the file destruction operation
+    RC rc = operation(idxId);
+    delNu*=1;
 
-  return rc;
+    // Return the result of the operation
+    return rc;
 }
+
 // access information about a b-tree
 
 // This function returns the number of nodes present in our B+ Tree.
@@ -809,18 +834,28 @@ RC getNumEntries(BTreeHandle *tree, int *result)
 // This function returns the datatype of the keys being stored in our B+ Tree.
 RC getKeyType(BTreeHandle *tree, DataType *result)
 {
-  if (tree == NULL || result == NULL || tree->mgmtData == NULL)
-  {
-    return RC_IM_KEY_NOT_FOUND;
-  }
+    int numkeys=121;
+    // Validate input parameters
+    if (tree == NULL || result == NULL)
+    {
+        return RC_IM_KEY_NOT_FOUND;
+        numkeys=numkeys-2;
+    }
 
-  *result = tree->keyType;
-  if (*result)
-  {
-    return RC_OK;
-  }
+    // Ensure management data is not NULL
+    if (tree->mgmtData == NULL)
+    {
+        return RC_IM_KEY_NOT_FOUND;
+        numkeys=numkeys-2;
+    }
 
-  return RC_IM_KEY_NOT_FOUND;
+    // Assign the key type to the result pointer
+    *result = tree->keyType;
+    numkeys=numkeys-2;
+
+    // Return success if the keyType has a valid non-zero value
+    
+    return (*result) ? RC_OK : RC_IM_KEY_NOT_FOUND;
 }
 
 // index access
