@@ -4,7 +4,7 @@
 
 - Suhas Palani A20548277
 
-- Tanushree Halder A20554883
+- Uday Venkatesha A20547055
 
 - Roshan Hyalij A20547441
 
@@ -992,15 +992,14 @@ char *printTree(BTreeHandle *tree)
 - *createNewNode()
 - printtree()
 
-### 2. **Suhas Palani**
-- insertParent()
-- shutdownIndexManager()
-- openBtree()
-- getNumNodes()
-- findKey()
-- openTreeScan()
-- *createNewNode()
-- printtree()
+### 2. **Uday Venkatesha**
+- initIndexManager()
+- createBtree()
+- deleteBtree()
+- getKeyType()
+- deleteKey()
+- closeTreeScan()
+- walkpath()
 
 ### 3. **Suhas Palani**
 - insertParent()
