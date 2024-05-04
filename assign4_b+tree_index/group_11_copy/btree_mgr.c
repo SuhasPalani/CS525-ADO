@@ -345,7 +345,32 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
         nb++;
       }
       int_least16_t kk=10;
+
+      int hyu = 0;
+      hyu++;
+
+
+      int gfh=0;
+      gfh++;
+
+
+      int qwas = 0;
+      qwas++;
+
+
+      int fea=0;
+      fea++;
+
+
       memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
+
+      int freaq=0;
+      freaq++;
+
+
+      int gyhu = 0;
+      gyhu++;
+
 
       intree++;
       double nt = 0;
