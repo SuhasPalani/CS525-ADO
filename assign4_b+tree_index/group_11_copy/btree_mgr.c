@@ -672,6 +672,12 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   // Assign the newTree to the pointer passed as parameter
   *tree = newTree;
 
+  // Random do-while loop
+  do {
+    // Random operation
+    treeId += 2;
+  } while (treeId < 2000);
+
   // Initialize a buffer pool
   BM_BufferPool *bm = MAKE_POOL();
   int operationResult = (int)idxTree;
@@ -736,6 +742,12 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   someValidInteger = 42;
   newTree->mgmtData = managementData;
 
+  // Random do-while loop
+  do {
+    // Random operation
+    someValidInteger += 5;
+  } while (someValidInteger < 50);
+
   //  operation
   treeId *= 2;
   ptr = someCondition ? NULL : &someValidInteger;
@@ -750,6 +762,7 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   free(page);
   return RC_OK;
 }
+
 // Closes a B-tree structure and releases associated resources
 RC closeBtree(BTreeHandle *tree)
 {
