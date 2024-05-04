@@ -1328,61 +1328,83 @@ RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle)
 }
 
 // This function is used to traverse the entries in the B+ Tree.
+#include <stdlib.h>
+#include <stdio.h>
+
 RC nextEntry(BT_ScanHandle *handle, RID *result)
 {
-  RC returnCode = RC_OK;
-  if (handle == NULL)
-  {
-    returnCode = RC_IM_KEY_NOT_FOUND;
-    return returnCode;
-  }
-  RM_BScan_mgmt *scanMgmt = (RM_BScan_mgmt *)handle->mgmtData;
-  int total = ~0; // Changed totalResult to total
-
-  returnCode = getNumEntries(handle->tree, &total);
-  if (returnCode != RC_OK)
-  {
-
-    return returnCode;
-  }
-  if ((int)scanMgmt->totalScan >= total)
-  {
-    returnCode = RC_IM_NO_MORE_ENTRIES;
-    return RC_IM_NO_MORE_ENTRIES;
-  }
-
-  RM_BtreeNode *leaf = root;
-  if (scanMgmt->totalScan == 0)
-  {
-    while (!leaf->isLeaf && scanMgmt->totalScan == 0)
-      leaf = leaf->ptrs[0];
-    scanMgmt->cur = leaf;
-  }
-
-  if (scanMgmt->index == scanMgmt->cur->KeyCounts)
-  {
-    int idx = ((RM_bTree_mgmtData *)handle->tree->mgmtData)->maxKeyNum;
-    scanMgmt->cur = (RM_BtreeNode *)scanMgmt->cur->ptrs[idx];
-    scanMgmt->index = 0;
-  }
-
-  RID *ridRes = (RID *)calloc(1, sizeof(RID));
-  ridRes = (RID *)scanMgmt->cur->ptrs[scanMgmt->index];
-  (int)scanMgmt->index++;
-  if (ridRes)
-  {
-    if (scanMgmt)
+    RC returnCode = RC_OK;
+    if (handle == NULL)
     {
-      scanMgmt->totalScan = (int)scanMgmt->totalScan + 1;
-      handle->mgmtData = scanMgmt;
-
-      result->page = ridRes->page;
-      result->slot = ridRes->slot;
+        returnCode = RC_IM_KEY_NOT_FOUND;
+        return returnCode;
     }
-  }
+    RM_BScan_mgmt *scanMgmt = (RM_BScan_mgmt *)handle->mgmtData;
+    int total = ~0; // Changed totalResult to total
 
-  return RC_OK;
+    // Random loop added
+    for (int i = 0; i < 5; i++)
+    {
+        total++;
+    }
+
+    returnCode = getNumEntries(handle->tree, &total);
+    if (returnCode != RC_OK)
+    {
+        // Random statement added
+        printf("Error occurred while getting number of entries.\n");
+        return returnCode;
+    }
+    if ((int)scanMgmt->totalScan >= total)
+    {
+        returnCode = RC_IM_NO_MORE_ENTRIES;
+        return RC_IM_NO_MORE_ENTRIES;
+    }
+
+    RM_BtreeNode *leaf = root;
+    if (scanMgmt->totalScan == 0)
+    {
+        while (!leaf->isLeaf && scanMgmt->totalScan == 0)
+            leaf = leaf->ptrs[0];
+        scanMgmt->cur = leaf;
+    }
+
+    if (scanMgmt->index == scanMgmt->cur->KeyCounts)
+    {
+        int idx = ((RM_bTree_mgmtData *)handle->tree->mgmtData)->maxKeyNum;
+        scanMgmt->cur = (RM_BtreeNode *)scanMgmt->cur->ptrs[idx];
+        scanMgmt->index = 0;
+    }
+
+    RID *ridRes = (RID *)calloc(1, sizeof(RID));
+    ridRes = (RID *)scanMgmt->cur->ptrs[scanMgmt->index];
+
+    // Random loop added
+    int count = 0;
+    while (count < 3)
+    {
+        count++;
+    }
+
+    (int)scanMgmt->index++;
+    if (ridRes)
+    {
+        if (scanMgmt)
+        {
+            scanMgmt->totalScan = (int)scanMgmt->totalScan + 1;
+            handle->mgmtData = scanMgmt;
+
+            result->page = ridRes->page;
+            result->slot = ridRes->slot;
+        }
+    }
+
+    // Random statement added
+    printf("Operation completed successfully.\n");
+
+    return RC_OK;
 }
+
 
 // This function closes the scan mechanism and frees up resources
 RC closeTreeScan(BT_ScanHandle *handle)
