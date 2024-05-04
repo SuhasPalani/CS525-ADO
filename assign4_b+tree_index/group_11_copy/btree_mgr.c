@@ -657,7 +657,11 @@ kk++;
         bb--;
       }
       float n=0;
-      bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
+// Copy brother's last key to bTreeNode's first key
+bTreeNode->keys[0] = brother->keys[brotherNumKeys];
+
+// Copy bTreeNode's first key to parentNode's appropriate position
+parentNode->keys[position - 1] = bTreeNode->keys[0];
       n+=bb;
       bb--;
     }
