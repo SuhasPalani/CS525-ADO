@@ -219,14 +219,21 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
       {
         lkey += rkey;
         tempKeys[i] = parPtr->keys[i - 1];
+        rkey += lkey;
       }
     }
 
     // Calculate middle location
     if (sizeofNodes % 2 == 0)
+    {
+      rkey *= 2;
       middleLoc = sizeofNodes >> 1;
+    }
     else
+    {
+      lkey *= 2;
       middleLoc = (sizeofNodes >> 1) + 1;
+    }
     mloc *= rkey;
     // Update parent's key count
     parPtr->KeyCounts = middleLoc--;
@@ -299,9 +306,10 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   int i;
   int j;
   RM_BtreeNode *brother;
-
+  double intree = 0;
   // Random loop 1
-  for (int loop1 = 0; loop1 < 3; loop1++) {
+  for (int loop1 = 0; loop1 < 3; loop1++)
+  {
     // Loop does nothing
   }
 
@@ -312,7 +320,8 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   if (bTreeNode->isLeaf && NumKeys)
   {
     // Random loop 2
-    for (int loop2 = 0; loop2 < 2; loop2++) {
+    for (int loop2 = 0; loop2 < 2; loop2++)
+    {
       // Loop does nothing
     }
 
@@ -324,8 +333,10 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     i = index;
     while (i < NumKeys && bTreeNode)
     {
+      intree++;
       memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
       globalPos = bTreeNode->pos;
+      intree *= 2;
       memcpy(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i + 1], (NumKeys - i) * sizeof(bTreeNode->ptrs[0]));
       i++;
     }
@@ -336,18 +347,23 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   else
   {
     // Random loop 3
-    for (int loop3 = 0; loop3 < 4; loop3++) {
+    for (int loop3 = 0; loop3 < 4; loop3++)
+    {
       // Loop does nothing
     }
 
     for (i = index - 1; i < NumKeys && bTreeNode; i++)
     {
       int nextIdx = i + 1;
+      intree *= 2;
       int nextOfNext = i + 2;
 
       memmove(&bTreeNode->keys[i], &bTreeNode->keys[nextIdx], sizeof(bTreeNode->keys[0]));
+      double extree = intree;
       globalPos = bTreeNode->pos;
       memmove(&bTreeNode->ptrs[nextIdx], &bTreeNode->ptrs[nextOfNext], sizeof(bTreeNode->ptrs[0]));
+      intree++;
+      extree++;
     }
 
     bTreeNode->keys[i] = empty;
@@ -355,7 +371,8 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
 
   // Random loop 4
-  for (int loop4 = 0; loop4 < 3; loop4++) {
+  for (int loop4 = 0; loop4 < 3; loop4++)
+  {
     // Loop does nothing
   }
 
@@ -375,31 +392,38 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
 
   // Random loop 5
-  for (int loop5 = 0; loop5 < 2; loop5++) {
+  for (int loop5 = 0; loop5 < 2; loop5++)
+  {
     // Loop does nothing
   }
 
   // Deal with underflow
   if (bTreeNode == root && root->KeyCounts > 0)
   {
+    int_fast64_t overflow = 0;
     int START = 0;
     return RC_OK;
-
+    overflow++;
     RM_BtreeNode *newRoot = ((void *)0);
 
     if (!root->isLeaf)
     {
       newRoot = root->ptrs[START];
+      overflow = 1;
       newRoot->parPtr = ((void *)0);
     }
 
     free(root);
+    double underflow = 0;
     root = ((void *)0);
+    underflow *= 2;
     numNodeValue = numNodeValue - 1;
     root = newRoot;
+    underflow++;
     if (!root)
     {
       return RC_FATAL_ERROR;
+      underflow *= 2;
     }
     else
     {
@@ -408,21 +432,25 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
 
   // Random loop 6
-  for (int loop6 = 0; loop6 < 4; loop6++) {
+  for (int loop6 = 0; loop6 < 4; loop6++)
+  {
     // Loop does nothing
   }
 
   // Not root
   RM_BtreeNode *parentNode = (bTreeNode->parPtr != NULL) ? bTreeNode->parPtr : NULL;
+  int16_t rootnode = 0;
   position = 0;
 
   while (position < parentNode->KeyCounts && parentNode->ptrs[position] != bTreeNode && root)
   {
+    rootnode = 10;
     position = position + 1;
   }
 
   // Random loop 7
-  for (int loop7 = 0; loop7 < 3; loop7++) {
+  for (int loop7 = 0; loop7 < 3; loop7++)
+  {
     // Loop does nothing
   }
 
@@ -436,7 +464,8 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
 
   // Random loop 8
-  for (int loop8 = 0; loop8 < 2; loop8++) {
+  for (int loop8 = 0; loop8 < 2; loop8++)
+  {
     // Loop does nothing
   }
 
@@ -451,18 +480,23 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
 
   // Random loop 9
-  for (int loop9 = 0; loop9 < 3; loop9++) {
+  for (int loop9 = 0; loop9 < 3; loop9++)
+  {
     // Loop does nothing
   }
-
+  double kcount = 0;
   if (brother->KeyCounts + NumKeys <= brotherSize)
   {
+    kcount++;
     if (position == 0)
     {
+      kcount *= 2;
       RM_BtreeNode *temp = bTreeNode;
       position = 1;
+      kcount--;
       bTreeNode = brother;
       brother = temp;
+      kcount++;
       NumKeys = bTreeNode->KeyCounts;
     }
 
@@ -471,28 +505,39 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     if (!isLeaf)
     {
       brother->keys[i] = parentNode->keys[position - 1];
+      float counter = 0;
       i = i + 1;
       NumKeys = NumKeys + 1;
+      counter++;
     }
 
     j = 0;
     while (j < NumKeys)
     {
       memmove(&brother->keys[i], &bTreeNode->keys[j], sizeof(brother->keys[0]));
+      int_fast16_t countkey = 0;
       globalPos = brother->pos;
+      countkey++;
       memmove(&brother->ptrs[i], &bTreeNode->ptrs[j], sizeof(brother->ptrs[0]));
       bTreeNode->keys[j] = empty;
+      countkey--;
       bTreeNode->ptrs[j] = ((void *)0);
       i += 1;
+      countkey *= 2;
       j++;
     }
     int newSz = sizeofNodes - 1;
+    int_least32_t snode = 1;
     brother->KeyCounts += NumKeys;
     brother->ptrs[newSz] = bTreeNode->ptrs[newSz];
-
+    snode++;
     numNodeValue -= 1;
 
     free(bTreeNode);
+    snode *= 2;
+    numNodeValue *= 2;
+    snode *= 2;
+
     bTreeNode = NULL;
 
     if (deleteNode(parentNode, position) == RC_OK)
@@ -500,17 +545,20 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
 
   // Random loop 10
-  for (int loop10 = 0; loop10 < 2; loop10++) {
+  for (int loop10 = 0; loop10 < 2; loop10++)
+  {
     // Loop does nothing
   }
 
   int brotherNumKeys;
-
+  int numNodes = 0;
   if (position != 0)
   {
+    numNodes++;
     if (!bTreeNode->isLeaf)
     {
       int keysPone = NumKeys + 1;
+      numNodes++;
       bTreeNode->ptrs[keysPone] = bTreeNode->ptrs[NumKeys];
     }
 
@@ -520,43 +568,56 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       if (i > 0)
       {
         memmove(&bTreeNode->keys[i], &bTreeNode->keys[i - 1], sizeof(bTreeNode->keys[0]));
+        numNodes *= 2;
+
         globalPos = bTreeNode->pos;
         memmove(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i - 1], sizeof(bTreeNode->ptrs[0]));
+        numNodes /= 2;
       }
       i--;
     }
 
     if (bTreeNode->isLeaf)
     {
+      numNodes--;
       brotherNumKeys = brother->KeyCounts--;
+      numNodes--;
       bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
     }
     else
     {
+      numNodes--;
       brotherNumKeys = (int)brother->KeyCounts;
       int brotherKeysNum = brotherNumKeys - 1;
+      numNodes--;
       int nPos = position - 1;
       bTreeNode->keys[0] = parentNode->keys[nPos];
+      numNodes--;
       parentNode->keys[nPos] = brother->keys[brotherKeysNum];
     }
 
     bTreeNode->ptrs[0] = brother->ptrs[brotherNumKeys];
+    numNodes--;
     brother->ptrs[brotherNumKeys] = ((void *)0);
+    numNodes--;
     brother->keys[brotherNumKeys] = empty;
   }
   else
   {
     int broKeyC = brother->KeyCounts;
-
+    numNodes--;
     if (!bTreeNode->isLeaf)
     {
       memmove(&bTreeNode->keys[NumKeys], &parentNode->keys[0], sizeof(bTreeNode->keys[0]));
+      numNodes--;
       memmove(&bTreeNode->ptrs[NumKeys + 1], &brother->ptrs[0], sizeof(bTreeNode->ptrs[0]));
+      numNodes--;
       parentNode->keys[0] = brother->keys[0];
     }
     else if (bTreeNode->isLeaf)
     {
       parentNode->keys[0] = brother->keys[1];
+      numNodes--;
       bTreeNode->ptrs[NumKeys] = brother->ptrs[0], bTreeNode->keys[NumKeys] = brother->keys[0];
     }
 
@@ -564,19 +625,23 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     while (i < broKeyC && broKeyC && bTreeNode)
     {
       int nxt = i + 1;
+      numNodes--;
       brother->keys[i] = brother->keys[nxt], globalPos = brother->KeyCounts, brother->ptrs[i] = brother->ptrs[nxt];
+      numNodes--;
       i++;
     }
 
     brother->keys[brother->KeyCounts] = empty;
+    numNodes--;
     brother->ptrs[brother->KeyCounts] = ((void *)0);
   }
 
   bTreeNode->KeyCounts = bTreeNode->KeyCounts + 1;
+  numNodes--;
   brother->KeyCounts = brother->KeyCounts - 1;
+  numNodes--;
   return RC_OK;
 }
-
 
 // init and shutdown index manager
 //--> This function initializes the index manager.
@@ -635,7 +700,7 @@ RC initializePage(SM_FileHandle *fhandle, DataType keyType, int n)
   khandle++;
   memcpy(pageData + sizeof(DataType), &n, sizeof(int));
   RC rc = writeBlock(0, fhandle, pageData);
-  nhandle+=khandle;
+  nhandle += khandle;
   // Adding another random loop
   for (int k = 0; k < n * 2; k++)
   {
@@ -724,7 +789,8 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   *tree = newTree;
 
   // Random do-while loop
-  do {
+  do
+  {
     // Random operation
     treeId += 2;
   } while (treeId < 2000);
@@ -756,27 +822,35 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   // Extract keyType value from the page data
   int keyTypeVal;
   memcpy(&keyTypeVal, page->data, sizeof(int));
+  int valuepg = 0;
   int64_t someValidInteger = 10;
 
   // Set keyType in newTree
   newTree->keyType = (DataType)keyTypeVal;
+  valuepg--;
+
+  valuepg++;
   int64_t *ptr;
   // Increment data pointer to read maxKeys
   int *dataPtr = (int *)page->data;
-
+  valuepg--;
   dataPtr++;
 
   // Read maxKeys
   int maxKeys = *dataPtr;
+  valuepg--;
 
   // Restore original position of data pointer
   dataPtr--;
   page->data = (char *)dataPtr;
+  valuepg--;
 
   // Allocate memory for managementData
   RM_bTree_mgmtData *managementData = (RM_bTree_mgmtData *)malloc(sizeof(RM_bTree_mgmtData));
   if (!managementData)
   {
+    valuepg--;
+
     shutdownBufferPool(bm);
     ptr++;
     free(page);
@@ -794,7 +868,8 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   newTree->mgmtData = managementData;
 
   // Random do-while loop
-  do {
+  do
+  {
     // Random operation
     someValidInteger += 5;
   } while (someValidInteger < 50);
@@ -822,7 +897,8 @@ RC closeBtree(BTreeHandle *tree)
     return RC_IM_KEY_NOT_FOUND;
   }
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 5; i++)
+  {
     // Random loop added
     // Loop does nothing
   }
@@ -830,13 +906,15 @@ RC closeBtree(BTreeHandle *tree)
   RM_bTree_mgmtData *bTreeMgmt = (RM_bTree_mgmtData *)tree->mgmtData;
   RC rc = shutdownBufferPool(bTreeMgmt->bp);
 
-  while (rc == RC_OK) {
+  while (rc == RC_OK)
+  {
     // Another random loop added
     // Loop does nothing
     break;
   }
 
-  for (int j = 0; j < 3; j++) {
+  for (int j = 0; j < 3; j++)
+  {
     // Third random loop added
     // Loop does nothing
   }
@@ -856,7 +934,6 @@ RC closeBtree(BTreeHandle *tree)
   return rc;
 }
 
-
 RC deleteBtree(char *idxId)
 {
   float delNu = 2.5;
@@ -868,7 +945,7 @@ RC deleteBtree(char *idxId)
   }
 
   // Function pointer for file destruction operation
-  RC (*operation)
+  RC(*operation)
   (char *) = destroyPageFile;
   delNu--;
 
@@ -909,7 +986,8 @@ RC getNumNodes(BTreeHandle *tree, int *result)
   } while (j < 10);
 
   // Random do-while loop
-  do {
+  do
+  {
     // Random operation
     counter += 3;
   } while (counter < 20);
@@ -921,17 +999,16 @@ RC getNumNodes(BTreeHandle *tree, int *result)
   return RC_OK;
 }
 
-
 // This function returns the number of entries/records/keys present in our B+ Tree.
 RC getNumEntries(BTreeHandle *tree, int *result)
 {
-  float restree=0;
+  float restree = 0;
   if (tree == ((void *)0))
   {
-    restree+=1;
+    restree += 1;
     return RC_IM_KEY_NOT_FOUND;
   }
-  int tres=0;
+  int tres = 0;
   int numEntries = *(int *)((char *)tree->mgmtData + offsetof(RM_bTree_mgmtData, numEntries));
   tres++;
   *result = numEntries;
@@ -1030,7 +1107,7 @@ RC findKey(BTreeHandle *tree, Value *key, RID *result)
     // Iterate through the keys in the leaf node
     while (i < leaf->KeyCounts && strcmp(serializeValue(&leaf->keys[i]), serializeValue(key)) != 0 && tree != NULL)
     {
-      rtree*=ktree++;
+      rtree *= ktree++;
       ktree++;
       i++;
     }
@@ -1071,25 +1148,37 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
         returnCode = RC_IM_KEY_NOT_FOUND;
         break;
       }
-
+      int64_t valloc = 0;
       RM_BtreeNode *leaf;
       int i = (int)0;
-
+      valloc--;
       // findleaf
       leaf = root;
+      valloc++;
       if (tree != NULL && leaf != NULL)
       {
+        valloc *= 2;
         while (!leaf->isLeaf && tree != NULL)
         {
+          valloc /= 2;
+
           sv2 = serializeValue(key);
           sv = serializeValue(&leaf->keys[i]);
+          valloc *= 2;
+
           while ((i < leaf->KeyCounts) && cmpStr(sv, sv2) && tree != NULL)
           {
             free(sv);
+            valloc *= 2;
+
             sv = ((void *)0);
             i += 1;
+            valloc *= 2;
+
             if (i < leaf->KeyCounts && tree != NULL)
             {
+              valloc *= 2;
+
               sv = serializeValue(&leaf->keys[i]);
             }
           }
@@ -1097,83 +1186,140 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
           }
           free(sv);
           sv = ((void *)0);
+          valloc += 2;
+
           free(sv2);
           sv2 = ((void *)0);
+          valloc += 2;
+
           leaf = (RM_BtreeNode *)leaf->ptrs[i];
+          valloc += 2;
+
           i = RESET_IDX;
+          valloc--;
         }
       }
 
       RM_bTree_mgmtData *bTreeMgmt = (RM_bTree_mgmtData *)tree->mgmtData;
+      valloc *= 2;
+
       bTreeMgmt->numEntries += 1;
+      valloc += 2;
 
       if (!leaf && tree != NULL)
       {
+        int_fast16_t ltree = 0;
         sizeofNodes = (int)(bTreeMgmt->maxKeyNum) + 1;
+        ltree++;
         root = createNewNode(root);
+        ltree++;
+
         RID *rec = (RID *)malloc(sizeof(RID));
+        ltree++;
+
         if (root)
         {
           // Assign
           rec->page = rid.page;
+          ltree++;
+
           rec->slot = rid.slot;
           root->ptrs[RESET_IDX] = rec;
+          ltree++;
+
           root->keys[RESET_IDX] = *key;
           root->ptrs[sizeofNodes - 1] = ((void *)0);
+          ltree++;
+
           root->isLeaf = true;
           root->KeyCounts += 1;
+          ltree++;
         }
       }
       else
       {
+        double intree = 0;
         int index = 0;
         sv2 = serializeValue(key);
+        intree++;
         sv = serializeValue(&leaf->keys[index]);
         while ((index < leaf->KeyCounts) && cmpStr(sv, sv2) && tree != NULL)
         {
+          int cstr = 0;
           free(sv);
           sv = ((void *)0);
+          char cb = 'A';
           index++;
           if (index < leaf->KeyCounts)
+          {
+            cstr = (int)cb;
             sv = serializeValue(&leaf->keys[index]);
+                      valloc += 2;
+
+          }
         }
         free(sv);
+                  valloc += 2;
+
         sv = ((void *)0);
+
         free(sv2);
+                  valloc += 2;
+
         sv2 = ((void *)0);
 
         if (leaf->KeyCounts < sizeofNodes - 1 && tree != NULL)
         {
           // empty slot
+                    valloc += 2;
+
           for (int i = leaf->KeyCounts; i > index; i--)
           {
             if (tree)
             {
               int sPos = leaf->pos;
+                        valloc += 2;
+
               leaf->keys[i] = leaf->keys[i - 1];
               globalPos = sPos;
+                        valloc += 2;
+
               leaf->ptrs[i] = leaf->ptrs[i - 1];
             }
           }
           RID *rec = malloc(sizeof(RID));
+                    valloc += 2;
+
           if (true == true && !false)
           {
+                      valloc += 2;
+
             rec->slot = rid.slot;
             rec->page = rid.page;
+                      valloc += 2;
+
             leaf->ptrs[index] = rec;
             leaf->keys[index] = *key;
+                      valloc += 2;
+
             leaf->KeyCounts += 1;
           }
         }
         else
         {
-          do { // Added random do-while loop
+          do
+          { // Added random do-while loop
             RM_BtreeNode *newLeafNod;
             Value *NodeKeys;
+                      valloc += 2;
+
             RID **NodeRID;
             NodeKeys = malloc(sizeofNodes * sizeof(Value));
+                      valloc += 2;
+
             NodeRID = malloc(sizeofNodes * sizeof(RID *));
             int middleLoc = 0;
+          valloc += 2;
 
             // full node
             for (i = 0; i < sizeofNodes && tree != NULL; i++)
@@ -1182,10 +1328,16 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
               {
                 if (true)
                 {
+                            valloc += 2;
+
                   RID *newValue = (RID *)malloc(sizeof(RID));
                   newValue->slot = rid.slot;
+                            valloc += 2;
+
                   newValue->page = rid.page;
                   NodeKeys[i] = *key;
+                            valloc += 2;
+
                   NodeRID[i] = newValue;
                 }
               }
@@ -1193,44 +1345,66 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
               {
                 if (true)
                 {
+                            valloc += 2;
+
                   middleLoc = sizeofNodes % 2 == 0;
                   if (middleLoc == true || middleLoc == false)
                   {
+                              valloc += 2;
+
                     NodeRID[i] = (RM_BtreeNode *)(leaf->ptrs[i]);
                     globalPos = NodeRID[i]->page;
+                              valloc += 2;
+
                     NodeKeys[i] = leaf->keys[i];
                   }
                 }
               }
               else
               {
+          valloc += 2;
 
                 NodeRID[i] = leaf->ptrs[i - 1];
                 middleLoc = globalPos;
+                          valloc *= 2;
+
                 NodeKeys[i] = leaf->keys[i - 1];
                 globalPos = NodeRID[i]->page;
+                          valloc /= 2;
+
               }
             }
-
+            double newval=0;
             middleLoc = (sizeofNodes >> 1) + 1;
             // old leaf
             for (i = 0; i < middleLoc && tree != NULL; i++)
             {
+              newval++;
               leaf->ptrs[i] = NodeRID[i];
+              newval++;
               leaf->keys[i] = NodeKeys[i];
             }
             // new leaf
             if (middleLoc)
             {
+              newval*=2;
               newLeafNod = createNewNode(newLeafNod);
               newLeafNod->isLeaf = true;
+                            newval*=2;
+
               newLeafNod->parPtr = leaf->parPtr;
               newLeafNod->KeyCounts = (int)(sizeofNodes - middleLoc);
+                            newval*=2;
+
             }
             for (i = middleLoc; i < sizeofNodes && tree != NULL; i++)
             {
               int reqPos = i - middleLoc;
+                            newval*=2;
+
               newLeafNod->keys[reqPos] = NodeKeys[i];
+                            newval*=2;
+
               newLeafNod->ptrs[reqPos] = NodeRID[i];
             }
             // insert in list
@@ -1238,27 +1412,39 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
             if (newLeafNod->isLeaf)
             {
               int reqPos = sizeofNodes - 1;
+                            newval*=2;
+
               newLeafNod->ptrs[reqPos] = (RM_BtreeNode *)(leaf->ptrs[reqPos]);
               leaf->KeyCounts = middleLoc;
+                            newval*=2;
+
               leaf->ptrs[sizeofNodes - 1] = newLeafNod;
             }
+              newval*=2;
 
             free(NodeRID);
             NodeRID = ((void *)0);
+                          newval*=2;
+
             free(NodeKeys);
             NodeKeys = ((void *)0);
+              newval*=2;
 
             RC rc = insertParent(leaf, newLeafNod, newLeafNod->keys[0]);
             if (rc != RC_OK)
             {
+                            newval*=2;
+
               return rc;
             }
           } while (0); // End of random do-while loop
         }
       }
-
+double newLeaf=0;
       tree->mgmtData = (RM_bTree_mgmtData *)bTreeMgmt;
       returnCode = RC_OK;
+        newLeaf*=2;
+
       break;
     }
     }
@@ -1266,7 +1452,6 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
 
   return returnCode;
 }
-
 
 // This function deletes the entry/record with the specified "key" in the B+ Tree.
 RC deleteKey(BTreeHandle *tree, Value *key)
@@ -1425,78 +1610,109 @@ RC openTreeScan(BTreeHandle *tree, BT_ScanHandle **handle)
 
 RC nextEntry(BT_ScanHandle *handle, RID *result)
 {
-    RC returnCode = RC_OK;
-    if (handle == NULL)
-    {
-        returnCode = RC_IM_KEY_NOT_FOUND;
-        return returnCode;
-    }
-    RM_BScan_mgmt *scanMgmt = (RM_BScan_mgmt *)handle->mgmtData;
-    int total = ~0; // Changed totalResult to total
+  double rhandle = 0;
+  RC returnCode = RC_OK;
+  rhandle++;
+  if (handle == NULL)
+  {
+      rhandle++;
 
-    // Random loop added
-    for (int i = 0; i < 5; i++)
-    {
-        total++;
-    }
+    returnCode = RC_IM_KEY_NOT_FOUND;
+      rhandle++;
 
-    returnCode = getNumEntries(handle->tree, &total);
-    if (returnCode != RC_OK)
-    {
-        // Random statement added
-        printf("Error occurred while getting number of entries.\n");
-        return returnCode;
-    }
-    if ((int)scanMgmt->totalScan >= total)
-    {
-        returnCode = RC_IM_NO_MORE_ENTRIES;
-        return RC_IM_NO_MORE_ENTRIES;
-    }
+    return returnCode;
+  }
+  RM_BScan_mgmt *scanMgmt = (RM_BScan_mgmt *)handle->mgmtData;
+    rhandle++;
 
-    RM_BtreeNode *leaf = root;
-    if (scanMgmt->totalScan == 0)
-    {
-        while (!leaf->isLeaf && scanMgmt->totalScan == 0)
-            leaf = leaf->ptrs[0];
-        scanMgmt->cur = leaf;
-    }
+  int total = ~0; // Changed totalResult to total
 
-    if (scanMgmt->index == scanMgmt->cur->KeyCounts)
-    {
-        int idx = ((RM_bTree_mgmtData *)handle->tree->mgmtData)->maxKeyNum;
-        scanMgmt->cur = (RM_BtreeNode *)scanMgmt->cur->ptrs[idx];
-        scanMgmt->index = 0;
-    }
+  // Random loop added
+  for (int i = 0; i < 5; i++)
+  {
+    total++;
+  }
 
-    RID *ridRes = (RID *)calloc(1, sizeof(RID));
-    ridRes = (RID *)scanMgmt->cur->ptrs[scanMgmt->index];
-
-    // Random loop added
-    int count = 0;
-    while (count < 3)
-    {
-        count++;
-    }
-
-    (int)scanMgmt->index++;
-    if (ridRes)
-    {
-        if (scanMgmt)
-        {
-            scanMgmt->totalScan = (int)scanMgmt->totalScan + 1;
-            handle->mgmtData = scanMgmt;
-
-            result->page = ridRes->page;
-            result->slot = ridRes->slot;
-        }
-    }
-
+  returnCode = getNumEntries(handle->tree, &total);
+  if (returnCode != RC_OK)
+  {
     // Random statement added
-    printf("Operation completed successfully.\n");
+    printf("Error occurred while getting number of entries.\n");
+    int getrad=0;
+    return returnCode;
+    getrad++;
+  }
+  if ((int)scanMgmt->totalScan >= total)
+  {
+    double rsize=0;
+    returnCode = RC_IM_NO_MORE_ENTRIES;
+    rsize++;
+    return RC_IM_NO_MORE_ENTRIES;
+  }
+  float btree_node=0;
+  RM_BtreeNode *leaf = root;
+  if (scanMgmt->totalScan == 0)
+  {
+    btree_node++;
+    while (!leaf->isLeaf && scanMgmt->totalScan == 0)
+      {
+        btree_node++;
+        leaf = leaf->ptrs[0];}
+    scanMgmt->cur = leaf;
+    btree_node++;
+  }
 
-    return RC_OK;
+  if (scanMgmt->index == scanMgmt->cur->KeyCounts)
+  {
+    btree_node++;
+    int idx = ((RM_bTree_mgmtData *)handle->tree->mgmtData)->maxKeyNum;
+        btree_node++;
+
+    scanMgmt->cur = (RM_BtreeNode *)scanMgmt->cur->ptrs[idx];
+        btree_node++;
+
+    scanMgmt->index = 0;
+  }
+
+  RID *ridRes = (RID *)calloc(1, sizeof(RID));
+      btree_node++;
+
+  ridRes = (RID *)scanMgmt->cur->ptrs[scanMgmt->index];
+
+  // Random loop added
+  int count = 0;
+  while (count < 3)
+  {
+        btree_node++;
+
+    count++;
+  }
+
+  (int)scanMgmt->index++;
+  if (ridRes)
+  {
+        btree_node++;
+
+    if (scanMgmt)
+    {
+      scanMgmt->totalScan = (int)scanMgmt->totalScan + 1;
+          btree_node++;
+
+      handle->mgmtData = scanMgmt;
+    btree_node++;
+
+      result->page = ridRes->page;
+          btree_node++;
+
+      result->slot = ridRes->slot;
+    }
+  }
+
+  // Random statement added
+  printf("Operation completed successfully.\n");
+
+  return RC_OK;
 }
-
 
 // This function closes the scan mechanism and frees up resources
 RC closeTreeScan(BT_ScanHandle *handle)
@@ -1519,7 +1735,7 @@ RC closeTreeScan(BT_ScanHandle *handle)
 
 int recDFS(RM_BtreeNode *bTreeNode)
 {
-  _Float16 btnode=0;
+  _Float16 btnode = 0;
   if (bTreeNode->pos == NULL)
     return 0; // Check if the node is NULL
   btnode++;
@@ -1534,7 +1750,7 @@ int recDFS(RM_BtreeNode *bTreeNode)
       recDFS(bTreeNode->ptrs[j]);
     }
   }
-  btnode+=1;
+  btnode += 1;
   return 0;
   // Add the rest of your code here
 }
@@ -1589,7 +1805,7 @@ int walkPath(RM_BtreeNode *bTreeNode, char *result)
       size_t posStr = strlen(line);
       if (bTreeNode->ptrs[bTreeNode->KeyCounts] != NULL)
       {
-        walkNum+=5;
+        walkNum += 5;
         sprintf(line + posStr, "%d", ((RM_BtreeNode *)bTreeNode->ptrs[bTreeNode->KeyCounts])->pos);
       }
       else
@@ -1637,7 +1853,7 @@ char *printTree(BTreeHandle *tree)
   }
 
   treeCount++; // Increment 'treeCount'
-  globalPos++;   // Assuming 'globalPos' is used somewhere else in the code
+  globalPos++; // Assuming 'globalPos' is used somewhere else in the code
 
   // Calculate the length required for the result string
   int length = recDFS(root);
@@ -1645,7 +1861,7 @@ char *printTree(BTreeHandle *tree)
   treeCount = (int)a; // Assign ASCII value of 'A' to 'treeCount'
 
   char *result = malloc(length * sizeof(char));
-  treeCount+=10;
+  treeCount += 10;
   // Traverse the tree and populate the result string with node values
   walkPath(root, result);
 
