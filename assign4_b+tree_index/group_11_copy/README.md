@@ -6,7 +6,7 @@
 
 - Uday Venkatesha A20547055
 
-- Roshan Hyalij A20547441
+- Nishchal Gante Ravish A0540635
 
 
 ---
@@ -1001,13 +1001,12 @@ char *printTree(BTreeHandle *tree)
 - closeTreeScan()
 - walkpath()
 
-### 3. **Suhas Palani**
-- insertParent()
-- shutdownIndexManager()
-- openBtree()
-- getNumNodes()
-- findKey()
-- openTreeScan()
-- *createNewNode()
-- printtree()
+### 3. **Nishchal Gante Ravish**
+- deleteNode()
+- initializePage()
+- closeBtree()
+- getNumEntries()
+- insertKey()
+- nextEntry()
+- recDFS()
 
