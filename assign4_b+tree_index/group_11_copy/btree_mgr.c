@@ -1284,15 +1284,15 @@ RC nextEntry(BT_ScanHandle *handle, RID *result)
     return returnCode;
   }
   RM_BScan_mgmt *scanMgmt = (RM_BScan_mgmt *)handle->mgmtData;
-  int totalResult = ~0;
+  int total = ~0; // Changed totalResult to total
 
-  returnCode = getNumEntries(handle->tree, &totalResult);
+  returnCode = getNumEntries(handle->tree, &total);
   if (returnCode != RC_OK)
   {
 
     return returnCode;
   }
-  if ((int)scanMgmt->totalScan >= totalResult)
+  if ((int)scanMgmt->totalScan >= total)
   {
     returnCode = RC_IM_NO_MORE_ENTRIES;
     return RC_IM_NO_MORE_ENTRIES;
@@ -1330,6 +1330,7 @@ RC nextEntry(BT_ScanHandle *handle, RID *result)
 
   return RC_OK;
 }
+
 
 // This function closes the scan mechanism and frees up resources
 RC closeTreeScan(BT_ScanHandle *handle)
