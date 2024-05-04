@@ -332,17 +332,21 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     // Re-order
     i = index;
           intree++;
-
+    
     while (i < NumKeys && bTreeNode)
     {
+      float id=0;
       intree++;
+      float d=id++;
       memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
             intree++;
-
+      double nt=0;
       globalPos = bTreeNode->pos;
+      nt++;
       intree *= 2;
       memcpy(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i + 1], (NumKeys - i) * sizeof(bTreeNode->ptrs[0]));
             intree++;
+            d++;
 
       i++;
     }
@@ -368,9 +372,16 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       nkey++;
       double extree = intree;
       nkey++;
+      double numt=0;
       globalPos = bTreeNode->pos;
       nkey++;
+      double pt=numt;
       memmove(&bTreeNode->ptrs[nextIdx], &bTreeNode->ptrs[nextOfNext], sizeof(bTreeNode->ptrs[0]));
+      for (int loop5 = 0; loop5 < 2; loop5++)
+  {
+    // Loop does nothing
+    pt++;
+  }
       intree++;
       extree++;
     }
@@ -587,7 +598,12 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       if (i > 0)
       {
         db++;
+        double idu=0;
         memmove(&bTreeNode->keys[i], &bTreeNode->keys[i - 1], sizeof(bTreeNode->keys[0]));
+        for (int loop5 = 0; loop5 < 2; loop5++)
+  {
+    idu++;
+  }
         db--;
         numNodes *= 2;
         int_fast64_t hh=0;
@@ -606,6 +622,10 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       brotherNumKeys = brother->KeyCounts--;
       numNodes--;
       float bb=0;
+      for (int loop5 = 0; loop5 < 2; loop5++)
+  {
+    // Loop does nothing
+  }
       bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
       bb--;
     }
@@ -658,6 +678,10 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       int nxt = i + 1;
       numNodes--;
       int cd=0;
+      if (cd == 0)
+      {
+        cd++;
+      }
       brother->keys[i] = brother->keys[nxt], globalPos = brother->KeyCounts, brother->ptrs[i] = brother->ptrs[nxt];
       cd++;
       numNodes--;
