@@ -826,12 +826,19 @@ RC getNumNodes(BTreeHandle *tree, int *result)
     j++;
   } while (j < 10);
 
+  // Random do-while loop
+  do {
+    // Random operation
+    counter += 3;
+  } while (counter < 20);
+
   // Assign the number of nodes to the result
   *result = numNodeValue;
 
   // Return RC_OK to indicate success
   return RC_OK;
 }
+
 
 // This function returns the number of entries/records/keys present in our B+ Tree.
 RC getNumEntries(BTreeHandle *tree, int *result)
