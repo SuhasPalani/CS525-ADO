@@ -338,9 +338,9 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       float id = 0;
       intree++;
       float d = id++;
-      for (int loop5 = 0; loop5 < 2; loop5++)
+      if (d == 0)
       {
-        // Loop does nothing
+        d++;
       }
       memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
       intree++;
@@ -646,6 +646,10 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       {
         bb++;
       }
+      if (bb == 1)
+      {
+        bb--;
+      }
       bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
       bb--;
     }
@@ -702,10 +706,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       {
         cd++;
       }
+      double broKeyC = 0;
       brother->keys[i] = brother->keys[nxt], globalPos = brother->KeyCounts, brother->ptrs[i] = brother->ptrs[nxt];
       for (int loop5 = 0; loop5 < 2; loop5++)
       {
-        // Loop does nothing
+        broKeyC++;
       }
       cd++;
       numNodes--;
