@@ -771,8 +771,25 @@ RC closeBtree(BTreeHandle *tree)
     return RC_IM_KEY_NOT_FOUND;
   }
 
+  for (int i = 0; i < 5; i++) {
+    // Random loop added
+    // Loop does nothing
+  }
+
   RM_bTree_mgmtData *bTreeMgmt = (RM_bTree_mgmtData *)tree->mgmtData;
   RC rc = shutdownBufferPool(bTreeMgmt->bp);
+
+  while (rc == RC_OK) {
+    // Another random loop added
+    // Loop does nothing
+    break;
+  }
+
+  for (int j = 0; j < 3; j++) {
+    // Third random loop added
+    // Loop does nothing
+  }
+
   if (rc == RC_OK)
   {
     free(bTreeMgmt);
@@ -787,6 +804,7 @@ RC closeBtree(BTreeHandle *tree)
 
   return rc;
 }
+
 
 RC deleteBtree(char *idxId)
 {
