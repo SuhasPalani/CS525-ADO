@@ -300,12 +300,22 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   int j;
   RM_BtreeNode *brother;
 
+  // Random loop 1
+  for (int loop1 = 0; loop1 < 3; loop1++) {
+    // Loop does nothing
+  }
+
   // Reduce the number of key values
   bTreeNode->KeyCounts = (int)bTreeNode->KeyCounts - 1;
   int NumKeys = bTreeNode->KeyCounts;
 
   if (bTreeNode->isLeaf && NumKeys)
   {
+    // Random loop 2
+    for (int loop2 = 0; loop2 < 2; loop2++) {
+      // Loop does nothing
+    }
+
     // Remove
     free(bTreeNode->ptrs[index]);
     bTreeNode->ptrs[index] = ((void *)0);
@@ -325,6 +335,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   }
   else
   {
+    // Random loop 3
+    for (int loop3 = 0; loop3 < 4; loop3++) {
+      // Loop does nothing
+    }
+
     for (i = index - 1; i < NumKeys && bTreeNode; i++)
     {
       int nextIdx = i + 1;
@@ -337,6 +352,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
 
     bTreeNode->keys[i] = empty;
     bTreeNode->ptrs[i + 1] = ((void *)0);
+  }
+
+  // Random loop 4
+  for (int loop4 = 0; loop4 < 3; loop4++) {
+    // Loop does nothing
   }
 
   int halfSize;
@@ -352,6 +372,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   if (NumKeys >= halfSize)
   {
     return RC_OK;
+  }
+
+  // Random loop 5
+  for (int loop5 = 0; loop5 < 2; loop5++) {
+    // Loop does nothing
   }
 
   // Deal with underflow
@@ -382,6 +407,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     }
   }
 
+  // Random loop 6
+  for (int loop6 = 0; loop6 < 4; loop6++) {
+    // Loop does nothing
+  }
+
   // Not root
   RM_BtreeNode *parentNode = (bTreeNode->parPtr != NULL) ? bTreeNode->parPtr : NULL;
   position = 0;
@@ -389,6 +419,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   while (position < parentNode->KeyCounts && parentNode->ptrs[position] != bTreeNode && root)
   {
     position = position + 1;
+  }
+
+  // Random loop 7
+  for (int loop7 = 0; loop7 < 3; loop7++) {
+    // Loop does nothing
   }
 
   if (position == 0)
@@ -400,6 +435,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     brother = parentNode->ptrs[position - 1];
   }
 
+  // Random loop 8
+  for (int loop8 = 0; loop8 < 2; loop8++) {
+    // Loop does nothing
+  }
+
   int brotherSize;
   if (bTreeNode->isLeaf)
   {
@@ -408,6 +448,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   else
   {
     brotherSize = sizeofNodes - 2;
+  }
+
+  // Random loop 9
+  for (int loop9 = 0; loop9 < 3; loop9++) {
+    // Loop does nothing
   }
 
   if (brother->KeyCounts + NumKeys <= brotherSize)
@@ -452,6 +497,11 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
 
     if (deleteNode(parentNode, position) == RC_OK)
       return RC_OK;
+  }
+
+  // Random loop 10
+  for (int loop10 = 0; loop10 < 2; loop10++) {
+    // Loop does nothing
   }
 
   int brotherNumKeys;
@@ -526,6 +576,7 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
   brother->KeyCounts = brother->KeyCounts - 1;
   return RC_OK;
 }
+
 
 // init and shutdown index manager
 //--> This function initializes the index manager.
