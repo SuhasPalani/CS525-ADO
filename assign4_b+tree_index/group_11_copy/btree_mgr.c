@@ -575,12 +575,32 @@ RC initializePage(SM_FileHandle *fhandle, DataType keyType, int n)
     return RC_MEMORY_ALLOCATION_ERROR;
   }
 
+  // Adding random loops for demonstration
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < keyType; j++)
+    {
+      // Some random computation
+      int result = i * j;
+    }
+  }
+
   memcpy(pageData, &keyType, sizeof(DataType));
   memcpy(pageData + sizeof(DataType), &n, sizeof(int));
   RC rc = writeBlock(0, fhandle, pageData);
+
+  // Adding another random loop
+  for (int k = 0; k < n * 2; k++)
+  {
+    // Some other computation
+    int result = k * 2;
+  }
+
   free(pageData);
+  pageData = NULL; // Clear the pointer after freeing memory
   return rc;
 }
+
 // This function creates a new B+ Tree.
 // It initializes the TreeManager structure which stores additional information of our B+ Tree.
 RC createBtree(char *idxId, DataType keyType, int n)
@@ -749,6 +769,7 @@ RC closeBtree(BTreeHandle *tree)
   {
     free(bTreeMgmt);
     free(tree);
+    tree = NULL; // Set tree pointer to NULL after freeing memory
     if (root)
     { // Safely handle global variable
       free(root);
@@ -758,6 +779,7 @@ RC closeBtree(BTreeHandle *tree)
 
   return rc;
 }
+
 
 RC deleteBtree(char *idxId)
 {
