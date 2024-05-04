@@ -1360,14 +1360,15 @@ int recDFS(RM_BtreeNode *bTreeNode)
 
   if (!bTreeNode->isLeaf)
   {
-    for (int i = 0; i <= bTreeNode->KeyCounts && bTreeNode != NULL; i++)
+    for (int j = 0; j <= bTreeNode->KeyCounts && bTreeNode != NULL; j++)
     {
-      recDFS(bTreeNode->ptrs[i]);
+      recDFS(bTreeNode->ptrs[j]);
     }
   }
 
-  return 0;
+  // Add the rest of your code here
 }
+
 
 int walkPath(RM_BtreeNode *bTreeNode, char *result)
 {
