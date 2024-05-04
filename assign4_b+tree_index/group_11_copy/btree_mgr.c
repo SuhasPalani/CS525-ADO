@@ -735,7 +735,6 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   free(page);
   return RC_OK;
 }
-
 // Closes a B-tree structure and releases associated resources
 RC closeBtree(BTreeHandle *tree)
 {
