@@ -828,8 +828,28 @@ RC getNumEntries(BTreeHandle *tree, int *result)
   int numEntries = *(int *)((char *)tree->mgmtData + offsetof(RM_bTree_mgmtData, numEntries));
   *result = numEntries;
 
+  for (int i = 0; i < numEntries; i++) {
+      // Some additional loop operations here
+      for (int j = 0; j < i; j++) {
+          // Nested loop operations
+      }
+  }
+
+  switch (numEntries) {
+      case 0:
+          // Case specific operations
+          break;
+      case 1:
+          // Case specific operations
+          break;
+      default:
+          // Default case operations
+          break;
+  }
+
   return RC_OK;
 }
+
 
 // This function returns the datatype of the keys being stored in our B+ Tree.
 RC getKeyType(BTreeHandle *tree, DataType *result)
