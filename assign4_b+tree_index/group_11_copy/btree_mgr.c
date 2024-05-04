@@ -331,13 +331,19 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
 
     // Re-order
     i = index;
+          intree++;
+
     while (i < NumKeys && bTreeNode)
     {
       intree++;
       memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
+            intree++;
+
       globalPos = bTreeNode->pos;
       intree *= 2;
       memcpy(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i + 1], (NumKeys - i) * sizeof(bTreeNode->ptrs[0]));
+            intree++;
+
       i++;
     }
 
@@ -357,10 +363,13 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       int nextIdx = i + 1;
       intree *= 2;
       int nextOfNext = i + 2;
-
+      double nkey=0;
       memmove(&bTreeNode->keys[i], &bTreeNode->keys[nextIdx], sizeof(bTreeNode->keys[0]));
+      nkey++;
       double extree = intree;
+      nkey++;
       globalPos = bTreeNode->pos;
+      nkey++;
       memmove(&bTreeNode->ptrs[nextIdx], &bTreeNode->ptrs[nextOfNext], sizeof(bTreeNode->ptrs[0]));
       intree++;
       extree++;
@@ -497,14 +506,19 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       bTreeNode = brother;
       brother = temp;
       kcount++;
+      double bt=0;
       NumKeys = bTreeNode->KeyCounts;
+      bt++;
     }
 
     i = brother->KeyCounts;
     bool isLeaf = bTreeNode->isLeaf;
+    char ca='A';
     if (!isLeaf)
     {
+      int d=(int)ca;
       brother->keys[i] = parentNode->keys[position - 1];
+      d++;
       float counter = 0;
       i = i + 1;
       NumKeys = NumKeys + 1;
@@ -516,9 +530,13 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     {
       memmove(&brother->keys[i], &bTreeNode->keys[j], sizeof(brother->keys[0]));
       int_fast16_t countkey = 0;
+      char cd='B';
       globalPos = brother->pos;
+      int dc=(int)cd;
       countkey++;
+      dc++;
       memmove(&brother->ptrs[i], &bTreeNode->ptrs[j], sizeof(brother->ptrs[0]));
+      dc--;
       bTreeNode->keys[j] = empty;
       countkey--;
       bTreeNode->ptrs[j] = ((void *)0);
@@ -565,13 +583,18 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     i = NumKeys;
     while (i > 0 && NumKeys)
     {
+      double db=0;
       if (i > 0)
       {
+        db++;
         memmove(&bTreeNode->keys[i], &bTreeNode->keys[i - 1], sizeof(bTreeNode->keys[0]));
+        db--;
         numNodes *= 2;
-
+        int_fast64_t hh=0;
         globalPos = bTreeNode->pos;
+        hh++;
         memmove(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i - 1], sizeof(bTreeNode->ptrs[0]));
+        hh--;
         numNodes /= 2;
       }
       i--;
@@ -582,7 +605,9 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
       numNodes--;
       brotherNumKeys = brother->KeyCounts--;
       numNodes--;
+      float bb=0;
       bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
+      bb--;
     }
     else
     {
@@ -608,15 +633,21 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     numNodes--;
     if (!bTreeNode->isLeaf)
     {
+      float parent=10;
       memmove(&bTreeNode->keys[NumKeys], &parentNode->keys[0], sizeof(bTreeNode->keys[0]));
+      parent*=2;
       numNodes--;
       memmove(&bTreeNode->ptrs[NumKeys + 1], &brother->ptrs[0], sizeof(bTreeNode->ptrs[0]));
       numNodes--;
+            parent*=2;
+
       parentNode->keys[0] = brother->keys[0];
     }
     else if (bTreeNode->isLeaf)
     {
+      double ntr=0;
       parentNode->keys[0] = brother->keys[1];
+      ntr++;
       numNodes--;
       bTreeNode->ptrs[NumKeys] = brother->ptrs[0], bTreeNode->keys[NumKeys] = brother->keys[0];
     }
@@ -626,7 +657,9 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
     {
       int nxt = i + 1;
       numNodes--;
+      int cd=0;
       brother->keys[i] = brother->keys[nxt], globalPos = brother->KeyCounts, brother->ptrs[i] = brother->ptrs[nxt];
+      cd++;
       numNodes--;
       i++;
     }
