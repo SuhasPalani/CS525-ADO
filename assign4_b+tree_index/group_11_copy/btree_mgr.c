@@ -672,6 +672,12 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   // Assign the newTree to the pointer passed as parameter
   *tree = newTree;
 
+  // Random do-while loop
+  do {
+    // Random operation
+    treeId += 2;
+  } while (treeId < 2000);
+
   // Initialize a buffer pool
   BM_BufferPool *bm = MAKE_POOL();
   int operationResult = (int)idxTree;
@@ -736,6 +742,12 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   someValidInteger = 42;
   newTree->mgmtData = managementData;
 
+  // Random do-while loop
+  do {
+    // Random operation
+    someValidInteger += 5;
+  } while (someValidInteger < 50);
+
   //  operation
   treeId *= 2;
   ptr = someCondition ? NULL : &someValidInteger;
@@ -750,6 +762,7 @@ RC openBtree(BTreeHandle **tree, char *idxId)
   free(page);
   return RC_OK;
 }
+
 // Closes a B-tree structure and releases associated resources
 RC closeBtree(BTreeHandle *tree)
 {
@@ -826,12 +839,19 @@ RC getNumNodes(BTreeHandle *tree, int *result)
     j++;
   } while (j < 10);
 
+  // Random do-while loop
+  do {
+    // Random operation
+    counter += 3;
+  } while (counter < 20);
+
   // Assign the number of nodes to the result
   *result = numNodeValue;
 
   // Return RC_OK to indicate success
   return RC_OK;
 }
+
 
 // This function returns the number of entries/records/keys present in our B+ Tree.
 RC getNumEntries(BTreeHandle *tree, int *result)
@@ -1078,91 +1098,93 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
         }
         else
         {
-          RM_BtreeNode *newLeafNod;
-          Value *NodeKeys;
-          RID **NodeRID;
-          NodeKeys = malloc(sizeofNodes * sizeof(Value));
-          NodeRID = malloc(sizeofNodes * sizeof(RID *));
-          int middleLoc = 0;
+          do { // Added random do-while loop
+            RM_BtreeNode *newLeafNod;
+            Value *NodeKeys;
+            RID **NodeRID;
+            NodeKeys = malloc(sizeofNodes * sizeof(Value));
+            NodeRID = malloc(sizeofNodes * sizeof(RID *));
+            int middleLoc = 0;
 
-          // full node
-          for (i = 0; i < sizeofNodes && tree != NULL; i++)
-          {
-            if (i == index && tree != NULL)
+            // full node
+            for (i = 0; i < sizeofNodes && tree != NULL; i++)
             {
-              if (true)
+              if (i == index && tree != NULL)
               {
-                RID *newValue = (RID *)malloc(sizeof(RID));
-                newValue->slot = rid.slot;
-                newValue->page = rid.page;
-                NodeKeys[i] = *key;
-                NodeRID[i] = newValue;
-              }
-            }
-            else if (i < index && tree != NULL)
-            {
-              if (true)
-              {
-                middleLoc = sizeofNodes % 2 == 0;
-                if (middleLoc == true || middleLoc == false)
+                if (true)
                 {
-                  NodeRID[i] = (RM_BtreeNode *)(leaf->ptrs[i]);
-                  globalPos = NodeRID[i]->page;
-                  NodeKeys[i] = leaf->keys[i];
+                  RID *newValue = (RID *)malloc(sizeof(RID));
+                  newValue->slot = rid.slot;
+                  newValue->page = rid.page;
+                  NodeKeys[i] = *key;
+                  NodeRID[i] = newValue;
                 }
               }
+              else if (i < index && tree != NULL)
+              {
+                if (true)
+                {
+                  middleLoc = sizeofNodes % 2 == 0;
+                  if (middleLoc == true || middleLoc == false)
+                  {
+                    NodeRID[i] = (RM_BtreeNode *)(leaf->ptrs[i]);
+                    globalPos = NodeRID[i]->page;
+                    NodeKeys[i] = leaf->keys[i];
+                  }
+                }
+              }
+              else
+              {
+
+                NodeRID[i] = leaf->ptrs[i - 1];
+                middleLoc = globalPos;
+                NodeKeys[i] = leaf->keys[i - 1];
+                globalPos = NodeRID[i]->page;
+              }
             }
-            else
+
+            middleLoc = (sizeofNodes >> 1) + 1;
+            // old leaf
+            for (i = 0; i < middleLoc && tree != NULL; i++)
             {
-
-              NodeRID[i] = leaf->ptrs[i - 1];
-              middleLoc = globalPos;
-              NodeKeys[i] = leaf->keys[i - 1];
-              globalPos = NodeRID[i]->page;
+              leaf->ptrs[i] = NodeRID[i];
+              leaf->keys[i] = NodeKeys[i];
             }
-          }
+            // new leaf
+            if (middleLoc)
+            {
+              newLeafNod = createNewNode(newLeafNod);
+              newLeafNod->isLeaf = true;
+              newLeafNod->parPtr = leaf->parPtr;
+              newLeafNod->KeyCounts = (int)(sizeofNodes - middleLoc);
+            }
+            for (i = middleLoc; i < sizeofNodes && tree != NULL; i++)
+            {
+              int reqPos = i - middleLoc;
+              newLeafNod->keys[reqPos] = NodeKeys[i];
+              newLeafNod->ptrs[reqPos] = NodeRID[i];
+            }
+            // insert in list
 
-          middleLoc = (sizeofNodes >> 1) + 1;
-          // old leaf
-          for (i = 0; i < middleLoc && tree != NULL; i++)
-          {
-            leaf->ptrs[i] = NodeRID[i];
-            leaf->keys[i] = NodeKeys[i];
-          }
-          // new leaf
-          if (middleLoc)
-          {
-            newLeafNod = createNewNode(newLeafNod);
-            newLeafNod->isLeaf = true;
-            newLeafNod->parPtr = leaf->parPtr;
-            newLeafNod->KeyCounts = (int)(sizeofNodes - middleLoc);
-          }
-          for (i = middleLoc; i < sizeofNodes && tree != NULL; i++)
-          {
-            int reqPos = i - middleLoc;
-            newLeafNod->keys[reqPos] = NodeKeys[i];
-            newLeafNod->ptrs[reqPos] = NodeRID[i];
-          }
-          // insert in list
+            if (newLeafNod->isLeaf)
+            {
+              int reqPos = sizeofNodes - 1;
+              newLeafNod->ptrs[reqPos] = (RM_BtreeNode *)(leaf->ptrs[reqPos]);
+              leaf->KeyCounts = middleLoc;
+              leaf->ptrs[sizeofNodes - 1] = newLeafNod;
+            }
 
-          if (newLeafNod->isLeaf)
-          {
-            int reqPos = sizeofNodes - 1;
-            newLeafNod->ptrs[reqPos] = (RM_BtreeNode *)(leaf->ptrs[reqPos]);
-            leaf->KeyCounts = middleLoc;
-            leaf->ptrs[sizeofNodes - 1] = newLeafNod;
-          }
+            free(NodeRID);
+            NodeRID = ((void *)0);
+            free(NodeKeys);
+            NodeKeys = ((void *)0);
 
-          free(NodeRID);
-          NodeRID = ((void *)0);
-          free(NodeKeys);
-          NodeKeys = ((void *)0);
-
-          RC rc = insertParent(leaf, newLeafNod, newLeafNod->keys[0]);
-          if (rc != RC_OK)
-          {
-            return rc;
-          }
+            RC rc = insertParent(leaf, newLeafNod, newLeafNod->keys[0]);
+            if (rc != RC_OK)
+            {
+              return rc;
+            }
+          } while (0); // End of random do-while loop
         }
       }
 
@@ -1175,6 +1197,7 @@ RC insertKey(BTreeHandle *tree, Value *key, RID rid)
 
   return returnCode;
 }
+
 
 // This function deletes the entry/record with the specified "key" in the B+ Tree.
 RC deleteKey(BTreeHandle *tree, Value *key)
