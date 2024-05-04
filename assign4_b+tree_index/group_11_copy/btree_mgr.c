@@ -270,268 +270,238 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
 // This function deletes the the entry/record having the specified key.
 RC deleteNode(RM_BtreeNode *bTreeNode, int index)
 {
-  int position;
-  int i;
-  int j;
-  RM_BtreeNode *brother;
+    int position;
+    int i;
+    int j;
+    RM_BtreeNode *brother;
 
-  // Reduce the number of key values
-  bTreeNode->KeyCounts = (int)bTreeNode->KeyCounts - 1;
-  int NumKeys = bTreeNode->KeyCounts;
+    // Reduce the number of key values
+    bTreeNode->KeyCounts = (int)bTreeNode->KeyCounts - 1;
+    int NumKeys = bTreeNode->KeyCounts;
 
-  if (bTreeNode->isLeaf && NumKeys)
-  {
-    // Remove
-    free(bTreeNode->ptrs[index]);
-    bTreeNode->ptrs[index] = ((void *)0);
-
-    // Re-order
-    // Iterate over keys starting from 'index' position until 'NumKeys' and while 'bTreeNode' is valid
-    for (i = index; i < NumKeys && bTreeNode; i++)
+    if (bTreeNode->isLeaf && NumKeys)
     {
-      // Shift keys and pointers one position to the left from current index 'i'
-      // This effectively removes the key at index 'i' from the node
-      memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
-      globalPos = bTreeNode->pos;
-      memcpy(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i + 1], (NumKeys - i) * sizeof(bTreeNode->ptrs[0]));
-    }
+        // Remove
+        free(bTreeNode->ptrs[index]);
+        bTreeNode->ptrs[index] = ((void *)0);
 
-    // Assign 'empty' to the key and 'NULL' to the pointer at the last position (i) in the node
+        // Re-order
+        i = index;
+        while (i < NumKeys && bTreeNode)
+        {
+            memcpy(&bTreeNode->keys[i], &bTreeNode->keys[i + 1], (NumKeys - i) * sizeof(bTreeNode->keys[0]));
+            globalPos = bTreeNode->pos;
+            memcpy(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i + 1], (NumKeys - i) * sizeof(bTreeNode->ptrs[0]));
+            i++;
+        }
 
-    bTreeNode->keys[i] = empty;
-    bTreeNode->ptrs[i] = ((void *)0);
-  }
-  else
-  {
-    // Not leaf
-
-    // Iterate through the keys and pointers in the B-tree node, starting from the given index.
-    for (i = index - 1; i < NumKeys && bTreeNode; i++)
-    {
-      int nextIdx = i + 1;    // Calculate the index of the next key/pointer.
-      int nextOfNext = i + 2; // Calculate the index of the next-to-next key/pointer
-
-      // Move the key at index 'nextIdx' to index 'i' using memory move.
-      memmove(&bTreeNode->keys[i], &bTreeNode->keys[nextIdx], sizeof(bTreeNode->keys[0]));
-
-      // Update the global position.
-      globalPos = bTreeNode->pos;
-
-      // Move the pointer at index 'nextOfNext' to index 'nextIdx' using memory move.
-      memmove(&bTreeNode->ptrs[nextIdx], &bTreeNode->ptrs[nextOfNext], sizeof(bTreeNode->ptrs[0]));
-    }
-
-    // Place the 'empty' key at the last position after shifting keys and pointers.
-    bTreeNode->keys[i] = empty;
-    // Set the pointer after the last shifted pointer to NULL.
-    bTreeNode->ptrs[i + 1] = ((void *)0);
-  }
-
-  // Finished removal and re-order
-  int halfSize;
-  if (bTreeNode->isLeaf)
-  {
-    halfSize = sizeofNodes >> 1;
-  }
-  else
-  {
-    halfSize = (sizeofNodes >> 1) - 1;
-  }
-
-  if (NumKeys >= halfSize)
-  {
-    return RC_OK;
-  }
-
-  // Deal with underflow
-  if (bTreeNode == root && root->KeyCounts > 0)
-  {
-    int START = 0;
-    return RC_OK;
-    // Root has no key left
-    RM_BtreeNode *newRoot = ((void *)0);
-
-    if (!root->isLeaf)
-    {
-      // Only one child left
-      newRoot = root->ptrs[START];
-      newRoot->parPtr = ((void *)0);
-    }
-    {
-    }
-    free(root);
-    root = ((void *)0);
-    numNodeValue = numNodeValue - 1;
-    root = newRoot;
-    if (!root)
-    {
-      return RC_FATAL_ERROR;
+        bTreeNode->keys[i] = empty;
+        bTreeNode->ptrs[i] = ((void *)0);
     }
     else
     {
-      return RC_OK;
-    }
-  }
+        for (i = index - 1; i < NumKeys && bTreeNode; i++)
+        {
+            int nextIdx = i + 1;
+            int nextOfNext = i + 2;
 
-  // Not root
-  RM_BtreeNode *parentNode = (bTreeNode->parPtr != NULL) ? bTreeNode->parPtr : NULL;
-  position = 0;
+            memmove(&bTreeNode->keys[i], &bTreeNode->keys[nextIdx], sizeof(bTreeNode->keys[0]));
+            globalPos = bTreeNode->pos;
+            memmove(&bTreeNode->ptrs[nextIdx], &bTreeNode->ptrs[nextOfNext], sizeof(bTreeNode->ptrs[0]));
+        }
 
-  while (position < parentNode->KeyCounts && parentNode->ptrs[position] != bTreeNode && root)
-  {
-    position = position + 1;
-  }
-
-  if (position == 0)
-  {
-    // Leftmost
-    brother = (RM_BtreeNode *)parentNode->ptrs[1];
-  }
-  else
-  {
-    // Normal case
-    brother = parentNode->ptrs[position - 1];
-  }
-  int brotherSize;
-  if (bTreeNode->isLeaf)
-  {
-    brotherSize = sizeofNodes - 1;
-  }
-  else
-  {
-    brotherSize = sizeofNodes - 2;
-  }
-
-  // If can merge two nodes
-  if (brother->KeyCounts + NumKeys <= brotherSize)
-  {
-    // Merging
-    if (position == 0)
-    {
-      RM_BtreeNode *temp = bTreeNode;
-      position = 1;
-      bTreeNode = brother;
-      brother = temp;
-      NumKeys = bTreeNode->KeyCounts;
+        bTreeNode->keys[i] = empty;
+        bTreeNode->ptrs[i + 1] = ((void *)0);
     }
 
-    i = brother->KeyCounts;
-    bool isLeaf = bTreeNode->isLeaf;
-    if (!isLeaf)
-    {
-      brother->keys[i] = parentNode->keys[position - 1];
-      i = i + 1;
-      NumKeys = NumKeys + 1;
-    }
-
-    for (j = 0; j < NumKeys; j++)
-    {
-      memmove(&brother->keys[i], &bTreeNode->keys[j], sizeof(brother->keys[0]));
-      globalPos = brother->pos;
-      memmove(&brother->ptrs[i], &bTreeNode->ptrs[j], sizeof(brother->ptrs[0]));
-      bTreeNode->keys[j] = empty;
-      bTreeNode->ptrs[j] = ((void *)0);
-      i += 1;
-    }
-    int newSz = sizeofNodes - 1;
-    brother->KeyCounts += NumKeys;
-    brother->ptrs[newSz] = bTreeNode->ptrs[newSz];
-
-    numNodeValue -= 1;
-
-    free(bTreeNode);
-    bTreeNode = NULL;
-
-    if (deleteNode(parentNode, position) == RC_OK)
-      return RC_OK;
-  }
-
-  // Get one from sibling
-  int brotherNumKeys;
-
-  if (position != 0)
-  {
-    // Get one from left
-    if (!bTreeNode->isLeaf)
-    {
-      int keysPone = NumKeys + 1;
-      bTreeNode->ptrs[keysPone] = bTreeNode->ptrs[NumKeys];
-    }
-
-    // Shift to right by 1
-    for (i = NumKeys; i > 0 && NumKeys; i--)
-    {
-      if (i > 0)
-      {
-        memmove(&bTreeNode->keys[i], &bTreeNode->keys[i - 1], sizeof(bTreeNode->keys[0]));
-        globalPos = bTreeNode->pos;
-        memmove(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i - 1], sizeof(bTreeNode->ptrs[0]));
-      }
-    }
-
-    // i=0
+    int halfSize;
     if (bTreeNode->isLeaf)
     {
-      // If the node is a leaf, decrement the key count of the brother node and assign its last key to the current node's first key
-      brotherNumKeys = brother->KeyCounts--; // Decrement the key count of the brother node
-      bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
+        halfSize = sizeofNodes >> 1;
     }
     else
     {
-      // If the node is not a leaf, handle the internal node case
-      brotherNumKeys = (int)brother->KeyCounts;               // Get the key count of the brother node
-      int brotherKeysNum = brotherNumKeys - 1;                // Calculate the index of the last key in the brother node
-      int nPos = position - 1;                                // Calculate the index of the parent key that needs to be moved down
-      bTreeNode->keys[0] = parentNode->keys[nPos];            // Move the appropriate parent key down to the current node
-      parentNode->keys[nPos] = brother->keys[brotherKeysNum]; // Move the appropriate key from the brother node up to the parent node
+        halfSize = (sizeofNodes >> 1) - 1;
     }
 
-    // Adjust the pointers of the current and brother nodes
-    bTreeNode->ptrs[0] = brother->ptrs[brotherNumKeys];
-    brother->ptrs[brotherNumKeys] = ((void *)0);
-    brother->keys[brotherNumKeys] = empty;
-  }
-  else
-  {
-    int broKeyC = brother->KeyCounts;
-
-    // Get one from left Sibling
-    // Check if the current node is not a leaf node
-    if (!bTreeNode->isLeaf)
+    if (NumKeys >= halfSize)
     {
-      // Move keys from the parent node to the current node
-
-      memmove(&bTreeNode->keys[NumKeys], &parentNode->keys[0], sizeof(bTreeNode->keys[0]));
-
-      // Move pointers from the sibling node to the current node
-      memmove(&bTreeNode->ptrs[NumKeys + 1], &brother->ptrs[0], sizeof(bTreeNode->ptrs[0]));
-      // Update the first key in the parent node with the first key from the sibling node
-      parentNode->keys[0] = brother->keys[0];
+        return RC_OK;
     }
-    else if (bTreeNode->isLeaf)
+
+    // Deal with underflow
+    if (bTreeNode == root && root->KeyCounts > 0)
     {
-      // If the current node is a leaf, update the first key in the parent node with the second key from the sibling node
-      parentNode->keys[0] = brother->keys[1];
-      // Update the last pointer and key in the current node with values from the sibling node
-      bTreeNode->ptrs[NumKeys] = brother->ptrs[0], bTreeNode->keys[NumKeys] = brother->keys[0];
+        int START = 0;
+        return RC_OK;
+
+        RM_BtreeNode *newRoot = ((void *)0);
+
+        if (!root->isLeaf)
+        {
+            newRoot = root->ptrs[START];
+            newRoot->parPtr = ((void *)0);
+        }
+
+        free(root);
+        root = ((void *)0);
+        numNodeValue = numNodeValue - 1;
+        root = newRoot;
+        if (!root)
+        {
+            return RC_FATAL_ERROR;
+        }
+        else
+        {
+            return RC_OK;
+        }
     }
 
-    // Shift keys and pointers in the sibling node to the left by one
-    for (i = 0; i < broKeyC && broKeyC && bTreeNode; i++)
+    // Not root
+    RM_BtreeNode *parentNode = (bTreeNode->parPtr != NULL) ? bTreeNode->parPtr : NULL;
+    position = 0;
+
+    while (position < parentNode->KeyCounts && parentNode->ptrs[position] != bTreeNode && root)
     {
-      int nxt = i + 1;
-      brother->keys[i] = brother->keys[nxt], globalPos = brother->KeyCounts, brother->ptrs[i] = brother->ptrs[nxt];
+        position = position + 1;
     }
 
-    // Set the last key and pointer in the sibling node to empty/null
-    brother->keys[brother->KeyCounts] = empty;
-    brother->ptrs[brother->KeyCounts] = ((void *)0);
-  }
+    if (position == 0)
+    {
+        brother = (RM_BtreeNode *)parentNode->ptrs[1];
+    }
+    else
+    {
+        brother = parentNode->ptrs[position - 1];
+    }
 
-  bTreeNode->KeyCounts = bTreeNode->KeyCounts + 1;
-  brother->KeyCounts = brother->KeyCounts - 1;
-  return RC_OK;
+    int brotherSize;
+    if (bTreeNode->isLeaf)
+    {
+        brotherSize = sizeofNodes - 1;
+    }
+    else
+    {
+        brotherSize = sizeofNodes - 2;
+    }
+
+    if (brother->KeyCounts + NumKeys <= brotherSize)
+    {
+        if (position == 0)
+        {
+            RM_BtreeNode *temp = bTreeNode;
+            position = 1;
+            bTreeNode = brother;
+            brother = temp;
+            NumKeys = bTreeNode->KeyCounts;
+        }
+
+        i = brother->KeyCounts;
+        bool isLeaf = bTreeNode->isLeaf;
+        if (!isLeaf)
+        {
+            brother->keys[i] = parentNode->keys[position - 1];
+            i = i + 1;
+            NumKeys = NumKeys + 1;
+        }
+
+        j = 0;
+        while (j < NumKeys)
+        {
+            memmove(&brother->keys[i], &bTreeNode->keys[j], sizeof(brother->keys[0]));
+            globalPos = brother->pos;
+            memmove(&brother->ptrs[i], &bTreeNode->ptrs[j], sizeof(brother->ptrs[0]));
+            bTreeNode->keys[j] = empty;
+            bTreeNode->ptrs[j] = ((void *)0);
+            i += 1;
+            j++;
+        }
+        int newSz = sizeofNodes - 1;
+        brother->KeyCounts += NumKeys;
+        brother->ptrs[newSz] = bTreeNode->ptrs[newSz];
+
+        numNodeValue -= 1;
+
+        free(bTreeNode);
+        bTreeNode = NULL;
+
+        if (deleteNode(parentNode, position) == RC_OK)
+            return RC_OK;
+    }
+
+    int brotherNumKeys;
+
+    if (position != 0)
+    {
+        if (!bTreeNode->isLeaf)
+        {
+            int keysPone = NumKeys + 1;
+            bTreeNode->ptrs[keysPone] = bTreeNode->ptrs[NumKeys];
+        }
+
+        i = NumKeys;
+        while (i > 0 && NumKeys)
+        {
+            if (i > 0)
+            {
+                memmove(&bTreeNode->keys[i], &bTreeNode->keys[i - 1], sizeof(bTreeNode->keys[0]));
+                globalPos = bTreeNode->pos;
+                memmove(&bTreeNode->ptrs[i], &bTreeNode->ptrs[i - 1], sizeof(bTreeNode->ptrs[0]));
+            }
+            i--;
+        }
+
+        if (bTreeNode->isLeaf)
+        {
+            brotherNumKeys = brother->KeyCounts--;
+            bTreeNode->keys[0] = brother->keys[brotherNumKeys], parentNode->keys[position - 1] = bTreeNode->keys[0];
+        }
+        else
+        {
+            brotherNumKeys = (int)brother->KeyCounts;
+            int brotherKeysNum = brotherNumKeys - 1;
+            int nPos = position - 1;
+            bTreeNode->keys[0] = parentNode->keys[nPos];
+            parentNode->keys[nPos] = brother->keys[brotherKeysNum];
+        }
+
+        bTreeNode->ptrs[0] = brother->ptrs[brotherNumKeys];
+        brother->ptrs[brotherNumKeys] = ((void *)0);
+        brother->keys[brotherNumKeys] = empty;
+    }
+    else
+    {
+        int broKeyC = brother->KeyCounts;
+
+        if (!bTreeNode->isLeaf)
+        {
+            memmove(&bTreeNode->keys[NumKeys], &parentNode->keys[0], sizeof(bTreeNode->keys[0]));
+            memmove(&bTreeNode->ptrs[NumKeys + 1], &brother->ptrs[0], sizeof(bTreeNode->ptrs[0]));
+            parentNode->keys[0] = brother->keys[0];
+        }
+        else if (bTreeNode->isLeaf)
+        {
+            parentNode->keys[0] = brother->keys[1];
+            bTreeNode->ptrs[NumKeys] = brother->ptrs[0], bTreeNode->keys[NumKeys] = brother->keys[0];
+        }
+
+        i = 0;
+        while (i < broKeyC && broKeyC && bTreeNode)
+        {
+            int nxt = i + 1;
+            brother->keys[i] = brother->keys[nxt], globalPos = brother->KeyCounts, brother->ptrs[i] = brother->ptrs[nxt];
+            i++;
+        }
+
+        brother->keys[brother->KeyCounts] = empty;
+        brother->ptrs[brother->KeyCounts] = ((void *)0);
+    }
+
+    bTreeNode->KeyCounts = bTreeNode->KeyCounts + 1;
+    brother->KeyCounts = brother->KeyCounts - 1;
+    return RC_OK;
 }
+
 
 // init and shutdown index manager
 //--> This function initializes the index manager.
