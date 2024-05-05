@@ -352,7 +352,7 @@ RC deleteNode(RM_BtreeNode *bTreeNode, int index)
 
       int gfh=0;
       gfh++;
-
+      
 
       int qwas = 0;
       qwas++;
