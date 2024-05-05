@@ -279,6 +279,8 @@ RC insertParent(RM_BtreeNode *left, RM_BtreeNode *right, Value key)
       release(tempNode, tempKeys);
       return insertParent(parPtr, newNode, t);
     }
+
+    
     else
     {
       mloc += rkey;
